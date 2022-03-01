@@ -42,6 +42,9 @@ read -p "Enter IP address of database host: " DATABASE
 read -s -p "Enter database password: " PASSWORD
 sed -E 's/<host>/'"$DATABASE"'/' $SCRIPTS_DIR/config_template.py | sed -E 's/<password>/'"$PASSWORD"'/' > $INSTANCE_HOME/config.py
 
+# Change ownership of project to APP_USER
+chown -R $APP_USER:$APP_USER $WEBAPP_HOME
+
 echo 'Installing service...'
 systemctl enable nexusbjj
 
