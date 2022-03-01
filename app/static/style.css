@@ -1,0 +1,393 @@
+html, body {
+  margin: 0;
+  height: 100%;
+  font-family: sans-serif;
+}
+
+html {
+  background: url(forest_translucent.png) no-repeat center center fixed;
+  background-size: cover;
+}
+
+/* Flexbox wrapper for base page */
+.wrapper {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+
+/* Navbar */
+section.navbar {
+  flex: 0 1 auto;
+  z-index: 1;
+}
+nav {
+  background: #59028a;
+  display: flex;
+  flex: 0 1 auto;
+  align-items: center;
+  padding: 0;
+  font-size: 16px;
+}
+nav a, nav span {
+  text-decoration: none;
+  color: white;
+  margin: 0;
+  display: block;
+  padding: 0.5rem;
+  cursor: pointer;
+}
+nav a:hover, nav span:hover {
+  background: white;
+  color: #59028a;
+}
+nav > div {
+  display: flex;
+  margin: 0;
+  padding: 0;
+}
+nav > div.menu {
+  flex: auto;
+}
+
+/* Navbar dropdowns */
+.dropdown {
+  float: left;
+  overflow: hidden;
+  border: none;
+  outline: none;
+  color: white;
+  background-color: inherit;
+  font-family: inherit;
+  margin: 0;
+}
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+.dropdown-content.align-right {
+  right: 4.5rem;
+  left: auto;
+}
+.dropdown-content a {
+  float: none;
+  color: black;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+}
+.dropdown-content a:hover {
+  background-color: #ddd;
+}
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+/* Background image for home page */
+section.content {
+  flex: 1 1 auto;
+  background-size: cover;
+  overflow-y: auto;
+}
+
+/* Style for story */
+div.story {
+  display: block;
+  overflow-y: auto;
+  margin: 4rem 10%;
+  padding: 0.5rem 2rem;
+  background-color: #ecd9f7;
+  border: 1px solid #59028a;
+  border-radius: 0.1em;
+  box-shadow: 0.1em 0.1em 0.25em 0.25em #59028a;
+}
+
+/* Style for home page */
+.home {
+  display: block;
+  overflow-y: hidden;
+  margin: 15% 30% 0 30%;
+  font-size: 28px;
+  padding: 1em 1.5em;
+  color: #e305d6;
+  background-color: #feeeff;
+  border: 1px solid #e305d6;
+  border-radius: 0.5rem;
+  box-shadow: 0.1em 0.1em 0.25em 0.25em #e305d6;
+  opacity: 0.7;
+  text-align: center;
+}
+
+/* Flash messages on base template */
+.flash {
+  margin: 4rem 1rem -2rem 1rem;
+  padding: 1rem;
+  background: #ecd9f7;
+  border: 1px solid #59028a;
+  color: #e305d6;
+}
+
+/* Standard table format */
+.content table {
+  margin: 4rem 2.5%;
+  width: 95%;
+  table-layout: fixed;
+  overflow-wrap: break-word;
+}
+table, th, td {
+  border-collapse: collapse;
+  text-align: center;
+}
+th, td {
+  padding: 0.25em 1em;
+}
+td:last-child {
+  border-right: none;
+}
+td.action a {
+  text-decoration: none;
+}
+td i.fa-lock-open {
+  color: green;
+}
+td i.fa-ban {
+  color: red;
+}
+th {
+  background: #e305d6;
+  color: white;
+}
+tr:nth-child(even) {
+  background: white
+}
+tr:nth-child(odd) {
+  background: #feeeff;
+}
+tr:hover {
+  background: #ecd9f7;
+}
+
+/* Standard form format */
+form {
+  padding: 4rem 30%;
+}
+.form-wrapper {
+  background: #feeeff;
+  border: 1px solid #e305d6;
+  box-shadow: 0.1em 0.1em 0.25em 0.1em #e305d6;
+}
+.form-group {
+  width: 100%;
+  padding: 0.5em 0;
+}
+.form-group-title {
+  text-align: center;
+  margin: 0;
+  color: #e305d6;
+}
+.form-item {
+  padding: 0 0.5em;
+  margin: 0.5em 0.5em;
+  display: flex;
+  flex-direction: column;
+}
+.form-item:first-of-type {
+  padding-top: 0.5em;
+}
+.form-item:last-of-type {
+  padding-bottom: 0;
+}
+.form-group:first-of-type {
+  padding-top: 1em;
+}
+.form-group:last-of-type {
+  padding-bottom: 1em;
+}
+.form-item input, .form-item a, .form-item div {
+  display: block;
+  width: 100%;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  flex: 1 0;
+}
+.form-item input, .form-item select, .form-item a, .form-item textarea, .form-item div, .form-item label {
+    font-family: sans-serif;
+    font-size: 16px;
+    padding: 0.2em 0;
+}
+.form-item input {
+  padding-left: 0.2em;
+  padding-right: 0.2em;
+}
+.form-item textarea {
+  width: 100% !important;
+  padding: 0.5em;
+  line-height: 1.25;
+}
+.form-item div p {
+  margin: 0;
+  padding: 0.5em;
+}
+.form-item input[type="submit"], .form-item a {
+  background-color: #e305d6;
+  color: white;
+  border: none;
+  cursor: pointer;
+  padding: 0.5em 0;
+}
+.form-item a {
+  text-decoration: none;
+  text-align: center;
+}
+.form-item a.danger {
+  background-color: red;
+}
+.form-item label {
+  font-weight: bold;
+}
+.form-item select {
+  flex: 1 1 auto;
+}
+.danger {
+  background-color: red;
+}
+::before, ::after {
+  box-sizing: border-box;
+}
+
+/* Cookie page layout */
+div.cookie {
+    padding: 3rem;
+}
+div.cookie > h2 {
+    text-align: center;
+    color: white;
+}
+
+/* Results layout */
+div.results {
+    background-color: darkgray;
+    padding: 1rem;
+    margin: 0 10%;
+    color: white;
+    overflow-x: auto;
+}
+div.results > h2 {
+    text-align: center;
+}
+div.results table {
+  color: #59028a;
+}
+
+/* Style for challenges and BJJ classes*/
+div.challenges-container {
+  display: block;
+  overflow-y: auto;
+  margin: 4rem 10% 1rem 10%;
+  padding: 1rem 1rem;
+  background-color: #ecd9f7;
+  border: 1px solid #59028a;
+  border-radius: 0.1em;
+  box-shadow: 0.1em 0.1em 0.25em 0.25em #59028a;
+}
+div.bjj-classes-container {
+  display: block;
+  overflow-y: auto;
+  margin: 4rem 10% 1rem 10%;
+  padding: 1rem 1rem;
+  background-color: #ecd9f7;
+}
+.challenge-welcome, .bjj-classes {
+    display: block;
+    margin: 4rem 10% 0rem 10%;
+    padding: 1rem 1rem;
+    background-color: #ecd9f7;
+    border: 1px solid #59028a;
+    border-radius: 0.1em;
+    box-shadow: 0.1em 0.1em 0.25em 0.25em #59028a;
+}
+.challenge-welcome > h2, .bjj-classes > h2 {
+    color: #59028a;
+    text-align: center;
+}
+.challenge, .bjj-class {
+    display: block;
+    text-decoration: none;
+    color: black;
+    text-align: center;
+    padding: 1rem;
+    margin: 1rem;
+    border-radius: 0.5rem;
+    background-color: #40aaf9;
+}
+.bjj-class.checked-in {
+  display: block;
+  text-decoration: none;
+  color: black;
+  text-align: center;
+  padding: 1rem;
+  margin: 1rem;
+  border-radius: 0.5rem;
+  background-color: grey;
+  pointer-events: none;
+}
+.challenge:hover, .bjj-class:hover {
+    background-color: #e305d6;
+    color: white;
+}
+.challenge-left {
+    width: 50%;
+    float: left;
+}
+.challenge-right {
+    width: 50%;
+    float: right;
+}
+.challenge-box {
+    padding: 0 2rem;
+    margin: 4rem 2rem 2rem;
+    border: 1px solid #59028a;
+    background-color: #ecd9f7;
+    color: #59028a;
+}
+.challenge-box > h2 {
+    text-align: center;
+}
+.challenge-box > h3 {
+    margin: 0;
+}
+
+.challenge-files {
+    display: flex;
+}
+.challenge-sample {
+    display: block;
+    padding: 1rem;
+    background-color: #40aaf9;
+    color: black;
+    text-decoration: none;
+    margin: 1rem 0.5rem;
+    border-radius: 0.5rem;
+}
+.challenge-sample:hover {
+    background-color: #e305d6;
+    color: white;
+}
+.challenge-submission {
+    padding: 0;
+    margin: 0 2rem;
+}
+.challenge-submission > form {
+    padding: 0;
+    margin: 0;
+}
+
+/* Helpers */
+.do-not-wrap {
+  white-space: nowrap;
+}

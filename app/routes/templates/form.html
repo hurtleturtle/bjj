@@ -1,0 +1,62 @@
+{% block form %}
+<!--suppress ALL -->
+<form method="post" {% if form_enc %}enctype="{{ form_enc }}"{% endif %}>
+  <div class="form-wrapper">
+    {% for key, group in form_groups.items() %}
+    <div class="form-group">
+      {% if group.group_title %}
+        <h2 class="form-group-title">{{ group.group_title }}</h2>
+      {% endif %}
+      {% for key2, item in group.items() if key2 != "group_title" %}
+        <div class="form-item {{ item.item_class }}">
+          {% if item.label %}
+            <label for="{{ item.name }}" class="{{ item.label_class }}">
+              {{ item.label }}
+            </label>
+          {% endif %}
+          {% if not item.field_type or item.field_type == "input" %}
+            <input id="{{ item.id }}" name="{{ item.name }}"
+             class="{{ item.field_class }}"
+             placeholder="{{ item.placeholder }}" type="{{ item.type }}"
+             {% if item.required %}required{% endif %} value="{{ item.value }}"
+             autocomplete="{{ item.autocomplete }}"
+             {% if item.multiple %}multiple{% endif -%}
+             {% if item.extra_attrs %}
+             {%- for extra_attr_key, extra_attr_value in item.extra_attrs.items() -%}
+              {{ extra_attr_key }}{%- if extra_attr_value -%}="{{ extra_attr_value }}"{%- endif -%}
+             {%- endfor -%}
+             {% endif %}
+            />
+          {% elif item.field_type == "textarea" %}
+          <textarea id="{{ item.id }}" name="{{ item.name }}"
+             class="{{ item.field_class }}" rows="{{ item.rows }}" cols="{{ item.columns }}"
+             placeholder="{{ item.placeholder }}" {% if item.required %}required{% endif %}
+             autocomplete="{{ item.autocomplete }}">{%- if item.textarea_text %}{{ item.textarea_text | safe }}
+            {%- endif -%}
+          </textarea>
+          {% elif item.field_type == "select" %}
+          <select name="{{ item.name }}" id="{{ item.id }}"
+           value="{{ item.value }}" {% if item.required %}required{% endif %}
+           class="{{ item.field_class }}">
+            {% for option in item.options %}
+              <option value="{{ item.options[option].value }}"
+               {% if item.options[option].value == item.selected_option %}
+               selected{% endif %}>{{ item.options[option].text }}</option>
+            {% endfor %}
+          </select>
+          {% elif item.field_type == "link" %}
+          <a class="{{ item.field_class }}" href="{{ item.href }}">
+            {{ item.value }}
+          </a>
+          {% elif item.field_type == "text" %}
+          <div class="{{ item.field_class }}">
+            {{- item.value | safe -}}
+          </div>
+          {% endif %}
+          </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+</form>
+{% endblock %}

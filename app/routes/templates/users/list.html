@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block header %}
+<h1>{% block title %}Users{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <table class="users">
+    <tr class="user-header">
+      <th>Username</th>
+      <th>Admin Status</th>
+      <th>Coach</th>
+      <th>Access Approved</th>
+      <th>Last Accessed</th>
+      {% if g.user.admin == 'read-write' %}
+        <th class="action">Actions</th>
+      {% endif %}
+    </tr>
+    {% for user in users %}
+      <tr class="user">
+        <td>{{ user.username }}</td>
+        <td>{{ user.admin }}</td>
+        <td>{{ user.is_coach }}</td>
+        <td>{{ user.access_approved }}</td>
+        <td>{{ user.last_access }}</td>
+        {% if g.user.admin == 'read-write' %}
+          <td class="action">
+            <a href="{{ url_for('users.allow', uid=user.id) }}">
+              <i class="fas fa-lock-open"></i>
+            </a>
+            <a href="{{ url_for('users.disallow', uid=user.id) }}">
+              <i class="fas fa-ban"></i>
+            </a>
+            <a href="{{ url_for('users.edit', uid=user.id) }}">
+              <i class="fas fa-edit"></i>
+            </a>
+            <a href="{{ url_for('users.delete', uid=user.id) }}"
+             onclick="return confirm('Are you sure?');" method="delete">
+             <i class="fas fa-trash"></i>
+            </a>
+          </td>
+        {% endif %}
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

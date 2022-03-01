@@ -1,0 +1,15 @@
+[Unit]
+Description=Wuxia webapp service
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=www-data
+WorkingDirectory=/var/www/html/webapp
+ExecStart=/var/www/html/webapp/run.sh
+
+[Install]
+WantedBy=multi-user.target

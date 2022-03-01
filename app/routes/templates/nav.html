@@ -1,0 +1,83 @@
+{% block navigation %}
+<nav>
+  <div class="menu">
+    <a href="{{ url_for('index')}}"><i class="fas fa-home"></i></a>
+    <div class="dropdown">
+      <a href="{{ url_for('story.story_list') }}">Stories</a>
+      <div class="dropdown-content">
+        <a href="{{ url_for('story.story_list') }}">List</a>
+        <a href="{{ url_for('story.add') }}">Add</a>
+        <a href="{{ url_for('story.add_random') }}">Add Random</a>
+      </div>
+    </div>
+    <div class="dropdown">
+      <a href="{{ url_for('challenges.show_all') }}">Challenges</a>
+      <div class="dropdown-content">
+        <a href="{{ url_for('challenges.show_all') }}">View</a>
+        {% if g.user and g.user['admin'] in g.admin_levels %}
+        <a href="{{ url_for('challenges.add') }}">Add</a>
+        <a href="{{ url_for('challenges.modify') }}">Modify</a>
+        {% endif %}
+      </div>
+    </div>
+    {% if g.user and g.user['admin'] != 'no' %}
+    <div class="dropdown">
+      <span>Testing</span>
+      <div class="dropdown-content">
+        <a href="{{ url_for('misc.cookies') }}">Cookies</a>
+        <a href="{{ url_for('misc.inject') }}">Template Injection</a>
+        <a href="{{ url_for('misc.query') }}">Query</a>
+        <a href="{{ url_for('misc.upload_file') }}">File Upload</a>
+        <a href="{{ url_for('misc.compress') }}">Compression</a>
+        <a href="{{ url_for('misc.oracle') }}">Padding Oracle Attack</a>
+      </div>
+    </div>
+    {% endif %}
+    <div class="dropdown">
+      <span>BJJ</span>
+      <div class="dropdown-content">
+        <a href="{{ url_for('members.check_in_to_class') }}">Check In</a>
+        <a href="{{ url_for('members.add_class') }}">Add Class</a>
+      </div>
+    </div>
+    {% if g.user and g.user['admin'] != 'no' %}
+    <div class="dropdown">
+      <span>Reports</span>
+      <div class="dropdown-content">
+        <a href="{{ url_for('reports.headcount') }}">Headcount</a>
+        <a href="{{ url_for('reports.attendance_today') }}">Attendance - Today</a>
+        <a href="{{ url_for('reports.attendance_yesterday') }}">Attendance - Yesterday</a>
+        <a href="{{ url_for('reports.attendance_last_week') }}">Attendance - Last Week</a>
+        <a href="{{ url_for('reports.attendance_last_month') }}">Attendance - Last Month</a>
+        <a href="{{ url_for('reports.attendance_custom') }}">Attendance - Custom</a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  <div class="auth">
+    {% if g.user and g.user['admin'] in g.admin_levels %}
+    <div class="dropdown">
+      <a href="{{ url_for('users.show_all') }}">Admin</a>
+      <div class="dropdown-content">
+        <a href="{{ url_for('users.show_all') }}">Users</a>
+        <a href="{{ url_for('challenges.modify') }}">Challenges</a>
+      </div>
+    </div>
+    {% endif %}
+    {% if g.user %}
+      <div class="dropdown">
+        <span>{{ g.user['username'] }}</span>
+        <div class="dropdown-content align-right">
+          <a href="{{ url_for('users.change_password', uid=g.user['id']) }}">Change Password</a>
+          <a href="{{ url_for('users.request_challenge_permission', uid=g.user['id'], next=request.full_path) }}">
+            Request Challenge Permission</a>
+        </div>
+      </div>
+      <a href="{{ url_for('auth.logout') }}">Logout</a>
+    {% else %}
+      <a href="{{ url_for('auth.register') }}">Register</a>
+      <a href="{{ url_for('auth.login') }}">Login</a>
+    {% endif %}
+  </div>
+</nav>
+{% endblock %}
