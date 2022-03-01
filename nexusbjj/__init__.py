@@ -29,23 +29,11 @@ def create_app(test_config=None):
     from nexusbjj.routes import users
     app.register_blueprint(users.bp)
 
-    from nexusbjj.routes import story
-    app.register_blueprint(story.bp)
-
-    from nexusbjj.routes import misc
-    app.register_blueprint(misc.bp)
-
-    from nexusbjj.routes import challenges
-    app.register_blueprint(challenges.bp)
-
     from nexusbjj.routes import members
     app.register_blueprint(members.bp)
 
     from nexusbjj.routes import reports
     app.register_blueprint(reports.bp)
-
-    from nexusbjj.api import testing
-    app.register_blueprint(testing.bp)
 
     # from . import validation
     # validation.init_app(app)
