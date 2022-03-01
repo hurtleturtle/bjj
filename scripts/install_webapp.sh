@@ -1,21 +1,33 @@
 #!/bin/bash
 
-WEBAPP_HOME=$(dirname $(dirname $(readlink -f "$0")))
-SCRIPTS_DIR=$(dirname $(readlink -f "$0"))
+WEBAPP_HOME="/opt/webapp"
+SCRIPTS_DIR="/opt/webapp/scripts"
 INSTANCE_HOME="$WEBAPP_HOME/instance"
+
+# Create user
+APP_USER="nexusadmin"
+adduser --system --group $APP_USER
+
+# Create directory
+mkdir $WEBAPP_HOME
+cd $WEBAPP_HOME
+
+# Create venv
+apt-get update
+apt-get install -y python3-venv
+python3 -m venv venv
 
 # Install webapp
 echo 'Installing webapp...'
-cd $WEBAPP_HOME
 pip install .
 mkdir instance
 cd $SCRIPTS_DIR
 
 echo 'Creating webapp service...'
-sed -E 's+(ExecStart=)(.*)$+\1'"$SCRIPTS_DIR\/run.sh+" webapp.service > /lib/systemd/system/webapp.service
+sed -E 's+(ExecStart=)(.*)$+\1'"$SCRIPTS_DIR\/run.sh+" webapp.service > /lib/systemd/system/nexusbjj.service
 
 echo 'Creating log folder...'
-LOG_FOLDER="/var/log/webapp"
+LOG_FOLDER="/var/log/nexusbjj"
 mkdir -p $LOG_FOLDER 
 ln -s $LOG_FOLDER $INSTANCE_HOME/logs
 
@@ -31,9 +43,9 @@ read -s -p "Enter database password: " PASSWORD
 sed -E 's/<host>/'"$DATABASE"'/' $SCRIPTS_DIR/config_template.py | sed -E 's/<password>/'"$PASSWORD"'/' > $INSTANCE_HOME/config.py
 
 echo 'Installing service...'
-systemctl enable webapp
+systemctl enable nexusbjj
 
 echo 'Starting service...'
-systemctl start webapp
+systemctl start nexusbjj
 
 echo 'Done.'
