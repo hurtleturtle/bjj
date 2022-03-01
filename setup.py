@@ -15,7 +15,6 @@ setup(
         'lxml',
         'click',
         'uwsgi',
-        'docker',
         'jinja2',
         'mysql-connector-python',
         'cryptography'
