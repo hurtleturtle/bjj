@@ -4,7 +4,6 @@ from argparse import ArgumentParser
 import shlex
 import pandas as pd
 from getpass import getpass
-from nexusbjj.routes.story import Story
 from nexusbjj.db import Database, QueryResult
 from datetime import datetime, timedelta
 from numpy.random import randint
@@ -19,15 +18,7 @@ def get_args():
     parser.add_argument('-l', '--list', action='store_true', help='List users')
     parser.add_argument('-u', '--username', help='Username of user to act on')
     parser.add_argument('-i', '--user-id', type=int, help='ID of user')
-    parser.add_argument('--approve', action='store_true',
-                        help='Approve story access')
-    parser.add_argument('--remove', action='store_true',
-                        help='Remove story access')
-    parser.add_argument('-s', '--story', action='store_true', help='Generate lorem ipsum story')
-    parser.add_argument('-c', '--chapters', type=int, default=5, help='Number of chapters to generate')
-    parser.add_argument('-t', '--title', help='Story title')
     parser.add_argument('-e', '--execute-script', help='Execute SQL script')
-    parser.add_argument('-x', '--experiment', action='store_true')
     parser.add_argument('-q', '--query', help='Execute custom query')
     parser.add_argument('--add-attendances', default=10, type=int, help='Add random attendances')
     parser.add_argument('--commit', action='store_true', help='Commit query changes to database')
@@ -35,7 +26,6 @@ def get_args():
     parser.add_argument('--db-pass', help='Password to login to database')
     parser.add_argument('--db-host', help='IP address of database')
     parser.add_argument('--reset-password', action='store_true', help='Reset password for user')
-    parser.add_argument('--list-stories', action='store_true', help='List all stories in the database')
 
     return parser.parse_args()
 
@@ -85,31 +75,15 @@ if __name__ == '__main__':
         else:
             print('Invalid username and/or user ID')
 
-    if args.approve:
-        db.set_story_access(user['id'], True)
-    if args.remove:
-        db.set_story_access(user['id'], False)
-
     if args.list:
         users = db.get_users()
         print_results(users)
 
-    if args.list_stories:
-        stories = db.get_stories()
-        print_results(stories)
-
-    if args.story:
-        s = Story(title=args.title, chapters=args.chapters, db=db)
-        s.add_to_db()
-        
     if args.execute_script:
         with open(args.execute_script) as f:
             db.executescript(f.read())
         print('Database updated.')
         
-    if args.experiment:
-        db.add_challenge('A new challenge', 'A very short test challenge', 'Nah\nbro', None,  None, None)
-
     if args.add_attendances:
         classes = QueryResult(db.get_all_classes())
         users = QueryResult(db.get_users(('id',)))
