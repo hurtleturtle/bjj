@@ -1,5 +1,5 @@
 [Unit]
-Description=Wuxia webapp service
+Description=nexusbjj webapp service
 After=network.target
 StartLimitIntervalSec=0
 

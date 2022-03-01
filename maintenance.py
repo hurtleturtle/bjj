@@ -4,8 +4,8 @@ from argparse import ArgumentParser
 import shlex
 import pandas as pd
 from getpass import getpass
-from wuxia.routes.story import Story
-from wuxia.db import Database, QueryResult
+from nexusbjj.routes.story import Story
+from nexusbjj.db import Database, QueryResult
 from datetime import datetime, timedelta
 from numpy.random import randint
 import calendar

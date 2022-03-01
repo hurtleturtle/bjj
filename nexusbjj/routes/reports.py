@@ -2,9 +2,9 @@ from re import template
 from tracemalloc import start
 from flask import Blueprint, redirect, request, render_template, flash, url_for
 from pandas import options
-from wuxia.routes.auth import admin_required, login_required
-from wuxia.forms import gen_form_item, gen_options
-from wuxia.db import get_db, QueryResult, get_end_of_day
+from nexusbjj.routes.auth import admin_required, login_required
+from nexusbjj.forms import gen_form_item, gen_options
+from nexusbjj.db import get_db, QueryResult, get_end_of_day
 from datetime import datetime, timedelta
 
 

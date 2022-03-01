@@ -1,8 +1,8 @@
 from flask import Blueprint, request, render_template, flash
 from pandas import options
-from wuxia.routes.auth import admin_required, login_required
-from wuxia.forms import gen_form_item, gen_options
-from wuxia.db import get_db, QueryResult
+from nexusbjj.routes.auth import admin_required, login_required
+from nexusbjj.forms import gen_form_item, gen_options
+from nexusbjj.db import get_db, QueryResult
 from datetime import datetime, time
 
 

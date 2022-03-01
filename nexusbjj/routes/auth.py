@@ -2,8 +2,8 @@ import functools
 from flask import Blueprint, flash, g, render_template, request, session
 from flask import url_for, redirect, escape, make_response
 from werkzeug.security import check_password_hash, generate_password_hash
-from wuxia.db import get_db
-from wuxia.forms import gen_form_item
+from nexusbjj.db import get_db
+from nexusbjj.forms import gen_form_item
 from datetime import datetime, timedelta
 
 

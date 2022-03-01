@@ -14,7 +14,7 @@ from time import localtime, strftime
 
 
 class Database:
-    def __init__(self, db_name='wuxia', db_host=None, db_user=None, db_pass=None):
+    def __init__(self, db_name='nexusbjj', db_host=None, db_user=None, db_pass=None):
         self.db_name = db_name
         self.db = self.connect(db_host, db_user, db_pass)
         self.cursor = self.db.cursor(dictionary=True)
@@ -49,7 +49,7 @@ class Database:
 
     def check_schema(self):
         query = 'SELECT table_name FROM information_schema.tables WHERE table_schema = %s'
-        params = ('wuxia',)
+        params = ('nexusbjj',)
         self.execute(query, params)
         tables = self.cursor.fetchall()
 

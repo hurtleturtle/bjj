@@ -7,7 +7,7 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True, template_folder='routes/templates')
     app.config.from_mapping(
         SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'wuxia.sqlite'),
+        DATABASE=os.path.join(app.instance_path, 'nexusbjj.sqlite'),
     )
 
     if test_config is None:
@@ -23,28 +23,28 @@ def create_app(test_config=None):
     from . import db
     db.init_app(app)
 
-    from wuxia.routes import auth
+    from nexusbjj.routes import auth
     app.register_blueprint(auth.bp)
 
-    from wuxia.routes import users
+    from nexusbjj.routes import users
     app.register_blueprint(users.bp)
 
-    from wuxia.routes import story
+    from nexusbjj.routes import story
     app.register_blueprint(story.bp)
 
-    from wuxia.routes import misc
+    from nexusbjj.routes import misc
     app.register_blueprint(misc.bp)
 
-    from wuxia.routes import challenges
+    from nexusbjj.routes import challenges
     app.register_blueprint(challenges.bp)
 
-    from wuxia.routes import members
+    from nexusbjj.routes import members
     app.register_blueprint(members.bp)
 
-    from wuxia.routes import reports
+    from nexusbjj.routes import reports
     app.register_blueprint(reports.bp)
 
-    from wuxia.api import testing
+    from nexusbjj.api import testing
     app.register_blueprint(testing.bp)
 
     # from . import validation
