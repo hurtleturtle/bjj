@@ -13,20 +13,20 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = escape(request.form['username'])
+        email = escape(request.form['email'])
         password = escape(request.form['password'])
         db = get_db()
         error = None
 
-        if not username:
-            error = 'Username is required.'
+        if not email:
+            error = 'Email is required.'
         elif not password:
             error = 'Password is required.'
-        elif db.get_user(name=username) is not None:
-            error = f'User {username} is already registered.'
+        elif db.get_user(name=email) is not None:
+            error = f'User {email} is already registered.'
 
         if error is None:
-            db.add_user(username, password)
+            db.add_user(email, password)
             return login()
 
         flash(error)
@@ -41,24 +41,22 @@ def login():
     referrer = request.args.get('next')
 
     if request.method == 'POST':
-        username = escape(request.form['username'])
+        email = escape(request.form['email'])
         password = escape(request.form['password'])
         db = get_db()
         error = None
-        user = db.get_user(name=username)
+        user = db.get_user(name=email)
 
         if user is None:
-            error = 'Incorrect username.'
+            error = 'Incorrect email.'
         elif not check_password_hash(user['password'], password):
             error = 'Incorrect password.'
 
         if error is None:
             session.clear()
             session['user_id'] = user['id']
-            url = referrer if referrer else url_for('story.story_list')
+            url = referrer if referrer else url_for('index')
             response = make_response(redirect(url))
-            expiry = datetime.now() + timedelta(minutes=60)
-            response.set_cookie('test-cookie', value='this_cookie_expires_at_' + str(expiry), expires=expiry)
             return response
 
         if error:
@@ -81,7 +79,7 @@ def get_user_form(form_type):
     groups = {
         'user': {
             'group_title': form_type.capitalize(),
-            'username': gen_form_item('username', placeholder='Username',
+            'email': gen_form_item('email', placeholder='Email',
                                       required=True),
             'password': gen_form_item('password', placeholder='Password',
                                       required=True, item_type='password')

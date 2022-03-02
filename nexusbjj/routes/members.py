@@ -96,7 +96,7 @@ def add_class():
                                         options=gen_options(('No Gi', 'Gi')), value='No Gi',
                                         selected_option='No Gi'),
             'class_coach': gen_form_item('class_coach', label='Coach', field_type='select',
-                                         options=gen_options(coaches['username'].to_list(), values=coaches['id'].to_list())),
+                                         options=gen_options(coaches['email'].to_list(), values=coaches['id'].to_list())),
             'class_day': gen_form_item('class_day', label='Day', field_type='select',
                                        options=gen_options(('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday',
                                                             'Saturday', 'Sunday'))),

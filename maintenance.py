@@ -16,7 +16,7 @@ def get_args():
                         help='Give user specified with -u admin privileges: 0' +
                         ' - none, 1 - read-only, 2 - read-write')
     parser.add_argument('-l', '--list', action='store_true', help='List users')
-    parser.add_argument('-u', '--username', help='Username of user to act on')
+    parser.add_argument('-u', '--email', help='email of user to act on')
     parser.add_argument('-i', '--user-id', type=int, help='ID of user')
     parser.add_argument('-e', '--execute-script', help='Execute SQL script')
     parser.add_argument('-q', '--query', help='Execute custom query')
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     db = Database(**get_database_details(args.db_host, args.db_user, args.db_pass))
 
     try:
-        user = db.get_user(uid=args.user_id, name=args.username)
+        user = db.get_user(uid=args.user_id, name=args.email)
     except Exception:
         user = None
 
@@ -73,7 +73,7 @@ if __name__ == '__main__':
         if user:
             db.make_admin(user['id'], admin_level=args.admin)
         else:
-            print('Invalid username and/or user ID')
+            print('Invalid email and/or user ID')
 
     if args.list:
         users = db.get_users()
@@ -114,7 +114,7 @@ if __name__ == '__main__':
 
     if args.reset_password:
         if user:
-            password = getpass(f'Enter new password for {user["username"]}: ')
+            password = getpass(f'Enter new password for {user["email"]}: ')
             if password == getpass('Re-enter password to confirm change: '):
                 db.change_password(user['id'], password)
         else:

@@ -26,18 +26,18 @@ def edit(uid):
 
     if request.method == 'POST' and g.user['admin'] == 'read-write':
         error = None
-        username = escape(request.form['username'])
+        email = escape(request.form['email'])
         admin = request.form['admin']
         access = escape(request.form['access'])
         is_coach = request.form['is_coach']
-        username_new = (username != user['username'])
-        username_exists = db.get_user(name=username) is not None
+        email_new = (email != user['email'])
+        email_exists = db.get_user(name=email) is not None
 
-        if username_new:
-            if username_exists:
-                error = 'Username exists'
+        if email_new:
+            if email_exists:
+                error = 'Email exists'
             else:
-                db.update_user(uid, 'username', username)
+                db.update_user(uid, 'email', email)
         if admin in admin_levels:
             db.update_user(uid, 'admin', admin)
         if is_coach is not None:
@@ -146,9 +146,9 @@ def generate_form_groups(user):
 
     groups = {
         'user': {
-            'group_title': 'Edit: {}'.format(user['username']),
-            'username': gen_form_item('username', value=user['username'],
-                                      required=True, label='Username'),
+            'group_title': 'Edit: {}'.format(user['email']),
+            'email': gen_form_item('email', value=user['email'],
+                                      required=True, label='Email'),
             'access': gen_form_item('access', label='Story Access',
                                     field_type='select',
                                     options=gen_options(['Yes', 'No'], [1, 0]),
@@ -185,7 +185,7 @@ def generate_form_groups(user):
 def gen_pass_groups(user):
     groups = {
         'user': {
-            'group_title': 'Change Password for {}'.format(user['username']),
+            'group_title': 'Change Password for {}'.format(user['email']),
             'old_pass': gen_form_item('old_pass', label='Old Password',
                                       item_type='password', required=False),
             'new_pass': gen_form_item('new_pass', label='New Password',

@@ -36,7 +36,7 @@
     {% endif %}
     {% if g.user %}
       <div class="dropdown">
-        <span>{{ g.user['username'] }}</span>
+        <span>{{ g.user['first_name'] + ' ' + g.user['last_name'] }}</span>
         <div class="dropdown-content align-right">
           <a href="{{ url_for('users.change_password', uid=g.user['id']) }}">Change Password</a>
         </div>

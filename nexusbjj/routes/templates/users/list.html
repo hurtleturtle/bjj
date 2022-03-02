@@ -7,7 +7,7 @@
 {% block content %}
   <table class="users">
     <tr class="user-header">
-      <th>Username</th>
+      <th>Email</th>
       <th>Admin Status</th>
       <th>Coach</th>
       <th>Access Approved</th>
@@ -18,7 +18,7 @@
     </tr>
     {% for user in users %}
       <tr class="user">
-        <td>{{ user.username }}</td>
+        <td>{{ user.email }}</td>
         <td>{{ user.admin }}</td>
         <td>{{ user.is_coach }}</td>
         <td>{{ user.access_approved }}</td>

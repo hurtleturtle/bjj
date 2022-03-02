@@ -17,10 +17,10 @@ def headcount():
     today = datetime.today().date()
     class_date = today.strftime('%A, %d %b %Y')
     results = get_attendance(today.isoformat(), today.isoformat())
-    summary = results[['class_name', 'username']].groupby('class_name').count().reset_index()\
+    summary = results[['class_name', 'email']].groupby('class_name').count().reset_index()\
                                                  .rename(columns={
                                                             'class_name': 'Class',
-                                                            'username': 'Attendees'
+                                                            'email': 'Attendees'
                                                          })\
                                                  .to_html(index=False)
     print(summary)

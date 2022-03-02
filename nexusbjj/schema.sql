@@ -6,9 +6,8 @@ SET FOREIGN_KEY_CHECKS=1;
 
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
-    username TEXT NOT NULL,
-    password TEXT NOT NULL,
     email TEXT NOT NULL,
+    password TEXT NOT NULL,
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
     mobile_number TEXT NOT NULL,
