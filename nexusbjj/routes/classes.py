@@ -6,7 +6,7 @@ from nexusbjj.db import get_db, QueryResult
 from datetime import datetime, time
 
 
-bp = Blueprint('members', __name__, url_prefix='/classes', template_folder='templates/classes')
+bp = Blueprint('classes', __name__, url_prefix='/classes', template_folder='templates/classes')
 
 
 @bp.route('/check-in', methods=['GET'])
@@ -93,9 +93,12 @@ def show_classes():
         attendance = attendance[['class_id', 'user_id']].rename(columns={'user_id': 'Attendances'})
         attendance = attendance.groupby('class_id').count().reset_index()
         classes = QueryResult(classes.merge(attendance, on='class_id', how='left'))
+    else:
+        classes['Attendances'] = 0
 
     if classes:
         classes = classes[['class_name', 'weekday', 'class_time', 'end_time', 'Attendances']].fillna(0)
+        classes.sort_values(by=['weekday', 'class_time', 'class_name'], inplace=True)
         classes.rename(columns={
             'class_name': 'Class',
             'weekday': 'Day',
