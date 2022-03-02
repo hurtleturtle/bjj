@@ -7,14 +7,14 @@
       <p>Check in for one or all of the classes below</p>
       <div class="bjj-classes-container">
         <a class="bjj-class {% if all_classes_attended %}checked-in{% endif %}" 
-         href="{{ url_for('members.check_in_to_class', class_id='all') }}">
+         href="{{ url_for('classes.check_in_to_class', class_id='all') }}">
           <h2>All Classes</h2>
           <p>Check in to all classes listed below</p>
         </a>
         <hr />
         {% for bjj_class in classes %}
         <a class="bjj-class {% if bjj_class.attendance %}checked-in{% endif %}" 
-        href="{{ url_for('members.check_in_to_class', class_id=bjj_class.id) }}">
+        href="{{ url_for('classes.check_in_to_class', class_id=bjj_class.id) }}">
             <h2>{{ bjj_class.class_name }} {% if bjj_class.attendance %}(Checked In){% endif %}</h2>
             <p>{{ bjj_class.class_time }} - {{ bjj_class.end_time }}</p>
         </a>

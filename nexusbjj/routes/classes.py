@@ -6,7 +6,7 @@ from nexusbjj.db import get_db, QueryResult
 from datetime import datetime, time
 
 
-bp = Blueprint('members', __name__, url_prefix='/members', template_folder='templates/members')
+bp = Blueprint('members', __name__, url_prefix='/classes', template_folder='templates/classes')
 
 
 @bp.route('/check-in', methods=['GET'])
@@ -83,11 +83,20 @@ def validate_check_in(df_classes: QueryResult, class_id: int):
     return check_in_is_valid, message
 
 
-@bp.route('/classes')
+@bp.route('/')
 @login_required
 def show_classes():
     db = get_db()
     classes = QueryResult(db.get_all_classes())
+
+    if classes:
+        classes = classes[['class_name', 'weekday', 'class_time', 'end_time']]
+        classes.rename(columns={
+            'class_name': 'Class',
+            'weekday': 'Day',
+            'class_time': 'Start Time',
+            'end_time': 'Finish Time'
+        }, inplace=True)
     return render_template('classes.html', classes=classes.to_html(index=False))
 
 

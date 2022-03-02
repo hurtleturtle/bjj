@@ -29,8 +29,8 @@ def create_app(test_config=None):
     from nexusbjj.routes import users
     app.register_blueprint(users.bp)
 
-    from nexusbjj.routes import members
-    app.register_blueprint(members.bp)
+    from nexusbjj.routes import classes
+    app.register_blueprint(classes.bp)
 
     from nexusbjj.routes import reports
     app.register_blueprint(reports.bp)
