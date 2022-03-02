@@ -3,27 +3,31 @@
   <div class="menu">
     <a href="{{ url_for('index')}}"><i class="fas fa-home"></i></a>
     {% if g.user %}
-    <a href="{{ url_for('members.check_in_to_class') }}">Check In</a>
+    <a href="{{ url_for('classes.check_in_to_class') }}">Check In</a>
     {% endif %}
-    {% if g.user and g.user['admin'] != 'no' %}
-    <div class="dropdown">
-      <span>Classes</span>
-      <div class="dropdown-content">
-        <a href="{{ url_for('members.show_classes') }}">Show Classes</a>
-        <a href="{{ url_for('members.add_class') }}">Add Class</a>
+    {% if g.user %}
+      <div class="dropdown">
+        <span>Classes</span>
+        <div class="dropdown-content">
+          <a href="{{ url_for('classes.show_classes') }}">Show Classes</a>
+          {% if g.user['admin'] != 'no' %}
+          <a href="{{ url_for('classes.add_class') }}">Add Class</a>
+          {% endif %}
+        </div>
       </div>
-    </div>
-    <div class="dropdown">
-      <span>Reports</span>
-      <div class="dropdown-content">
-        <a href="{{ url_for('reports.headcount') }}">Headcount</a>
-        <a href="{{ url_for('reports.attendance_today') }}">Attendance - Today</a>
-        <a href="{{ url_for('reports.attendance_yesterday') }}">Attendance - Yesterday</a>
-        <a href="{{ url_for('reports.attendance_last_week') }}">Attendance - Last Week</a>
-        <a href="{{ url_for('reports.attendance_last_month') }}">Attendance - Last Month</a>
-        <a href="{{ url_for('reports.attendance_custom') }}">Attendance - Custom</a>
+      {% if g.user['admin'] != 'no' %}
+      <div class="dropdown">
+        <span>Reports</span>
+        <div class="dropdown-content">
+          <a href="{{ url_for('reports.headcount') }}">Headcount</a>
+          <a href="{{ url_for('reports.attendance_today') }}">Attendance - Today</a>
+          <a href="{{ url_for('reports.attendance_yesterday') }}">Attendance - Yesterday</a>
+          <a href="{{ url_for('reports.attendance_last_week') }}">Attendance - Last Week</a>
+          <a href="{{ url_for('reports.attendance_last_month') }}">Attendance - Last Month</a>
+          <a href="{{ url_for('reports.attendance_custom') }}">Attendance - Custom</a>
+        </div>
       </div>
-    </div>
+      {% endif %}
     {% endif %}
   </div>
   <div class="auth">
