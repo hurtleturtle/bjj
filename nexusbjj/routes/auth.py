@@ -15,24 +15,54 @@ def register():
     if request.method == 'POST':
         email = escape(request.form['email'])
         password = escape(request.form['password'])
+        confirm_password = escape(request.form['confirm_password'])
+        first_name = escape(request.form['first_name'])
+        last_name = escape(request.form['last_name'])
+        mobile = escape(request.form['mobile'])
         db = get_db()
         error = None
 
-        if not email:
-            error = 'Email is required.'
-        elif not password:
-            error = 'Password is required.'
-        elif db.get_user(name=email) is not None:
+        if db.get_user(name=email) is not None:
             error = f'User {email} is already registered.'
 
         if error is None:
-            db.add_user(email, password)
-            return login()
+            if confirm_password == password:
+                db.add_user(email, password, first_name, last_name, mobile)
+                return login()
+            else:
+                error = 'Your passwords did not match. Please try again.'
+                flash(error)
+                args = (email, first_name, last_name, mobile)
+                return render_template('auth/register.html', form_groups=get_registration_form(*args))
 
         flash(error)
 
-    return render_template('auth/register.html',
-                           form_groups=get_user_form('register'))
+    return render_template('auth/register.html', form_groups=get_registration_form())
+
+
+def get_registration_form(email=None, first_name=None, last_name=None, mobile=None):
+    groups = {
+        'user': {
+            'group_title': 'Register',
+            'first_name': gen_form_item('first_name', label='First Name', placeholder='Required', required=True,
+                                        value=first_name),
+            'last_name': gen_form_item('last_name', label='Surname', placeholder='Required', required=True,
+                                       value=last_name),
+            'mobile': gen_form_item('mobile', label='Mobile Number', placeholder='Required', required=True,
+                                    value=mobile),
+            'email': gen_form_item('email', label='Email', value=email,
+                                      required=True, placeholder='Required', item_type='email'),
+            'password': gen_form_item('password', label='Password', placeholder='Required',
+                                      required=True, item_type='password'),
+            'confirm_password': gen_form_item('confirm_password', label='Confirm Password', required=True,
+                                              placeholder='Required', item_type='password')
+        },
+        'submit': {
+            'button': gen_form_item('btn-submit', item_type='submit',
+                                    value='Register')
+        },
+    }
+    return groups
 
 
 @bp.route('/login', methods=['GET', 'POST'])
@@ -56,40 +86,34 @@ def login():
             session.clear()
             session['user_id'] = user['id']
             url = referrer if referrer else url_for('index')
-            response = make_response(redirect(url))
-            return response
+            return redirect(url)
 
         if error:
             flash(error)
             status_code = 401
 
-    return render_template('auth/login.html',
-                           form_groups=get_user_form('login')), status_code
+    return render_template('auth/login.html', form_groups=get_user_form()), status_code
+
+
+def get_user_form():
+    groups = {
+        'user': {
+            'group_title': 'Login',
+            'email': gen_form_item('email', label='Email', required=True, item_type='email'),
+            'password': gen_form_item('password', label='Password', required=True, item_type='password'),
+        },
+        'submit': {
+            'button': gen_form_item('btn-submit', item_type='submit',
+                                    value='Login')
+        },
+    }
+    return groups
 
 
 @bp.route('/logout')
 def logout():
     session.clear()
-    response = make_response(redirect(url_for('index')))
-    response.delete_cookie('pirate')
-    return response
-
-
-def get_user_form(form_type):
-    groups = {
-        'user': {
-            'group_title': form_type.capitalize(),
-            'email': gen_form_item('email', placeholder='Email',
-                                      required=True),
-            'password': gen_form_item('password', placeholder='Password',
-                                      required=True, item_type='password')
-        },
-        'submit': {
-            'button': gen_form_item('btn-submit', item_type='submit',
-                                    value=form_type.capitalize())
-        },
-    }
-    return groups
+    return redirect(url_for('index'))
 
 
 @bp.before_app_request
