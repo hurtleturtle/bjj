@@ -40,7 +40,7 @@ def register():
     return render_template('auth/register.html', form_groups=get_registration_form())
 
 
-def get_registration_form(email=None, first_name=None, last_name=None, mobile=None):
+def get_registration_form(email='', first_name='', last_name='', mobile=''):
     groups = {
         'user': {
             'group_title': 'Register',
