@@ -20,7 +20,7 @@ def get_args():
     parser.add_argument('-i', '--user-id', type=int, help='ID of user')
     parser.add_argument('-e', '--execute-script', help='Execute SQL script')
     parser.add_argument('-q', '--query', help='Execute custom query')
-    parser.add_argument('--add-attendances', default=10, type=int, help='Add random attendances')
+    parser.add_argument('--add-attendances', type=int, help='Add random attendances')
     parser.add_argument('--commit', action='store_true', help='Commit query changes to database')
     parser.add_argument('--db-user', default='webapp', help='Database user')
     parser.add_argument('--db-pass', help='Password to login to database')
