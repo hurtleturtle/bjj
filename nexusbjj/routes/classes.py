@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template, flash
+from flask import Blueprint, request, render_template, flash, g
 from pandas import options
 from nexusbjj.routes.auth import admin_required, login_required
 from nexusbjj.forms import gen_form_item, gen_options
@@ -88,15 +88,21 @@ def validate_check_in(df_classes: QueryResult, class_id: int):
 def show_classes():
     db = get_db()
     classes = QueryResult(db.get_all_classes())
+    attendance = QueryResult(db.get_attendance(user_id=g.user['id']))
+    if attendance:
+        attendance = attendance[['class_id', 'user_id']].rename(columns={'user_id': 'Attendances'})
+        attendance = attendance.groupby('class_id').count().reset_index()
+        classes = QueryResult(classes.merge(attendance, on='class_id', how='left'))
 
     if classes:
-        classes = classes[['class_name', 'weekday', 'class_time', 'end_time']]
+        classes = classes[['class_name', 'weekday', 'class_time', 'end_time', 'Attendances']].fillna(0)
         classes.rename(columns={
             'class_name': 'Class',
             'weekday': 'Day',
             'class_time': 'Start Time',
             'end_time': 'Finish Time'
         }, inplace=True)
+        classes['Attendances'] = classes['Attendances'].astype(int)
     return render_template('classes.html', classes=classes.to_html(index=False))
 
 

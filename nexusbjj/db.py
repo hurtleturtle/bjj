@@ -162,7 +162,7 @@ class Database:
         return todays_classes
 
     def get_all_classes(self):
-        query = 'SELECT id, DATE_FORMAT(time, "%H:%i") class_time, class_name, duration, '
+        query = 'SELECT id class_id, DATE_FORMAT(time, "%H:%i") class_time, class_name, duration, '
         query += 'DATE_FORMAT(ADDTIME(time, duration), "%H:%i") end_time, weekday'
         query += ' FROM classes'
         self.execute(query)
@@ -177,7 +177,7 @@ class Database:
 
     def get_attendance(self, from_date='', to_date='', user_id=None, class_id=None):
         query = 'SELECT date, classes.class_name, class_date, DATE_FORMAT(class_time, "%H:%i") class_time, '
-        query += 'CONCAT(users.first_name, " ", users.last_name) AS full_name, users.id user_id FROM attendance '
+        query += 'classes.id class_id, CONCAT(users.first_name, " ", users.last_name) AS full_name, users.id user_id FROM attendance '
         query += 'INNER JOIN classes ON attendance.class_id=classes.id INNER JOIN users ON attendance.user_id=users.id'
         where_clause = ' WHERE '
         conditions = []
