@@ -19,10 +19,10 @@ def headcount():
     class_date = today.strftime('%A, %d %b %Y')
     results, error = get_attendance(today.isoformat(), today.isoformat())
     if results:
-        summary = results[['class_name', 'email']].groupby('class_name').count().reset_index()\
+        summary = results[['class_name', 'user_id']].groupby('class_name').count().reset_index()\
                                                   .rename(columns={
                                                             'class_name': 'Class',
-                                                            'email': 'Attendees'
+                                                            'user_id': 'Attendees'
                                                          })\
                                                   .to_html(index=False)
     else:
@@ -137,6 +137,6 @@ def get_attendance(start_date, end_date):
     results = QueryResult(db.get_attendance(start_date, end_date))
     
     if results:
-        results.sort_values(by=['class_name', 'date'], inplace=True)
+        results.sort_values(by=['class_date', 'class_time', 'class_name', 'date'], inplace=True)
     
     return results, error
