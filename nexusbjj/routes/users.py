@@ -28,7 +28,6 @@ def edit(uid):
         error = None
         email = escape(request.form['email'])
         admin = request.form['admin']
-        access = escape(request.form['access'])
         is_coach = request.form['is_coach']
         email_new = (email != user['email'])
         email_exists = db.get_user(name=email) is not None
@@ -50,7 +49,6 @@ def edit(uid):
         if error:
             flash(error)
         else:
-            db.update_user(uid, 'access_approved', access)
             return redirect(url_for('users.show_all'))
     elif request.method == 'POST' and g.user['admin'] != 'read-write':
         flash('Write access required')
@@ -103,28 +101,21 @@ def delete(uid):
     return redirect(url_for('users.show_all'))
 
 
-@bp.route('/<int:uid>/allow', methods=['GET', 'POST'])
+@bp.route('/<int:uid>/add-coach', methods=['GET', 'POST'])
 @write_admin_required
-def allow(uid):
+def add_coach(uid):
     db = get_db()
-    db.update_user(uid, 'access_approved', True)
+    db.update_user(uid, 'is_coach', True)
     return redirect(url_for('users.show_all'))
 
 
-@bp.route('/<int:uid>/disallow', methods=['GET', 'POST'])
+@bp.route('/<int:uid>/remove-coach', methods=['GET', 'POST'])
 @write_admin_required
-def disallow(uid):
+def remove_coach(uid):
     db = get_db()
-    db.update_user(uid, 'access_approved', False)
+    db.update_user(uid, 'is_coach', False)
     return redirect(url_for('users.show_all'))
 
-
-@bp.route('/<int:uid>/challenge-permission')
-@login_required
-def request_challenge_permission(uid):
-    referrer = request.args.get('next', url_for('challenges.show_all'))
-    flash('Permission to submit answers to challenges requested.')
-    return redirect(referrer)
 
 @bp.route('/<int:uid>/clear-session')
 @write_admin_required
@@ -149,11 +140,6 @@ def generate_form_groups(user):
             'group_title': 'Edit: {}'.format(user['email']),
             'email': gen_form_item('email', value=user['email'],
                                       required=True, label='Email'),
-            'access': gen_form_item('access', label='Story Access',
-                                    field_type='select',
-                                    options=gen_options(['Yes', 'No'], [1, 0]),
-                                    value=user['access_approved'],
-                                    selected_option=user['access_approved']),
             'admin': gen_form_item('admin', required=True, label='Admin',
                                    field_type='select',
                                    options=gen_options(g.privilege_levels,
