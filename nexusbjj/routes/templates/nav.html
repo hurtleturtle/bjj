@@ -2,14 +2,14 @@
 <nav>
   <div class="menu">
     <a href="{{ url_for('index')}}"><i class="fas fa-home"></i></a>
+    <a href="{{ url_for('members.check_in_to_class') }}">Check In</a>
+    {% if g.user and g.user['admin'] != 'no' %}
     <div class="dropdown">
-      <span>BJJ</span>
+      <span>Classes</span>
       <div class="dropdown-content">
-        <a href="{{ url_for('members.check_in_to_class') }}">Check In</a>
         <a href="{{ url_for('members.add_class') }}">Add Class</a>
       </div>
     </div>
-    {% if g.user and g.user['admin'] != 'no' %}
     <div class="dropdown">
       <span>Reports</span>
       <div class="dropdown-content">
