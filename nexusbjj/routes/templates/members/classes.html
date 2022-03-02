@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Classes{% endblock %}
+
+{% block content %}
+<h1>Classes</h1>
+{% if classes %}
+<div class="classes">
+    {% if classes.sequence -%}
+        {%- for line in classes.data -%}
+            {{ line | safe }}
+        {%- endfor -%}
+    {%- else -%}
+        {{ classes | safe }}
+    {%- endif %}
+</div>
+{% endif %}
+{% endblock %}

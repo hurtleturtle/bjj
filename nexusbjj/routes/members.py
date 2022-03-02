@@ -83,11 +83,20 @@ def validate_check_in(df_classes: QueryResult, class_id: int):
     return check_in_is_valid, message
 
 
+@bp.route('/classes')
+@login_required
+def show_classes():
+    db = get_db()
+    classes = QueryResult(db.get_all_classes())
+    return render_template('classes.html', classes=classes.to_html(index=False))
+
+
 @bp.route('/add-class', methods=['GET', 'POST'])
 @admin_required
 def add_class():
     db = get_db()
     coaches = QueryResult(db.get_coaches())
+    coaches['full_name'] = coaches['first_name'].str.cat(coaches['last_name'], sep=' ')
     groups = {
         'class': {
             'group_title': 'Add Class',
@@ -96,7 +105,8 @@ def add_class():
                                         options=gen_options(('No Gi', 'Gi')), value='No Gi',
                                         selected_option='No Gi'),
             'class_coach': gen_form_item('class_coach', label='Coach', field_type='select',
-                                         options=gen_options(coaches['email'].to_list(), values=coaches['id'].to_list())),
+                                         options=gen_options(coaches['full_name'].to_list(), 
+                                         values=coaches['id'].to_list())),
             'class_day': gen_form_item('class_day', label='Day', field_type='select',
                                        options=gen_options(('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday',
                                                             'Saturday', 'Sunday'))),
