@@ -175,21 +175,30 @@ class Database:
         self.execute(query, params)
         self.commit()
 
-    def get_attendance(self, from_date, to_date, user_id=None, class_id=None):
+    def get_attendance(self, from_date='', to_date='', user_id=None, class_id=None):
         query = 'SELECT date, classes.class_name, class_date, DATE_FORMAT(class_time, "%H:%i") class_time, '
         query += 'CONCAT(users.first_name, " ", users.last_name) AS full_name, users.id user_id FROM attendance '
         query += 'INNER JOIN classes ON attendance.class_id=classes.id INNER JOIN users ON attendance.user_id=users.id'
-        query += ' WHERE date >= %s AND date <= %s'
-        params = [from_date, to_date]
+        where_clause = ' WHERE '
+        conditions = []
+        params = []
+
+        if from_date:
+            conditions.append('date >= %s')
+            params.append(from_date)
+        if to_date:
+            conditions.append('date <= %s')
+            params.append(to_date)
 
         if user_id:
-            query += ' AND user_id = %s'
+            conditions.append('user_id = %s')
             params.append(user_id)
         if class_id:
-            query += ' AND class_id = %s'
+            conditions.append('class_id = %s')
             params.append(class_id)
 
-        print(query, params)
+        where_clause += ' AND '.join(conditions)
+        query += where_clause
         self.execute(query, params)
         return self.cursor.fetchall()
 
