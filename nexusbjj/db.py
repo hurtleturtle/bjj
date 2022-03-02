@@ -121,7 +121,7 @@ class Database:
         self.commit()
 
     def get_coaches(self):
-        query = 'SELECT id, email FROM users WHERE is_coach=true'
+        query = 'SELECT id, email, first_name, last_name FROM users WHERE is_coach=true'
         self.execute(query)
         return self.cursor.fetchall()
 
