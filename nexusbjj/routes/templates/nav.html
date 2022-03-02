@@ -2,7 +2,9 @@
 <nav>
   <div class="menu">
     <a href="{{ url_for('index')}}"><i class="fas fa-home"></i></a>
+    {% if g.user %}
     <a href="{{ url_for('members.check_in_to_class') }}">Check In</a>
+    {% endif %}
     {% if g.user and g.user['admin'] != 'no' %}
     <div class="dropdown">
       <span>Classes</span>
