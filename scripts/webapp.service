@@ -7,7 +7,7 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=always
 RestartSec=1
-User=www-data
+User=nexusadmin
 WorkingDirectory=/var/www/html/webapp
 ExecStart=/var/www/html/webapp/run.sh
 
