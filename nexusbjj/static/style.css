@@ -5,8 +5,8 @@ html, body {
 }
 
 html {
-  background: url(forest_translucent.png) no-repeat center center fixed;
-  background-size: cover;
+  background: url(bear.jpg) no-repeat center center fixed;
+  background-size: contain;
 }
 
 /* Flexbox wrapper for base page */
@@ -22,7 +22,8 @@ section.navbar {
   z-index: 1;
 }
 nav {
-  background: #59028a;
+  color: #222;
+  background: white;
   display: flex;
   flex: 0 1 auto;
   align-items: center;
@@ -31,15 +32,15 @@ nav {
 }
 nav a, nav span {
   text-decoration: none;
-  color: white;
+  color: #222;
   margin: 0;
   display: block;
   padding: 0.5rem;
   cursor: pointer;
 }
 nav a:hover, nav span:hover {
-  background: white;
-  color: #59028a;
+  background: #ca2017;
+  color: white;
 }
 nav > div {
   display: flex;
@@ -64,7 +65,7 @@ nav > div.menu {
 .dropdown-content {
   display: none;
   position: absolute;
-  background-color: #f9f9f9;
+  background-color: #222;
   min-width: 160px;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 1;
@@ -75,13 +76,13 @@ nav > div.menu {
 }
 .dropdown-content a {
   float: none;
-  color: black;
+  color: white;
   text-decoration: none;
   display: block;
   text-align: left;
 }
 .dropdown-content a:hover {
-  background-color: #ddd;
+  background-color: #ca2017;
 }
 .dropdown:hover .dropdown-content {
   display: block;
@@ -94,41 +95,14 @@ section.content {
   overflow-y: auto;
 }
 
-/* Style for story */
-div.story {
-  display: block;
-  overflow-y: auto;
-  margin: 4rem 10%;
-  padding: 0.5rem 2rem;
-  background-color: #ecd9f7;
-  border: 1px solid #59028a;
-  border-radius: 0.1em;
-  box-shadow: 0.1em 0.1em 0.25em 0.25em #59028a;
-}
-
-/* Style for home page */
-.home {
-  display: block;
-  overflow-y: hidden;
-  margin: 15% 30% 0 30%;
-  font-size: 28px;
-  padding: 1em 1.5em;
-  color: #e305d6;
-  background-color: #feeeff;
-  border: 1px solid #e305d6;
-  border-radius: 0.5rem;
-  box-shadow: 0.1em 0.1em 0.25em 0.25em #e305d6;
-  opacity: 0.7;
-  text-align: center;
-}
 
 /* Flash messages on base template */
 .flash {
   margin: 4rem 1rem -2rem 1rem;
   padding: 1rem;
-  background: #ecd9f7;
-  border: 1px solid #59028a;
-  color: #e305d6;
+  background: #222;
+  box-shadow: 0em 5px 5px 0em #222;
+  color: white;
 }
 
 /* Standard table format */
@@ -137,6 +111,8 @@ div.story {
   width: 95%;
   table-layout: fixed;
   overflow-wrap: break-word;
+  box-shadow: 0em 5px 5px 0em #222;
+  border: 2px solid #222;
 }
 table, th, td {
   border-collapse: collapse;
@@ -158,17 +134,20 @@ td i.fa-ban {
   color: red;
 }
 th {
-  background: #e305d6;
+  background: #ca2017;
   color: white;
 }
 tr:nth-child(even) {
   background: white
 }
 tr:nth-child(odd) {
-  background: #feeeff;
+  background: lightgrey;
 }
 tr:hover {
-  background: #ecd9f7;
+  background: lightcoral;
+}
+td {
+  color: #222;
 }
 
 /* Standard form format */
@@ -176,9 +155,10 @@ form {
   padding: 4rem 30%;
 }
 .form-wrapper {
-  background: #feeeff;
-  border: 1px solid #e305d6;
-  box-shadow: 0.1em 0.1em 0.25em 0.1em #e305d6;
+  background: lightgrey;
+  border: 1px solid #222;
+  border-radius: 0.5em;
+  box-shadow: 0.1em 0.1em 0.25em 0.1em #222;
 }
 .form-group {
   width: 100%;
@@ -187,7 +167,7 @@ form {
 .form-group-title {
   text-align: center;
   margin: 0;
-  color: #e305d6;
+  color: #222;
 }
 .form-item {
   padding: 0 0.5em;
@@ -234,7 +214,7 @@ form {
   padding: 0.5em;
 }
 .form-item input[type="submit"], .form-item a {
-  background-color: #e305d6;
+  background-color: #ca2017;
   color: white;
   border: none;
   cursor: pointer;
@@ -280,42 +260,27 @@ div.results {
 div.results > h2 {
     text-align: center;
 }
-div.results table {
-  color: #59028a;
-}
 
-/* Style for challenges and BJJ classes*/
-div.challenges-container {
-  display: block;
-  overflow-y: auto;
-  margin: 4rem 10% 1rem 10%;
-  padding: 1rem 1rem;
-  background-color: #ecd9f7;
-  border: 1px solid #59028a;
-  border-radius: 0.1em;
-  box-shadow: 0.1em 0.1em 0.25em 0.25em #59028a;
+/* Classes */
+.bjj-classes {
+    display: block;
+    margin: 4rem 10% 0rem 10%;
+    padding: 1rem 1rem;
+    background-color: lightgrey;
+    border: 1px solid #222;
+    border-radius: 0.5em;
+    box-shadow: 0.1em 0.1em 0.25em 0.25em #222;
+    color: #222;
+    text-align: center;
 }
 div.bjj-classes-container {
   display: block;
   overflow-y: auto;
   margin: 4rem 10% 1rem 10%;
   padding: 1rem 1rem;
-  background-color: #ecd9f7;
+  background-color: lightgrey;
 }
-.challenge-welcome, .bjj-classes {
-    display: block;
-    margin: 4rem 10% 0rem 10%;
-    padding: 1rem 1rem;
-    background-color: #ecd9f7;
-    border: 1px solid #59028a;
-    border-radius: 0.1em;
-    box-shadow: 0.1em 0.1em 0.25em 0.25em #59028a;
-}
-.challenge-welcome > h2, .bjj-classes > h2 {
-    color: #59028a;
-    text-align: center;
-}
-.challenge, .bjj-class {
+.bjj-class {
     display: block;
     text-decoration: none;
     color: black;
@@ -323,7 +288,7 @@ div.bjj-classes-container {
     padding: 1rem;
     margin: 1rem;
     border-radius: 0.5rem;
-    background-color: #40aaf9;
+    background-color: #ca2017;
 }
 .bjj-class.checked-in {
   display: block;
@@ -336,57 +301,10 @@ div.bjj-classes-container {
   background-color: grey;
   pointer-events: none;
 }
-.challenge:hover, .bjj-class:hover {
-    background-color: #e305d6;
+.bjj-class:hover {
+    background-color: #222;
     color: white;
 }
-.challenge-left {
-    width: 50%;
-    float: left;
-}
-.challenge-right {
-    width: 50%;
-    float: right;
-}
-.challenge-box {
-    padding: 0 2rem;
-    margin: 4rem 2rem 2rem;
-    border: 1px solid #59028a;
-    background-color: #ecd9f7;
-    color: #59028a;
-}
-.challenge-box > h2 {
-    text-align: center;
-}
-.challenge-box > h3 {
-    margin: 0;
-}
-
-.challenge-files {
-    display: flex;
-}
-.challenge-sample {
-    display: block;
-    padding: 1rem;
-    background-color: #40aaf9;
-    color: black;
-    text-decoration: none;
-    margin: 1rem 0.5rem;
-    border-radius: 0.5rem;
-}
-.challenge-sample:hover {
-    background-color: #e305d6;
-    color: white;
-}
-.challenge-submission {
-    padding: 0;
-    margin: 0 2rem;
-}
-.challenge-submission > form {
-    padding: 0;
-    margin: 0;
-}
-
 /* Helpers */
 .do-not-wrap {
   white-space: nowrap;
