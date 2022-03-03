@@ -95,7 +95,7 @@ def show_classes():
 
     if classes:
         classes = classes[['class_name', 'weekday', 'class_time', 'end_time', 'Attendances']].fillna(0)
-        classes.sort_values(by=['weekday', 'class_time', 'class_name'], inplace=True)
+        # classes.sort_values(by=['weekday', 'class_time', 'class_name'], inplace=True)
         classes.rename(columns={
             'class_name': 'Class',
             'weekday': 'Day',
