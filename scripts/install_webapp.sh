@@ -1,7 +1,7 @@
 #!/bin/bash
 
-WEBAPP_HOME="/opt/webapp"
-SCRIPTS_DIR="/opt/webapp/scripts"
+WEBAPP_HOME="/opt/bjj"
+SCRIPTS_DIR="/opt/bjj/scripts"
 INSTANCE_HOME="$WEBAPP_HOME/instance"
 
 # Create user
