@@ -5,10 +5,6 @@ from mysql.connector import Error as SQLError
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True, template_folder='routes/templates')
-    app.config.from_mapping(
-        SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'nexusbjj.sqlite'),
-    )
 
     if test_config is None:
         app.config.from_pyfile('config.py', silent=True)
@@ -35,10 +31,7 @@ def create_app(test_config=None):
     from nexusbjj.routes import reports
     app.register_blueprint(reports.bp)
 
-    # from . import validation
-    # validation.init_app(app)
-
-     # Add custom jinja2 filters
+    # Add custom jinja2 filters
     app.add_template_filter(os.path.basename, 'basename')
  
     @app.route('/')
