@@ -14,7 +14,7 @@ cd $WEBAPP_HOME
 
 # Create venv
 apt-get update
-apt-get install -y python3-venv
+apt-get install -y python3-venv python3-pip
 python3 -m venv venv
 
 # Install webapp
