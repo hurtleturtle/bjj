@@ -5,6 +5,13 @@ DROP TABLE IF EXISTS attendance;
 DROP TABLE IF EXISTS memberships;
 SET FOREIGN_KEY_CHECKS=1;
 
+CREATE TABLE memberships (
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    membership_type TEXT NOT NULL,
+    membership_description TEXT,
+    sessions_per_week INTEGER NOT NULL
+);
+
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     email TEXT NOT NULL,
@@ -41,11 +48,4 @@ CREATE TABLE attendance (
     class_time TIME NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (id),
     FOREIGN KEY (class_id) REFERENCES classes (id)
-);
-
-CREATE TABLE memberships (
-    id INTEGER PRIMARY KEY AUTO_INCREMENT,
-    membership_type TEXT NOT NULL,
-    membership_description TEXT,
-    sessions_per_week INTEGER NOT NULL
 );
