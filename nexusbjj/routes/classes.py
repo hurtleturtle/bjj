@@ -1,5 +1,4 @@
 from flask import Blueprint, request, render_template, flash, g
-from pandas import options
 from nexusbjj.routes.auth import admin_required, login_required
 from nexusbjj.forms import gen_form_item, gen_options
 from nexusbjj.db import get_db, QueryResult
@@ -30,7 +29,6 @@ def check_in_to_class():
         return render_template('checkin.html')
 
     df_classes = check_attendance(QueryResult(classes).set_index('id'), current_user_attendance)
-    print(df_classes)
 
     if request_class_id == 'all':
         for class_id in df_classes.index:
@@ -49,7 +47,6 @@ def check_in_to_class():
             flash(error_message)
 
     flag_all_classes_attended = all(df_classes['attendance'])
-    # TODO: add class_date to attendance table
     
     return render_template('checkin.html', classes=df_classes.reset_index().to_dict('records'), 
                            all_classes_attended=flag_all_classes_attended)
