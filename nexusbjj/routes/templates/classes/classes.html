@@ -3,9 +3,9 @@
 {% block title %}Classes{% endblock %}
 
 {% block content %}
+<div class="classes">
 <h1>Classes</h1>
 {% if classes %}
-<div class="classes">
     {% if classes.sequence -%}
         {%- for line in classes.data -%}
             {{ line | safe }}
@@ -13,6 +13,6 @@
     {%- else -%}
         {{ classes | safe }}
     {%- endif %}
-</div>
 {% endif %}
+</div>
 {% endblock %}
