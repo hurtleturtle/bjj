@@ -202,6 +202,11 @@ class Database:
         self.execute(query, params)
         return self.cursor.fetchall()
 
+    def get_membership_types(self):
+        query = 'SELECT id, membership_type FROM memberships'
+        self.execute(query)
+        return self.cursor.fetchall()
+
 
 class QueryResult(DataFrame):
     def __bool__(self):

@@ -2,8 +2,8 @@ import functools
 from flask import Blueprint, flash, g, render_template, request, session
 from flask import url_for, redirect, escape, make_response
 from werkzeug.security import check_password_hash, generate_password_hash
-from nexusbjj.db import get_db
-from nexusbjj.forms import gen_form_item
+from nexusbjj.db import get_db, QueryResult
+from nexusbjj.forms import gen_form_item, gen_options
 from datetime import datetime, timedelta
 
 
@@ -19,6 +19,7 @@ def register():
         first_name = escape(request.form['first_name'])
         last_name = escape(request.form['last_name'])
         mobile = escape(request.form['mobile'])
+        membership_type = escape(request.form['membership_type'])
         db = get_db()
         error = None
 
@@ -27,12 +28,12 @@ def register():
 
         if error is None:
             if confirm_password == password:
-                db.add_user(email, password, first_name, last_name, mobile)
+                db.add_user(email, password, first_name, last_name, mobile, membership_type)
                 return login()
             else:
                 error = 'Your passwords did not match. Please try again.'
                 flash(error)
-                args = (email, first_name, last_name, mobile)
+                args = (email, first_name, last_name, mobile, membership_type)
                 return render_template('auth/register.html', form_groups=get_registration_form(*args))
 
         flash(error)
@@ -40,7 +41,10 @@ def register():
     return render_template('auth/register.html', form_groups=get_registration_form())
 
 
-def get_registration_form(email='', first_name='', last_name='', mobile=''):
+def get_registration_form(email='', first_name='', last_name='', mobile='', membership_id=''):
+    db = get_db()
+    memberships = QueryResult(db.get_membership_types())
+    membership_types = (memberships['membership_type'].str.capitalize()).tolist()
     groups = {
         'user': {
             'group_title': 'Register',
@@ -52,6 +56,10 @@ def get_registration_form(email='', first_name='', last_name='', mobile=''):
                                     value=mobile),
             'email': gen_form_item('email', label='Email', value=email,
                                       required=True, placeholder='Required', item_type='email'),
+            'membership': gen_form_item('membership_type', label='Membership Type', field_type='select',
+                                        options=gen_options(membership_types, 
+                                                            values=memberships['id'].values.tolist()), 
+                                        selected_option=membership_id),
             'password': gen_form_item('password', label='Password', placeholder='Required',
                                       required=True, item_type='password'),
             'confirm_password': gen_form_item('confirm_password', label='Confirm Password', required=True,

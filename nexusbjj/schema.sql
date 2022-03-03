@@ -2,6 +2,7 @@ SET FOREIGN_KEY_CHECKS=0;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS classes;
 DROP TABLE IF EXISTS attendance;
+DROP TABLE IF EXISTS memberships;
 SET FOREIGN_KEY_CHECKS=1;
 
 CREATE TABLE users (
@@ -12,10 +13,12 @@ CREATE TABLE users (
     last_name TEXT NOT NULL,
     mobile_number TEXT NOT NULL,
     grade TEXT,
+    membership_id INTEGER NOT NULL,
     admin TEXT NOT NULL,
     created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_access TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    is_coach BOOLEAN NOT NULL DEFAULT false
+    is_coach BOOLEAN NOT NULL DEFAULT false,
+    FOREIGN KEY (membership_id) REFERENCES memberships (id)
 );
 
 CREATE TABLE classes (
@@ -38,4 +41,11 @@ CREATE TABLE attendance (
     class_time TIME NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (id),
     FOREIGN KEY (class_id) REFERENCES classes (id)
+);
+
+CREATE TABLE memberships (
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    membership_type TEXT NOT NULL,
+    membership_description TEXT,
+    sessions_per_week INTEGER NOT NULL
 );
