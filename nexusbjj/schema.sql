@@ -12,6 +12,14 @@ CREATE TABLE memberships (
     sessions_per_week INTEGER NOT NULL
 );
 
+INSERT INTO memberships (membership_type, sessions_per_week) 
+VALUES 
+    ("pay per session", 0),
+    ("basic", 4),
+    ("intermediate", 6),
+    ("unlimited", (SELECT COUNT(id) FROM classes));
+
+
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     email TEXT NOT NULL,
