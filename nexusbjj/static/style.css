@@ -2,6 +2,7 @@ html, body {
   margin: 0;
   height: 100%;
   font-family: sans-serif;
+  font-size: 1vmax;
 }
 
 html {
@@ -29,6 +30,9 @@ nav {
   align-items: center;
   padding: 0;
   font-size: 16px;
+  font-size: 1vmax;
+  /* border-bottom: 1px solid #222; */
+  box-shadow: 0 0.1em 0.1em #222;
 }
 nav a, nav span {
   text-decoration: none;
@@ -152,7 +156,7 @@ td {
 
 /* Standard form format */
 form {
-  padding: 4rem 30%;
+  padding: 4rem 10%;
 }
 .form-wrapper {
   background: lightgrey;
@@ -198,6 +202,7 @@ form {
 .form-item input, .form-item select, .form-item a, .form-item textarea, .form-item div, .form-item label {
     font-family: sans-serif;
     font-size: 16px;
+    font-size: 1vmax;
     padding: 0.2em 0;
 }
 .form-item input {
