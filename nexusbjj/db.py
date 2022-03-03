@@ -90,10 +90,10 @@ class Database:
         self.execute(query, params)
         return self.cursor.fetchone()
 
-    def add_user(self, email, password, first_name, last_name, mobile_number, admin_level='no'):
-        query = 'INSERT INTO users (email, password, first_name, last_name, mobile_number, admin)'
+    def add_user(self, email, password, first_name, last_name, mobile_number, membership_id, admin_level='no'):
+        query = 'INSERT INTO users (email, password, first_name, last_name, mobile_number, membership_id, admin)'
         query += ' VALUES (%s, %s, %s, %s, %s, %s)'
-        params = (email, generate_password_hash(password), first_name, last_name, mobile_number, admin_level)
+        params = (email, generate_password_hash(password), first_name, last_name, mobile_number, membership_id, admin_level)
         self.execute(query, params)
         self.commit()
 
