@@ -1,3 +1,4 @@
+from distutils.command import check
 import functools
 from flask import Blueprint, flash, g, render_template, request, session
 from flask import url_for, redirect, escape, make_response
@@ -29,7 +30,7 @@ def register():
         if error is None:
             if confirm_password == password:
                 db.add_user(email, password, first_name, last_name, mobile, membership_type)
-                return login()
+                return login(True)
             else:
                 error = 'Your passwords did not match. Please try again.'
                 flash(error)
@@ -74,7 +75,7 @@ def get_registration_form(email='', first_name='', last_name='', mobile='', memb
 
 
 @bp.route('/login', methods=['GET', 'POST'])
-def login():
+def login(check_in=False):
     status_code = 200
     referrer = request.args.get('next')
 
@@ -93,7 +94,12 @@ def login():
         if error is None:
             session.clear()
             session['user_id'] = user['id']
-            url = referrer if referrer else url_for('index')
+
+            if check_in:
+                url = url_for('classes.check_in_to_class')
+            else:
+                url = referrer if referrer else url_for('index')
+            
             return redirect(url)
 
         if error:
