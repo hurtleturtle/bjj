@@ -1,56 +1,65 @@
 {% block navigation %}
-<nav>
-  <div class="menu">
-    <a href="{{ url_for('index')}}"><i class="fas fa-home"></i></a>
-    {% if g.user %}
-    <a href="{{ url_for('classes.check_in_to_class') }}">Check In</a>
-    {% endif %}
-    {% if g.user %}
-      <div class="dropdown">
-        <span>Classes</span>
-        <div class="dropdown-content">
-          <a href="{{ url_for('classes.show_classes') }}">Show Classes</a>
+<nav class="navbar navbar-expand-lg bg-dark navbar-dark container-fluid">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{{ url_for('index')}}"><i class="fas fa-home"></i></a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsibleNavbar">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="collapsibleNavbar">
+      <ul class="navbar-nav">
+        {% if g.user %}
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('classes.check_in_to_class') }}">Check In</a>
+          </li>
+        {% endif %}
+        {% if g.user %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">Classes</a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{{ url_for('classes.show_classes') }}">Show Classes</a></li>
+              {% if g.user['admin'] != 'no' %}
+              <li><a class="dropdown-item" href="{{ url_for('classes.add_class') }}">Add Class</a></li>
+              {% endif %}
+            </ul>
+          </li>
           {% if g.user['admin'] != 'no' %}
-          <a href="{{ url_for('classes.add_class') }}">Add Class</a>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">Reports</a>
+            <ul class="dropdown-menu">
+              <a class="dropdown-item" href="{{ url_for('reports.headcount') }}">Headcount</a>
+              <a class="dropdown-item" href="{{ url_for('reports.attendance_today') }}">Attendance - Today</a>
+              <a class="dropdown-item" href="{{ url_for('reports.attendance_yesterday') }}">Attendance - Yesterday</a>
+              <a class="dropdown-item" href="{{ url_for('reports.attendance_last_week') }}">Attendance - Last Week</a>
+              <a class="dropdown-item" href="{{ url_for('reports.attendance_last_month') }}">Attendance - Last Month</a>
+              <a class="dropdown-item" href="{{ url_for('reports.attendance_custom') }}">Attendance - Custom</a>
+            </ul>
+          </li>
           {% endif %}
-        </div>
-      </div>
-      {% if g.user['admin'] != 'no' %}
-      <div class="dropdown">
-        <span>Reports</span>
-        <div class="dropdown-content">
-          <a href="{{ url_for('reports.headcount') }}">Headcount</a>
-          <a href="{{ url_for('reports.attendance_today') }}">Attendance - Today</a>
-          <a href="{{ url_for('reports.attendance_yesterday') }}">Attendance - Yesterday</a>
-          <a href="{{ url_for('reports.attendance_last_week') }}">Attendance - Last Week</a>
-          <a href="{{ url_for('reports.attendance_last_month') }}">Attendance - Last Month</a>
-          <a href="{{ url_for('reports.attendance_custom') }}">Attendance - Custom</a>
-        </div>
-      </div>
-      {% endif %}
-    {% endif %}
-  </div>
-  <div class="auth">
-    {% if g.user and g.user['admin'] in g.admin_levels %}
-    <div class="dropdown">
-      <a href="{{ url_for('users.show_all') }}">Admin</a>
-      <div class="dropdown-content">
-        <a href="{{ url_for('users.show_all') }}">Users</a>
-      </div>
+        {% endif %}
+        {% if g.user and g.user['admin'] in g.admin_levels %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="{{ url_for('users.show_all') }}">Admin</a>
+            <ul class="dropdown-menu">
+              <a class="dropdown-item" href="{{ url_for('users.show_all') }}">Users</a>
+            </ul>
+          </li>
+        {% endif %}
+        {% if g.user %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#">{{ g.user['first_name'] + ' ' + g.user['last_name'] }}</a>
+            <ul class="dropdown-menu align-right">
+              <a class="dropdown-item" href="{{ url_for('users.change_password', uid=g.user['id']) }}">Change Password</a>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
+          </li>
+        {% else %}
+          <a href="{{ url_for('auth.register') }}">Register</a>
+          <a href="{{ url_for('auth.login') }}">Login</a>
+        {% endif %}
+      </ul>
     </div>
-    {% endif %}
-    {% if g.user %}
-      <div class="dropdown">
-        <span>{{ g.user['first_name'] + ' ' + g.user['last_name'] }}</span>
-        <div class="dropdown-content align-right">
-          <a href="{{ url_for('users.change_password', uid=g.user['id']) }}">Change Password</a>
-        </div>
-      </div>
-      <a href="{{ url_for('auth.logout') }}">Logout</a>
-    {% else %}
-      <a href="{{ url_for('auth.register') }}">Register</a>
-      <a href="{{ url_for('auth.login') }}">Login</a>
-    {% endif %}
   </div>
 </nav>
 {% endblock %}
