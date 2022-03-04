@@ -125,9 +125,10 @@ def attendance_last_month():
 
 def get_attendance(start_date, end_date):
     error = ''
+    start_date = datetime.fromisoformat(start_date)
+    end_date = datetime.fromisoformat(end_date)
     if start_date == end_date:
-        start_date = datetime.fromisoformat(start_date)
-        end_date = (datetime.fromisoformat(end_date) + timedelta(days=1)).replace(hour=0, minute=0, second=0)
+        end_date += end_date.replace(hour=23, minute=59, second=59)
         error = f'No classes were attended on {start_date.strftime("%A, %d %b %Y")}.'
     else:
         error = f'No classes were attended between {start_date.strftime("%A, %d %b %Y")} and '
