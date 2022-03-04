@@ -121,7 +121,6 @@ def get_attendance(start_date, end_date):
     error = ''
     start_date = datetime.fromisoformat(start_date) if type(start_date) == str else start_date
     end_date = datetime.fromisoformat(end_date) if type(end_date) == str else end_date
-    end_date = end_date.replace(hour=23, minute=59, second=59)
 
     if start_date == end_date:  
         error = f'No classes were attended on {start_date.strftime("%A, %d %b %Y")}.'
@@ -129,6 +128,7 @@ def get_attendance(start_date, end_date):
         error = f'No classes were attended between {start_date.strftime("%A, %d %b %Y")} and '
         error += f'{end_date.strftime("%A, %d %b %Y")}.'
 
+    end_date = end_date.replace(hour=23, minute=59, second=59)
     db = get_db()
     results = QueryResult(db.get_attendance(start_date, end_date))
     
