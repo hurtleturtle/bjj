@@ -1,7 +1,7 @@
 from flask import Blueprint, flash, g, render_template, request, url_for
 from flask import redirect, escape
 from werkzeug.security import check_password_hash, generate_password_hash
-from nexusbjj.db import get_db
+from nexusbjj.db import get_db, QueryResult
 from nexusbjj.routes.auth import admin_required, write_admin_required, login_required
 from nexusbjj.forms import gen_form_item, gen_options
 
@@ -13,8 +13,8 @@ bp = Blueprint('users', __name__, url_prefix='/users')
 @admin_required
 def show_all():
     db = get_db()
-    users = db.get_users()
-    return render_template('users/list.html', users=users)
+    users = QueryResult(db.get_users(columns=('id', 'first_name', 'last_name', 'last_access')))
+    return render_template('users/list.html', table_data=users, table_title='Users')
 
 
 @bp.route('/<int:uid>/edit', methods=['GET', 'POST'])

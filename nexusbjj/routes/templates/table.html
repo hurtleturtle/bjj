@@ -11,7 +11,7 @@
             {% for column in table_data.columns %}
               <th>{{ column }}</th>
             {% endfor %}
-            {% block extra_table_headers %}{% endblock %}
+            {% block extra_table_column_headers %}{% endblock %}
           </tr>
         </thead>
         <tbody>
@@ -20,9 +20,9 @@
               {% for cell in row %}
                 <td>{{ cell }}</td>
               {% endfor %}
+              {% block extra_table_column_cells %}{% endblock %}
             </tr>
           {% endfor %}
-          {% block extra_table_rows %}{% endblock %}
         </tbody>
       </table>
     </div>

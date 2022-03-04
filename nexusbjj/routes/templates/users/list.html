@@ -1,44 +1,49 @@
 {% extends "base.html" %}
 
-{% block header %}
-<h1>{% block title %}Users{% endblock %}</h1>
-{% endblock %}
+{% block title %}Users{% endblock %}
 
 {% block content %}
-  <table class="users">
-    <tr class="user-header">
-      <th>Email</th>
-      <th>Admin Status</th>
-      <th>Coach</th>
-      <th>Last Accessed</th>
-      {% if g.user.admin == 'read-write' %}
-        <th class="action">Actions</th>
-      {% endif %}
-    </tr>
-    {% for user in users %}
-      <tr class="user">
-        <td>{{ user.email }}</td>
-        <td>{{ user.admin }}</td>
-        <td>{{ user.is_coach }}</td>
-        <td>{{ user.last_access }}</td>
-        {% if g.user.admin == 'read-write' %}
-          <td class="action">
-            <a href="{{ url_for('users.add_coach', uid=user.id) }}">
-              <i class="fas fa-lock-open"></i>
-            </a>
-            <a href="{{ url_for('users.remove_coach', uid=user.id) }}">
-              <i class="fas fa-ban"></i>
-            </a>
-            <a href="{{ url_for('users.edit', uid=user.id) }}">
-              <i class="fas fa-edit"></i>
-            </a>
-            <a href="{{ url_for('users.delete', uid=user.id) }}"
-             onclick="return confirm('Are you sure?');" method="delete">
-             <i class="fas fa-trash"></i>
-            </a>
-          </td>
-        {% endif %}
-      </tr>
-    {% endfor %}
-  </table>
+  {% if table_data %}
+    <div class="container nexus-table">
+        <div class="rounded title py-1 my-2">
+            <h1>{{ table_title }}</h1>
+            {% if table_subtitle %}<h2>{{ table_subtitle }}</h2>{% endif %}
+        </div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                {% for column in table_data.columns %}
+                  <th>{{ column }}</th>
+                {% endfor %}
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for index, row in table_data.iterrows() %}
+                <tr>
+                  {% for cell in row %}
+                    <td>{{ cell }}</td>
+                  {% endfor %}
+                  <td class="action">
+                    <a href="{{ url_for('users.add_coach', uid=row['id']) }}">
+                      <i class="fas fa-lock-open"></i>
+                    </a>
+                    <a href="{{ url_for('users.remove_coach', uid=row['id']) }}">
+                      <i class="fas fa-ban"></i>
+                    </a>
+                    <a href="{{ url_for('users.edit', uid=row['id']) }}">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{{ url_for('users.delete', uid=row['id']) }}" onclick="confirm('Are you sure?');" method="delete">
+                    <i class="fas fa-trash"></i>
+                    </a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+    </div>
+  {% endif %}
 {% endblock %}
