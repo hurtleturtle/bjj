@@ -42,12 +42,17 @@ def create_app(test_config=None):
     def handle_internal_server_error(e):
         error = 'Application error. Please try again or contact the administrator.'
         flash(error)
-        return render_template('base.html')
+        return render_template('base.html'), 500
+
+    @app.errorhandler(404)
+    def handle_page_not_found(e):
+        flash('Page not found.')
+        return render_template('base.html'), 404
 
     @app.errorhandler(504)
     def handle_gateway_error(e):
         flash('Gateway error.')
-        return render_template('base.html')
+        return render_template('base.html'), 504
 
     # @app.errorhandler(SQLError)
     # def handle_db_error(e):
