@@ -107,7 +107,7 @@ if __name__ == '__main__':
             if attendance_date > datetime.today():
                 attendance_date = attendance_date - timedelta(days=365)
             
-            params = (user_id, _class['id'], attendance_date.date(), _class['class_time'], attendance_date)
+            params = (user_id, _class['class_id'], attendance_date.date(), _class['class_time'], attendance_date)
             db.execute(query, params)
             db.commit()
             _class['user'] = user_id
