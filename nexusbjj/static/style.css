@@ -1,13 +1,6 @@
 html, body {
   margin: 0;
   height: 100%;
-  font-family: sans-serif;
-  font-size: 1vmax;
-}
-
-html {
-  background: url(bear.jpg) no-repeat center center fixed;
-  background-size: contain;
 }
 
 /* Flexbox wrapper for base page */
@@ -15,6 +8,8 @@ html {
   display: flex;
   flex-flow: column;
   height: 100%;
+  background: url(bear.png) no-repeat center center fixed;
+  background-size: contain;
 }
 
 /* Navbar */
@@ -22,83 +17,23 @@ section.navbar {
   flex: 0 1 auto;
   z-index: 1;
 }
+.bear-logo {
+  width: 40px;
+}
+.bear-logo:hover {
+  background-color: inherit;
+}
 nav {
   color: #222;
   background: white;
-  display: flex;
-  flex: 0 1 auto;
-  align-items: center;
-  padding: 0;
-  font-size: 16px;
-  font-size: 1vmax;
-  /* border-bottom: 1px solid #222; */
-  box-shadow: 0 0.1em 0.1em #222;
 }
 nav a, nav span {
-  text-decoration: none;
   color: #222;
-  margin: 0;
-  display: block;
-  padding: 0.5rem;
-  cursor: pointer;
 }
 nav a:hover, nav span:hover {
   background: #ca2017;
   color: white;
 }
-nav > div {
-  display: flex;
-  margin: 0;
-  padding: 0;
-}
-nav > div.menu {
-  flex: auto;
-}
-
-/* Navbar dropdowns */
-.dropdown {
-  float: left;
-  overflow: hidden;
-  border: none;
-  outline: none;
-  color: white;
-  background-color: inherit;
-  font-family: inherit;
-  margin: 0;
-}
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #222;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  z-index: 1;
-}
-.dropdown-content.align-right {
-  right: 4.5rem;
-  left: auto;
-}
-.dropdown-content a {
-  float: none;
-  color: white;
-  text-decoration: none;
-  display: block;
-  text-align: left;
-}
-.dropdown-content a:hover {
-  background-color: #ca2017;
-}
-.dropdown:hover .dropdown-content {
-  display: block;
-}
-
-/* Background image for home page */
-section.content {
-  flex: 1 1 auto;
-  background-size: cover;
-  overflow-y: auto;
-}
-
 
 /* Flash messages on base template */
 .flash {
