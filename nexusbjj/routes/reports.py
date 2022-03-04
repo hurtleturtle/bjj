@@ -19,12 +19,11 @@ def headcount():
     class_date = today.strftime('%A, %d %b %Y')
     results, error = get_attendance(today.isoformat(), today.isoformat())
     if results:
-        summary = results[['class_name', 'user_id']].groupby('class_name').count().reset_index()\
-                                                  .rename(columns={
-                                                            'class_name': 'Class',
-                                                            'user_id': 'Attendees'
-                                                         })\
-                                                  .to_html(index=False)
+        summary = QueryResult(results[['class_name', 'user_id']].groupby('class_name').count().reset_index()\
+                                                                .rename(columns={
+                                                                    'class_name': 'Class',
+                                                                    'user_id': 'Attendees'
+                                                                }))
     else:
         summary = QueryResult(db.get_classes(weekday=today.strftime('%A')))
         if summary:
@@ -59,7 +58,7 @@ def attendance_custom():
         end_date = request.form.get('end_date')
         results, error = get_attendance(start_date, end_date)
         if results:
-            return render_template('attendance.html', result=results.to_html(index=False), start_date=start_date,
+            return render_template('attendance.html', result=results, start_date=start_date,
                                    end_date=end_date)
         else:
             flash(error)
@@ -73,7 +72,7 @@ def attendance_today():
     today = datetime.today().date().isoformat()
     results, error = get_attendance(today, today)
     if results:
-            return render_template('attendance.html', result=results.to_html(index=False), start_date=today,
+            return render_template('attendance.html', result=results, start_date=today,
                                    end_date=today)
     else:
         flash(error)
@@ -86,7 +85,7 @@ def attendance_yesterday():
     yesterday = (datetime.today().date() - timedelta(days=1)).isoformat()
     results, error = get_attendance(yesterday, yesterday)
     if results:
-            return render_template('attendance.html', result=results.to_html(index=False), start_date=yesterday,
+            return render_template('attendance.html', result=results, start_date=yesterday,
                                    end_date=yesterday)
     else:
         flash(error)
@@ -101,7 +100,7 @@ def attendance_last_week():
     last_monday = last_sunday - timedelta(days=7)
     results, error = get_attendance(last_monday, last_sunday)
     if results:
-            return render_template('attendance.html', result=results.to_html(index=False), start_date=last_monday,
+            return render_template('attendance.html', result=results, start_date=last_monday,
                                    end_date=last_sunday)
     else:
         flash(error)
@@ -116,7 +115,7 @@ def attendance_last_month():
     last_of_month = datetime(today.year, today.month, day=1, hour=23, minute=59, second=59) - timedelta(days=1)
     results, error = get_attendance(first_of_month, last_of_month)
     if results:
-            return render_template('attendance.html', result=results.to_html(index=False), start_date=first_of_month,
+            return render_template('attendance.html', result=results, start_date=first_of_month,
                                    end_date=last_of_month)
     else:
         flash(error)
@@ -125,10 +124,11 @@ def attendance_last_month():
 
 def get_attendance(start_date, end_date):
     error = ''
-    start_date = datetime.fromisoformat(start_date)
-    end_date = datetime.fromisoformat(end_date)
+    print(type(start_date), type(end_date))
+    start_date = datetime.fromisoformat(start_date) if type(start_date) == str else start_date
+    end_date = datetime.fromisoformat(end_date) if type(end_date) == str else end_date
     if start_date == end_date:
-        end_date += end_date.replace(hour=23, minute=59, second=59)
+        end_date = end_date.replace(hour=23, minute=59, second=59)
         error = f'No classes were attended on {start_date.strftime("%A, %d %b %Y")}.'
     else:
         error = f'No classes were attended between {start_date.strftime("%A, %d %b %Y")} and '
