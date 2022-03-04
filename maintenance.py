@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from multiprocessing.sharedctypes import Value
 import os
 from argparse import ArgumentParser
 import shlex
@@ -36,8 +37,11 @@ def get_database_details(host, user, password, config_path='instance/config.py')
         try:
             with open(config_path) as f:
                 for line in f:
-                    key, equals, value = shlex.split(line)
-                    config[key] = value
+                    try:
+                        key, equals, value = shlex.split(line)
+                        config[key] = value
+                    except ValueError:
+                        pass
             host = config.get('DATABASE_HOST') if not host else host
             user = config.get('DATABASE_USER') if not user else user
             password = config.get('DATABASE_PASS') if not password else password
