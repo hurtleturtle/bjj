@@ -75,14 +75,17 @@ def get_registration_form(email='', first_name='', last_name='', mobile='', memb
 
 
 @bp.route('/login', methods=['GET', 'POST'])
-def login(check_in=False):
+def login(check_in=True):
     status_code = 200
     referrer = request.args.get('next')
+    db = get_db()
+
+    if db.get_user():
+        return redirect(url_for('classes.check_in_to_class'))
 
     if request.method == 'POST':
         email = escape(request.form['email'])
         password = escape(request.form['password'])
-        db = get_db()
         error = None
         user = db.get_user(name=email)
 
@@ -96,7 +99,7 @@ def login(check_in=False):
             session['user_id'] = user['id']
 
             if check_in:
-                url = url_for('classes.check_in_to_class')
+                url = referrer if referrer else url_for('classes.check_in_to_class')
             else:
                 url = referrer if referrer else url_for('index')
             
