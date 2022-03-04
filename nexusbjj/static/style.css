@@ -93,6 +93,16 @@ td {
   text-shadow: 0.1em 0.1em 0.1em black;
 }
 
+/* Download button */
+.btn-download {
+  border-top-left-radius: 0.5em !important;
+  border-top-right-radius: 0.5em !important;
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  border-top: 0.1em solid #222;
+  border-left: 0.1em solid #222;
+  border-right: 0.1em solid #222;
+}
 /* Standard form format */
 form {
   padding: 3%;
