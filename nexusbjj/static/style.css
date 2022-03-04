@@ -37,7 +37,8 @@ nav a:hover, nav span:hover {
 
 /* Flash messages on base template */
 .flash {
-  margin: 4rem 1rem -2rem 1rem;
+  margin: 4rem 1rem 2rem 1rem;
+  border-radius: 1em;
   padding: 1rem;
   background: #222;
   box-shadow: 0em 5px 5px 0em #222;
@@ -132,12 +133,6 @@ form {
 .danger {
   background-color: red;
 }
-::before, ::after {
-  box-sizing: border-box;
-}
-
-/* Attendance layout */
-
 
 /* Classes */
 .bjj-classes-outer-wrapper {
