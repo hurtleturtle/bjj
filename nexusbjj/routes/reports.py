@@ -13,7 +13,7 @@ bp = Blueprint('reports', __name__, url_prefix='/reports', template_folder='temp
 
 @bp.route('/attendance/headcount')
 @admin_required
-def headcount():
+def headcount(export_to_csv=False):
     today = datetime.today().date()
     db = get_db()
     class_date = today.strftime('%A, %d %b %Y')
@@ -34,12 +34,12 @@ def headcount():
             flash(f'No classes found for {class_date}.')
             return render_template('report.html')
 
-    return get_report_template(QueryResult(summary), today, today, 'Headcount')
+    return get_report_template(QueryResult(summary), today, today, 'Headcount', to_csv=False)
 
 
 @bp.route('/attendance/custom', methods=['GET', 'POST'])
 @admin_required
-def attendance_custom():
+def attendance_custom(export_to_csv=False):
     groups = {
         'report': {
             'group_title': 'Generate Attendance Report'
@@ -67,9 +67,9 @@ def attendance_custom():
 
 @bp.route('/attendance/today')
 @admin_required
-def attendance_today():
+def attendance_today(export_to_csv=False):
     today = datetime.today().date().isoformat()
-    results, error = get_attendance(today, today)
+    results, error = get_attendance(today, today, brief=True)
     if results:
         return get_report_template(results, today, today)
     else:
@@ -79,9 +79,9 @@ def attendance_today():
 
 @bp.route('/attendance/yesterday')
 @admin_required
-def attendance_yesterday():
-    yesterday = (datetime.today().date() - timedelta(days=1)).isoformat()
-    results, error = get_attendance(yesterday, yesterday)
+def attendance_yesterday(export_to_csv=False):
+    yesterday = (datetime.today() - timedelta(days=1)).isoformat()
+    results, error = get_attendance(yesterday, yesterday, brief=True)
     if results:
         return get_report_template(results, yesterday, yesterday)
     else:
@@ -91,8 +91,8 @@ def attendance_yesterday():
 
 @bp.route('/attendance/last-week')
 @admin_required
-def attendance_last_week():
-    today = datetime.today().date()
+def attendance_last_week(export_to_csv=False):
+    today = datetime.today()
     last_sunday = today - timedelta(days=today.weekday()+1)
     last_monday = last_sunday - timedelta(days=7)
     results, error = get_attendance(last_monday, last_sunday)
@@ -105,8 +105,8 @@ def attendance_last_week():
 
 @bp.route('/attendance/last-month')
 @admin_required
-def attendance_last_month():
-    today = datetime.today().date()
+def attendance_last_month(export_to_csv=False):
+    today = datetime.today()
     first_of_month = datetime(today.year, today.month - 1, 1)
     last_of_month = datetime(today.year, today.month, day=1, hour=23, minute=59, second=59) - timedelta(days=1)
     results, error = get_attendance(first_of_month, last_of_month)
@@ -117,7 +117,13 @@ def attendance_last_month():
         return redirect(url_for('reports.attendance_custom'))
 
 
-def get_attendance(start_date, end_date):
+@bp.route('/csv')
+@admin_required
+def csv():
+    pass
+
+
+def get_attendance(start_date, end_date, brief=False):
     error = ''
     start_date = datetime.fromisoformat(start_date) if type(start_date) == str else start_date
     end_date = datetime.fromisoformat(end_date) if type(end_date) == str else end_date
@@ -133,7 +139,11 @@ def get_attendance(start_date, end_date):
     results = QueryResult(db.get_attendance(start_date, end_date))
     
     if results:
-        results.sort_values(by=['class_date', 'class_time', 'class_name', 'date'], inplace=True)
+        results.sort_values(by=['class_date', 'class_time', 'class_name', 'check_in_time'], inplace=True)
+        columns = ['class_name', 'full_name', 'check_in_time']
+        if not brief:
+            columns[1:1] = ['class_date', 'class_time']
+        results = QueryResult(results[columns])
     
     return results, error
 
@@ -152,6 +162,7 @@ def format_start_and_end(start_time, end_time):
     return result
 
 
-def get_report_template(results, start_time, end_time, title='Attendance'):
+def get_report_template(results, start_time, end_time, title='Attendance', to_csv=True):
     sub_title = format_start_and_end(start_time, end_time)
-    return render_template('report.html', table_data=results, page_title=title, table_title=title, table_subtitle=sub_title)
+    return render_template('report.html', table_data=results, page_title=title, table_title=title, table_subtitle=sub_title,
+                           start_time=start_time, end_time=end_time, to_csv=to_csv)
