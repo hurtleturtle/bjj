@@ -46,10 +46,6 @@ nav a:hover, nav span:hover {
 
 /* Standard table format */
 .content table {
-  margin: 4rem 2.5%;
-  width: 95%;
-  table-layout: fixed;
-  overflow-wrap: break-word;
   box-shadow: 0em 5px 5px 0em #222;
   border: 2px solid #222;
 }
@@ -73,8 +69,8 @@ td i.fa-ban {
   color: red;
 }
 th {
-  background: #ca2017;
-  color: white;
+  background: #ca2017 !important;
+  color: white !important;
 }
 tr:nth-child(even) {
   background: white
@@ -133,16 +129,16 @@ form {
   box-sizing: border-box;
 }
 
-/* Results layout */
-div.results {
-    background-color: darkgray;
-    padding: 1rem;
-    margin: 0 10%;
-    color: white;
-    overflow-x: auto;
+/* Attendance layout */
+.attendance > .title {
+  color: white;
+  background-color: #222;
+  text-align: center;
+  font-weight: bold;
+  text-shadow: 0.1em 0.1em 0.1em black;
 }
-div.results > h2 {
-    text-align: center;
+.attendance > .title > p {
+  padding-bottom: 0;
 }
 
 /* Classes */

@@ -9,20 +9,31 @@
     {% include "form.html" %}
   {% endif %}
   {% if result %}
-  <div class="results">
-      <h2>Results</h2>
-      {% if start_date == end_date %}
-        <p>Attendance at classes on {{ start_date }}. </p>
-      {% else %}
-        <p>Attendance at classes between {{ start_date }} and {{ end_date }}. </p>
-      {% endif %}
-      {% if result.sequence -%}
-          {%- for line in result.data -%}
-              <p>{{ line | safe }}</p>
-          {%- endfor -%}
-      {%- else -%}
-          <p>{{ result | safe }}</p>
-      {%- endif %}
+  <div class="container attendance">
+    <div class="rounded title py-1 my-2">
+      <h1>Attendance</h1>
+      <p>{{ start_date }}{%- if start_date != end_date %} to {{ end_date }}{%- endif -%}</p>
+    </div>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            {% for column in result.columns %}
+              <th>{{ column }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for index, row in result.iterrows() %}
+            <tr>
+              {% for cell in row %}
+                <td>{{ cell }}</td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
   {% endif %}
 {% endblock %}
