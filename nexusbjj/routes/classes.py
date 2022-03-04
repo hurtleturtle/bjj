@@ -143,6 +143,7 @@ def add_class():
         class_duration = form.get('class_duration')
 
         db.add_class(class_name, class_day, class_time, class_duration, class_coach_id, class_type)
+        db.update_unlimited_class_count()
 
         flash('Class added!')
 

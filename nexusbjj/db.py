@@ -84,8 +84,8 @@ class Database:
                 current_user_id = g.user['id']
                 query += 'id = %s'
                 params = (current_user_id,)
-            except RuntimeError:
-                return params
+            except (RuntimeError, TypeError):
+                return ''
 
         self.execute(query, params)
         return self.cursor.fetchone()
@@ -206,6 +206,11 @@ class Database:
         query = 'SELECT id, membership_type FROM memberships'
         self.execute(query)
         return self.cursor.fetchall()
+
+    def update_unlimited_class_count(self):
+        query = 'UPDATE memberships SET sessions_per_week = (SELECT COUNT(id) FROM classes) WHERE membership_type = "unlimited"'
+        self.execute(query)
+        return self.commit()
 
 
 class QueryResult(DataFrame):
