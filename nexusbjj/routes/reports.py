@@ -32,9 +32,9 @@ def headcount():
             summary.rename(columns={'class_name': 'Classes'})
         else:
             flash(f'No classes found for {class_date}.')
-            return render_template('headcount.html')
+            return render_template('report.html')
 
-    return render_template('headcount.html', result=summary, class_date=class_date)
+    return get_report_template(summary, today, today, 'Headcount')
 
 
 @bp.route('/attendance/custom', methods=['GET', 'POST'])
@@ -58,12 +58,11 @@ def attendance_custom():
         end_date = request.form.get('end_date')
         results, error = get_attendance(start_date, end_date)
         if results:
-            return render_template('attendance.html', result=results, start_date=start_date,
-                                   end_date=end_date)
+            return get_report_template(results, start_date, end_date)
         else:
             flash(error)
 
-    return render_template('attendance.html', form_groups=groups)
+    return render_template('report.html', form_groups=groups)
 
 
 @bp.route('/attendance/today')
@@ -72,8 +71,7 @@ def attendance_today():
     today = datetime.today().date().isoformat()
     results, error = get_attendance(today, today)
     if results:
-            return render_template('attendance.html', result=results, start_date=today,
-                                   end_date=today)
+        return get_report_template(results, today, today)
     else:
         flash(error)
         return redirect(url_for('reports.attendance_custom'))
@@ -85,8 +83,7 @@ def attendance_yesterday():
     yesterday = (datetime.today().date() - timedelta(days=1)).isoformat()
     results, error = get_attendance(yesterday, yesterday)
     if results:
-            return render_template('attendance.html', result=results, start_date=yesterday,
-                                   end_date=yesterday)
+        return get_report_template(results, yesterday, yesterday)
     else:
         flash(error)
         return redirect(url_for('reports.attendance_custom'))
@@ -100,8 +97,7 @@ def attendance_last_week():
     last_monday = last_sunday - timedelta(days=7)
     results, error = get_attendance(last_monday, last_sunday)
     if results:
-            return render_template('attendance.html', result=results, start_date=last_monday,
-                                   end_date=last_sunday)
+            return get_report_template(results, last_monday, last_sunday)
     else:
         flash(error)
         return redirect(url_for('reports.attendance_custom'))
@@ -115,8 +111,7 @@ def attendance_last_month():
     last_of_month = datetime(today.year, today.month, day=1, hour=23, minute=59, second=59) - timedelta(days=1)
     results, error = get_attendance(first_of_month, last_of_month)
     if results:
-            return render_template('attendance.html', result=results, start_date=first_of_month,
-                                   end_date=last_of_month)
+            return get_report_template(results, first_of_month, last_of_month)
     else:
         flash(error)
         return redirect(url_for('reports.attendance_custom'))
@@ -124,11 +119,11 @@ def attendance_last_month():
 
 def get_attendance(start_date, end_date):
     error = ''
-    print(type(start_date), type(end_date))
     start_date = datetime.fromisoformat(start_date) if type(start_date) == str else start_date
     end_date = datetime.fromisoformat(end_date) if type(end_date) == str else end_date
-    if start_date == end_date:
-        end_date = end_date.replace(hour=23, minute=59, second=59)
+    end_date = end_date.replace(hour=23, minute=59, second=59)
+
+    if start_date == end_date:  
         error = f'No classes were attended on {start_date.strftime("%A, %d %b %Y")}.'
     else:
         error = f'No classes were attended between {start_date.strftime("%A, %d %b %Y")} and '
@@ -141,3 +136,22 @@ def get_attendance(start_date, end_date):
         results.sort_values(by=['class_date', 'class_time', 'class_name', 'date'], inplace=True)
     
     return results, error
+
+
+def format_time(time):
+    if type(time) == str:
+        time = datetime.fromisoformat(time)
+    return time.strftime('%A, %d %b %Y')
+
+
+def format_start_and_end(start_time, end_time):
+    result = format_time(start_time)
+    if end_time != start_time:
+        result += ' - ' + format_time(end_time)
+
+    return result
+
+
+def get_report_template(results, start_time, end_time, title='Attendance'):
+    sub_title = format_start_and_end(start_time, end_time)
+    return render_template('report.html', table_data=results, page_title=title, table_title=title, table_subtitle=sub_title)

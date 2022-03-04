@@ -84,6 +84,13 @@ tr:hover {
 td {
   color: #222;
 }
+.nexus-table > .title {
+  color: white;
+  background-color: #222;
+  text-align: center;
+  font-weight: bold;
+  text-shadow: 0.1em 0.1em 0.1em black;
+}
 
 /* Standard form format */
 form {
@@ -130,16 +137,7 @@ form {
 }
 
 /* Attendance layout */
-.attendance > .title, .headcount > .title {
-  color: white;
-  background-color: #222;
-  text-align: center;
-  font-weight: bold;
-  text-shadow: 0.1em 0.1em 0.1em black;
-}
-.attendance > .title > p, .headcount > .title > p {
-  padding-bottom: 0;
-}
+
 
 /* Classes */
 .bjj-classes-outer-wrapper {

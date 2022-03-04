@@ -15,4 +15,30 @@
     {%- endif %}
 {% endif %}
 </div>
+
+<div class="container classes">
+    <div class="rounded title py-1 my-2">
+        <h1>Classes</h1>
+      </div>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            {% for column in classes.columns %}
+              <th>{{ column }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for index, row in classes.iterrows() %}
+            <tr>
+              {% for cell in row %}
+                <td>{{ cell }}</td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
 {% endblock %}
