@@ -16,7 +16,8 @@ INSERT INTO memberships (membership_type, sessions_per_week)
 VALUES 
     ("pay per session", 0),
     ("basic", 4),
-    ("intermediate", 6);
+    ("intermediate", 6),
+    ("unlimited", 14);
 
 
 CREATE TABLE users (
