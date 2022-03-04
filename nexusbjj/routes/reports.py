@@ -34,7 +34,7 @@ def headcount():
             flash(f'No classes found for {class_date}.')
             return render_template('report.html')
 
-    return get_report_template(summary, today, today, 'Headcount')
+    return get_report_template(QueryResult(summary), today, today, 'Headcount')
 
 
 @bp.route('/attendance/custom', methods=['GET', 'POST'])
