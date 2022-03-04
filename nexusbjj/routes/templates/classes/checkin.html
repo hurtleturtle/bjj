@@ -1,11 +1,12 @@
 {% extends "base.html" %}
 {% block title %}Check In{% endblock %}
 {% block content %}
-  <div class="bjj-classes">
+  <div class="bjj-classes-outer-wrapper container">
   {% if classes %}
+    <div class="bjj-classes-mid-wrapper">
       <h2>Classes</h2>
       <p>Check in for one or all of the classes below</p>
-      <div class="bjj-classes-container">
+      <div class="bjj-classes-inner-wrapper">
         <a class="bjj-class {% if all_classes_attended %}checked-in{% endif %}" 
          href="{{ url_for('classes.check_in_to_class', class_id='all') }}">
           <h2>All Classes</h2>
@@ -20,6 +21,7 @@
         </a>
         {% endfor %}
       </div>
+    </div>
   {% else %}
       <h2>No classes available today</h2>
   {% endif %}
