@@ -103,7 +103,7 @@ def show_classes():
             'end_time': 'Finish Time'
         }, inplace=True)
         classes['Attendances'] = classes['Attendances'].astype(int)
-    return render_template('classes.html', classes=classes.to_html(index=False))
+    return render_template('classes.html', table_data=QueryResult(classes), table_title='Classes')
 
 
 @bp.route('/add-class', methods=['GET', 'POST'])
