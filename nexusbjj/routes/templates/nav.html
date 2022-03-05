@@ -34,7 +34,7 @@
               <a class="dropdown-item" href="{{ url_for('reports.attendance_custom') }}">Attendance - Custom</a>
             </ul>
           </li>
-        {% else %}
+        {% elif g.user %}
           <li class="nav-item">
             <a class="nav-link rounded" href="{{ url_for('classes.show_classes') }}">Timetable</a>
           </li>
