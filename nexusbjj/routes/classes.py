@@ -3,6 +3,8 @@ from nexusbjj.routes.auth import admin_required, login_required
 from nexusbjj.forms import gen_form_item, gen_options
 from nexusbjj.db import get_db, QueryResult
 from datetime import datetime, time
+from calendar import day_name
+from pandas import Categorical
 
 
 bp = Blueprint('classes', __name__, url_prefix='/classes', template_folder='templates/classes')
@@ -95,7 +97,8 @@ def show_classes():
 
     if classes:
         classes = classes[['class_name', 'weekday', 'class_time', 'end_time', 'Attendances']].fillna(0)
-        # classes.sort_values(by=['weekday', 'class_time', 'class_name'], inplace=True)
+        classes['weekday'] = Categorical(classes['weekday'], categories=list(day_name), ordered=True)
+        classes.sort_values(by=['weekday', 'class_time', 'class_name'], inplace=True)
         classes.rename(columns={
             'class_name': 'Class',
             'weekday': 'Day',
