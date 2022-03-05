@@ -14,10 +14,10 @@ bp = Blueprint('reports', __name__, url_prefix='/reports', template_folder='temp
 @bp.route('/attendance/headcount')
 @admin_required
 def headcount(export_to_csv=False):
-    today = datetime.today().date()
+    today = datetime.today()
     db = get_db()
     class_date = today.strftime('%A, %d %b %Y')
-    results, error = get_attendance(today.isoformat(), today.isoformat())
+    results, error = get_attendance(today.isoformat(), today.isoformat(), headcount=True)
     if results:
         summary = QueryResult(results[['class_name', 'user_id']].groupby('class_name').count().reset_index()\
                                                                 .rename(columns={
@@ -164,7 +164,7 @@ def csv():
 
 
 
-def get_attendance(start_date, end_date, brief=False):
+def get_attendance(start_date, end_date, brief=False, headcount=False):
     error = ''
     start_date = datetime.fromisoformat(start_date) if type(start_date) == str else start_date
     end_date = datetime.fromisoformat(end_date) if type(end_date) == str else end_date
@@ -186,6 +186,8 @@ def get_attendance(start_date, end_date, brief=False):
         if not brief:
             columns[1:1] = ['class_date', 'class_time']
             columns[-1:-1] = ['membership_type']
+        if headcount:
+            columns += ['class_id', 'user_id']
         results = QueryResult(results[columns])
     
     return results, error
