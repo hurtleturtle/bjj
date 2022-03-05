@@ -158,11 +158,6 @@ def generate_form_groups(user):
         'submit': {
             'button': gen_form_item('btn-submit', item_type='submit',
                                     value='Update', field_type='input')
-        },
-        'delete': {
-            'button': gen_form_item('delete', field_class='danger',
-                                    field_type='link', href=delete_href,
-                                    value='Delete')
         }
     }
     return groups

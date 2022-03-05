@@ -35,9 +35,6 @@
                     <a href="{{ url_for('users.edit', uid=row['id']) }}">
                       <i class="fas fa-edit"></i>
                     </a>
-                    <a href="{{ url_for('users.delete', uid=row['id']) }}" onclick="confirm('Are you sure?');" method="delete">
-                    <i class="fas fa-trash"></i>
-                    </a>
                   </td>
                 </tr>
               {% endfor %}
