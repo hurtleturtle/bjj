@@ -6,7 +6,8 @@
     </div>
     {% if g.user and g.user['admin'] in g.admin_levels and to_csv %}
       <div class="d-flex flex-row-reverse">
-        <button class="btn btn-primary btn-download">Download</button>
+        <a class="btn btn-primary btn-download" 
+         href="{{ url_for('reports.csv', report=report, start_date=start_date, end_date=end_date) }}">Download</a>
       </div>
     {% endif %}
     <div class="table-responsive">
