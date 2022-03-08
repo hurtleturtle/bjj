@@ -25,12 +25,14 @@ def check_in_to_class():
         request_class_id = int(request.args.get('class_id'))
     except:
         request_class_id = request.args.get('class_id')
-    classes = db.get_classes()
-    
+    classes = QueryResult(db.get_classes(weekday='Monday'))
+    classes = order_by_weekday(classes)
+    classes.sort_values(by=['class_time'], inplace=True)
+
     if not classes:
         return render_template('checkin.html')
 
-    df_classes = check_attendance(QueryResult(classes).set_index('id'), current_user_attendance)
+    df_classes = check_attendance(classes.set_index('id'), current_user_attendance)
 
     if request_class_id == 'all':
         for class_id in df_classes.index:
@@ -97,8 +99,8 @@ def show_classes():
 
     if classes:
         classes = classes[['class_name', 'weekday', 'class_time', 'end_time', 'Attendances']].fillna(0)
-        classes['weekday'] = Categorical(classes['weekday'], categories=list(day_name), ordered=True)
-        classes.sort_values(by=['weekday', 'class_time', 'class_name'], inplace=True)
+        classes = order_by_weekday(classes)
+        classes.sort_values(by=['class_time', 'class_name'], inplace=True)
         classes.rename(columns={
             'class_name': 'Class',
             'weekday': 'Day',
@@ -152,3 +154,8 @@ def add_class():
 
 
     return render_template('add_class.html', form_groups=groups)
+
+
+def order_by_weekday(classes: QueryResult, column='weekday') -> QueryResult:
+    classes[column] = Categorical(classes[column], categories=list(day_name), ordered=True)
+    return QueryResult(classes.sort_values(by=column))
