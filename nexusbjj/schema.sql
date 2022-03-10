@@ -5,11 +5,21 @@ DROP TABLE IF EXISTS attendance;
 DROP TABLE IF EXISTS memberships;
 SET FOREIGN_KEY_CHECKS=1;
 
+CREATE TABLE age_groups (
+  id INT NOT NULL AUTO_INCREMENT,
+  name TEXT NOT NULL,
+  min_age INT NOT NULL,
+  max_age INT NOT NULL,
+  PRIMARY KEY (id)
+);
+
 CREATE TABLE memberships (
     id INTEGER PRIMARY KEY AUTO_INCREMENT,
     membership_type TEXT NOT NULL,
     membership_description TEXT,
-    sessions_per_week INTEGER NOT NULL
+    sessions_per_week INTEGER NOT NULL,
+    age_group_id INTEGER,
+    FOREIGN KEY (age_group_id) REFERENCES age_groups (id)
 );
 
 INSERT INTO memberships (membership_type, sessions_per_week) 
@@ -44,6 +54,7 @@ CREATE TABLE classes (
     time TIME NOT NULL,
     duration TIME NOT NULL DEFAULT "1:00:00",
     coach_id INTEGER NOT NULL,
+    age_group_id INTEGER NOT NULL,
     FOREIGN KEY (coach_id) REFERENCES users (id)
 );
 
