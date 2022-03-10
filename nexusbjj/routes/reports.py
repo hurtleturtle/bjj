@@ -34,7 +34,7 @@ def headcount(export_to_csv=False):
             flash(f'No classes found for {class_date}.')
             return render_template('report.html')
 
-    return get_report_template(QueryResult(summary), today, today, 'Headcount', to_csv=False)
+    return get_report_template(QueryResult(summary), today, today, 'Headcount', 'Headcount', to_csv=False)
 
 
 @bp.route('/attendance/custom', methods=['GET', 'POST'])
