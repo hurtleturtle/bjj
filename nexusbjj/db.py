@@ -65,13 +65,15 @@ class Database:
         self.commit()
 
     def get_users(self, columns=('*',)):
-        query = 'SELECT users.*, age_group_id FROM users LEFT JOIN memberships ON membership_id=memberships.id'
+        user_columns = ', '.join(['users.' + column for column in columns])
+        query = 'SELECT ' + user_columns + ', age_group_id FROM users LEFT JOIN memberships ON membership_id=memberships.id'
         self.execute(query)
         users = self.cursor.fetchall()
         return users
 
     def get_user(self, uid=None, name=None, columns=('*',)):
-        query = 'SELECT users.*, age_group_id FROM users LEFT JOIN memberships ON membership_id=memberships.id WHERE '
+        user_columns = ', '.join(['users.' + column for column in columns])
+        query = 'SELECT ' + user_columns + ', age_group_id FROM users LEFT JOIN memberships ON membership_id=memberships.id WHERE '
         params = tuple()
 
         if uid:
