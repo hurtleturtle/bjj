@@ -26,11 +26,13 @@ def check_in_to_class():
     except:
         request_class_id = request.args.get('class_id')
     classes = QueryResult(db.get_classes(age_group=current_user['age_group_id']))
-    classes.sort_values(by=['class_time'], inplace=True)
-
+    
     if not classes:
+        flash('No classes available')
         return render_template('checkin.html')
-
+    
+    
+    classes.sort_values(by=['class_time'], inplace=True)
     df_classes = check_attendance(classes.set_index('id'), current_user_attendance)
     df_classes['class_date'] = today.date().isoformat()
 
