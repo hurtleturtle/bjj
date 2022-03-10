@@ -65,16 +65,17 @@ class Database:
         self.commit()
 
     def get_users(self, columns=('*',)):
-        self.execute(select(columns, 'users'))
+        query = 'SELECT users.*, age_group_id FROM users LEFT JOIN memberships ON membership_id=memberships.id'
+        self.execute(query)
         users = self.cursor.fetchall()
         return users
 
     def get_user(self, uid=None, name=None, columns=('*',)):
-        query = select(columns, 'users') + ' WHERE '
+        query = 'SELECT users.*, age_group_id FROM users LEFT JOIN memberships ON membership_id=memberships.id WHERE '
         params = tuple()
 
         if uid:
-            query += 'id = %s'
+            query += 'users.id = %s'
             params = (uid,)
         elif name:
             query += 'email = %s'
@@ -82,7 +83,7 @@ class Database:
         else:
             try:
                 current_user_id = g.user['id']
-                query += 'id = %s'
+                query += 'users.id = %s'
                 params = (current_user_id,)
             except (RuntimeError, TypeError):
                 return ''
@@ -137,9 +138,9 @@ class Database:
         self.commit()
         return True
 
-    def get_classes(self, weekday=None, class_time=None):
+    def get_classes(self, weekday=None, class_time=None, age_group=None):
         query = 'SELECT id, DATE_FORMAT(time, "%H:%i") class_time, class_name, duration, '
-        query += 'DATE_FORMAT(ADDTIME(time, duration), "%H:%i") end_time, weekday'
+        query += 'DATE_FORMAT(ADDTIME(time, duration), "%H:%i") end_time, weekday, age_group_id'
         query += ' FROM classes WHERE weekday = %s AND time >= %s'
         params = []
         today = datetime.today()
@@ -154,8 +155,11 @@ class Database:
         else:
             show_classes_from_time = '00:00:00'
 
-        possible_previous_class_time = time.fromisoformat(show_classes_from_time)
-        params.append(possible_previous_class_time.isoformat())
+        params.append(show_classes_from_time)
+
+        if age_group:
+            query += ' AND age_group_id = %s'
+            params.append(age_group)
 
         self.execute(query, params)
         todays_classes = self.cursor.fetchall()
