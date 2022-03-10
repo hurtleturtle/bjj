@@ -25,7 +25,7 @@ def check_in_to_class():
         request_class_id = int(request.args.get('class_id'))
     except:
         request_class_id = request.args.get('class_id')
-    classes = QueryResult(db.get_classes())
+    classes = QueryResult(db.get_classes(age_group=current_user['age_group_id']))
     classes = order_by_weekday(classes)
     classes.sort_values(by=['class_time'], inplace=True)
 
