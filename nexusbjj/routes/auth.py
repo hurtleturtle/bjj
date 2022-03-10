@@ -45,7 +45,7 @@ def register():
 def get_registration_form(email='', first_name='', last_name='', mobile='', membership_id=''):
     db = get_db()
     memberships = QueryResult(db.get_membership_types())
-    membership_types = (memberships['membership_type'].str.capitalize()).tolist()
+    membership_types = (memberships['name'].str.capitalize() + ' - ' + memberships['membership_type'].str.capitalize()).tolist()
     groups = {
         'user': {
             'group_title': 'Register',

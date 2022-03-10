@@ -214,7 +214,7 @@ class Database:
         return self.cursor.fetchall()
 
     def get_membership_types(self):
-        query = 'SELECT id, membership_type FROM memberships'
+        query = 'SELECT memberships.id, membership_type, age_groups.name FROM memberships JOIN age_groups ON age_group_id=age_groups.id'
         self.execute(query)
         return self.cursor.fetchall()
 
