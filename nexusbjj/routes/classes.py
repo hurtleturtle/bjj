@@ -32,22 +32,10 @@ def check_in_to_class():
         return render_template('checkin.html')
 
     df_classes = check_attendance(classes.set_index('id'), current_user_attendance)
+    df_classes['class_date'] = today.date().isoformat()
 
-    if request_class_id == 'all':
-        for class_id in df_classes.index:
-            check_in_valid, error_message = validate_check_in(df_classes, class_id)
-            if check_in_valid:
-                db.check_in(class_id, current_user['id'], today.date().isoformat(), df_classes.loc[class_id, 'class_time'])
-                df_classes.loc[class_id, 'attendance'] = True
-            else:
-                flash(error_message)
-    elif request_class_id:
-        check_in_valid, error_message = validate_check_in(df_classes, request_class_id)
-        if check_in_valid:
-            db.check_in(request_class_id, current_user['id'], today.date().isoformat(), df_classes.loc[request_class_id, 'class_time'])
-            df_classes.loc[request_class_id, 'attendance'] = True
-        else:
-            flash(error_message)
+    if request_class_id:
+        toggle_check_in(df_classes, request_class_id, current_user['id'])
 
     flag_all_classes_attended = all(df_classes['attendance'])
     
@@ -63,24 +51,31 @@ def check_attendance(classes: QueryResult, user_attendance: QueryResult) -> Quer
     return classes
 
 
-def validate_check_in(df_classes: QueryResult, class_id: int):
-    check_in_is_valid = True
-    message = ''
-    today = datetime.today()
+def toggle_check_in(df_classes: QueryResult, class_id, user_id):
+    db = get_db()
+    df_classes['check_in_function'] = 'no operation'
 
-    try:
-        class_name = df_classes.loc[class_id, "class_name"]
+    if class_id == 'all':
+        if all(df_classes['attendance']):
+            df_classes['check_in_function'] = db.remove_check_in
+            df_classes['attendance'] = False
+        elif not any(df_classes['attendance']):
+            df_classes['check_in_function'] = db.check_in
+            df_classes['attendance'] = True
+        else:
+            mask = df_classes['attendance'] == False
+            df_classes.loc[mask, 'check_in_function'] = db.check_in
+            df_classes.loc[mask, 'attendance'] = True
+    else:
         if df_classes.loc[class_id, 'attendance']:
-            check_in_is_valid = False
-            message = f'You have already checked in to {class_name}'
-        
-        if today.strftime('%A') != df_classes.loc[class_id, 'weekday']:
-            check_in_is_valid = False
-            message = f'{class_name} is not on today, so you cannot check in yet.'
-    except KeyError:
-        check_in_is_valid = False
+            df_classes.loc[class_id, 'check_in_function'] = db.remove_check_in
+            df_classes.loc[class_id, 'attendance'] = False
+        else:
+            df_classes.loc[class_id, 'check_in_function'] = db.check_in
+            df_classes.loc[class_id, 'attendance'] = True
 
-    return check_in_is_valid, message
+    for row in df_classes[df_classes['check_in_function'] != 'no operation'].itertuples():
+        row.check_in_function(row.Index, user_id, row.class_date, row.class_time)
 
 
 @bp.route('/')

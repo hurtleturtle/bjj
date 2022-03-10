@@ -176,7 +176,7 @@ class Database:
         self.commit()
 
     def remove_check_in(self, class_id, user_id, class_date, class_time):
-        query = 'DELETE FROM attendance WHERE class_id % AND user_id = %s AND class_date = %s AND class_time = %s'
+        query = 'DELETE FROM attendance WHERE class_id = %s AND user_id = %s AND class_date = %s AND class_time = %s'
         params = (class_id, user_id, class_date, class_time)
         self.execute(query, params)
         self.commit()

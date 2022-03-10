@@ -183,7 +183,6 @@ div.bjj-classes-inner-wrapper {
   margin: 1rem;
   border-radius: 0.5rem;
   background-color: grey;
-  pointer-events: none;
 }
 .bjj-class:hover {
     background-color: #222;
