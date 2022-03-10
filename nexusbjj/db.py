@@ -175,6 +175,12 @@ class Database:
         self.execute(query, params)
         self.commit()
 
+    def remove_check_in(self, class_id, user_id, class_date, class_time):
+        query = 'DELETE FROM attendance WHERE class_id % AND user_id = %s AND class_date = %s AND class_time = %s'
+        params = (class_id, user_id, class_date, class_time)
+        self.execute(query, params)
+        self.commit()
+
     def get_attendance(self, from_date='', to_date='', user_id=None, class_id=None):
         query = 'SELECT classes.class_name, class_date, DATE_FORMAT(class_time, "%H:%i") class_time, class_id, user_id, '
         query += 'CONCAT(users.first_name, " ", users.last_name) AS full_name, membership_type, date check_in_time FROM attendance '
