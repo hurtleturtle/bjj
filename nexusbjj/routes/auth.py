@@ -79,9 +79,14 @@ def login(check_in=True):
     status_code = 200
     referrer = request.args.get('next')
     db = get_db()
+    user = db.get_user()
 
-    if db.get_user():
-        return redirect(url_for('classes.check_in_to_class'))
+    if user:
+        print(user)
+        if user.get('is_coach'):
+            return redirect(url_for('reports.headcount'))
+        else:
+            return redirect(url_for('classes.check_in_to_class'))
 
     if request.method == 'POST':
         email = escape(request.form['email'])
@@ -90,15 +95,17 @@ def login(check_in=True):
         user = db.get_user(name=email)
 
         if user is None:
-            error = 'Incorrect email.'
+            error = 'Incorrect email or password.'
         elif not check_password_hash(user['password'], password):
-            error = 'Incorrect password.'
+            error = 'Incorrect email or password.'
 
         if error is None:
             session.clear()
             session['user_id'] = user['id']
 
-            if check_in:
+            if user.get('is_coach'):
+                url = referrer if referrer else url_for('reports.headcount')
+            elif check_in:
                 url = referrer if referrer else url_for('classes.check_in_to_class')
             else:
                 url = referrer if referrer else url_for('index')
