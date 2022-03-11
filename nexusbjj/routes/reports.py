@@ -11,6 +11,8 @@ from datetime import datetime, timedelta
 bp = Blueprint('reports', __name__, url_prefix='/reports', template_folder='templates/reports')
 
 
+# Attendance Reports
+
 @bp.route('/attendance/headcount')
 @admin_required
 def headcount(export_to_csv=False):
@@ -133,6 +135,41 @@ def attendance_last_month(export_to_csv=False):
         return redirect(url_for('reports.attendance_custom'))
 
 
+# User Reports
+
+
+@bp.route('/users/absentees')
+@admin_required
+def absentees():
+    pass
+
+
+@bp.route('/users/exceeding-membership-limit')
+@admin_required
+def users_exceeding_membership_limit():
+    db = get_db()
+    today = datetime.today()
+    start_of_month = today.replace(day=1)
+    end_of_last_month = start_of_month - timedelta(days=1)
+    start_of_last_month = end_of_last_month.replace(day=1)
+    
+    user_attendance_this_month, error = get_attendance(start_of_month, today, headcount=True, extra_query_columns=['sessions_per_week'],
+                                                       extra_result_columns=['sessions_per_week'])
+    #df_analysis = user_attendance_this_month.groupby('full_name').agg({'class_id': 'count', 'sessions_per_week': 'min'})
+    df_analysis = user_attendance_this_month.pivot('check_in_time', 'full_name', ['class_id', 'sessions_per_week'])
+    #df_analysis = df_analysis.resample('1W', level=1).agg({'class_id': 'count', 'sessions_per_week': 'min'})
+    
+    #df_analysis = QueryResult(df_analysis.rename(columns={'class_id': 'avg_classes_attended_per_week'}))
+    #df_analysis['avg_classes_attended_per_week'] = (df_analysis['avg_classes_attended_per_week'] / 7).round(2)
+
+    # TODO: resample df wih full name/user id as columns then reshape
+
+    return get_report_template(QueryResult(df_analysis), start_of_month, today, 'users_exceeding_membership_limit', show_index=True)
+
+
+# Helpers
+
+
 @bp.route('/csv')
 @admin_required
 def csv():
@@ -164,10 +201,17 @@ def csv():
 
 
 
-def get_attendance(start_date, end_date, brief=False, headcount=False):
+def get_attendance(start_date, end_date, brief=False, headcount=False, query_columns=None, extra_query_columns=None, 
+                   result_columns=None, extra_result_columns=None, sort=True):
     error = ''
     start_date = datetime.fromisoformat(start_date) if type(start_date) == str else start_date
     end_date = datetime.fromisoformat(end_date) if type(end_date) == str else end_date
+    extra_args = {}
+
+    if query_columns:
+        extra_args['columns'] = query_columns
+    if extra_query_columns:
+        extra_args['extra_columns'] = extra_query_columns
 
     if start_date == end_date:  
         error = f'No classes were attended on {start_date.strftime("%A, %d %b %Y")}.'
@@ -178,16 +222,36 @@ def get_attendance(start_date, end_date, brief=False, headcount=False):
     start_date = start_date.replace(hour=0, minute=0, second=0)
     end_date = end_date.replace(hour=23, minute=59, second=59)
     db = get_db()
-    results = QueryResult(db.get_attendance(start_date, end_date))
-    
+
+    attendance_keyword_args = {}
+    if query_columns:
+        attendance_keyword_args['columns'] = query_columns
+    if extra_query_columns:
+        attendance_keyword_args['extra_columns'] = extra_query_columns
+
+    results = QueryResult(db.get_attendance(start_date, end_date, **attendance_keyword_args))
+
     if results:
-        results.sort_values(by=['class_date', 'class_time', 'class_name', 'check_in_time'], inplace=True)
-        columns = ['class_name', 'full_name', 'check_in_time']
-        if not brief:
-            columns[1:1] = ['class_date', 'class_time']
-            columns[-1:-1] = ['membership_type']
+        if sort:
+            results.sort_values(by=['class_date', 'class_time', 'class_name', 'check_in_time'], inplace=True)
+        
+        if brief:
+            columns= ['class_name', 'full_name', 'check_in_time']
+        elif result_columns:
+            columns = result_columns
+        else:
+            columns = ['class_name', 'class_date', 'class_time', 'full_name', 'check_in_time', 'membership_type']
+        
         if headcount:
-            columns += ['class_id', 'user_id']
+            for col in ('class_id', 'user_id'):
+                if col not in columns:
+                    columns.append(col)
+
+        if extra_result_columns:
+            for col in extra_result_columns:
+                if col not in columns:
+                    columns.append(col)        
+        
         results = QueryResult(results[columns])
     
     return results, error
@@ -207,7 +271,8 @@ def format_start_and_end(start_date, end_date):
     return result
 
 
-def get_report_template(results, start_date, end_date, report, title='Attendance', to_csv=True):
+def get_report_template(results, start_date, end_date, report, title='Attendance', to_csv=True, show_index=False):
     sub_title = format_start_and_end(start_date, end_date)
-    return render_template('report.html', table_data=results, page_title=title, table_title=title, table_subtitle=sub_title,
-                           start_date=start_date.date().isoformat(), end_date=end_date.date().isoformat(), to_csv=to_csv, report=report)
+    return render_template('report.html', table_data=results , page_title=title, table_title=title, table_subtitle=sub_title,
+                           start_date=start_date.date().isoformat(), end_date=end_date.date().isoformat(), to_csv=to_csv, report=report,
+                           show_index=show_index)
