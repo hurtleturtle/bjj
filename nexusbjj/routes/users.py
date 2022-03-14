@@ -29,6 +29,7 @@ def edit(uid):
         email = escape(request.form['email'])
         admin = request.form['admin']
         is_coach = request.form['is_coach']
+        membership_id = request.form['membership']
         email_new = (email != user['email'])
         email_exists = db.get_user(name=email) is not None
 
@@ -41,6 +42,8 @@ def edit(uid):
             db.update_user(uid, 'admin', admin)
         if is_coach is not None:
             db.update_user(uid, 'is_coach', is_coach)
+        if membership_id != user['membership_id']:
+            db.update_user(uid, 'membership_id', membership_id)
         else:
             error = error + '\n' if error else ''
             error += f'{admin}\nAdmin Status must be one of:'
@@ -134,6 +137,10 @@ def get_current_user_id(default_uid=-1):
 def generate_form_groups(user):
     password_href = url_for('users.change_password', uid=user['id'])
     delete_href = url_for('users.delete', uid=user['id'])
+    db = get_db()
+    memberships = QueryResult(db.get_membership_types())
+    membership_types = list(memberships['name'].str.capitalize() + ' - ' + memberships['membership_type'].str.capitalize())
+    membership_ids = list(memberships['id'])
 
     groups = {
         'user': {
@@ -148,7 +155,10 @@ def generate_form_groups(user):
                                    selected_option=user['admin']),
             'coach': gen_form_item('is_coach', label='Coach', field_type='select',
                                    options=gen_options(['No', 'Yes'], [0, 1]),
-                                   selected_option=user['is_coach'])
+                                   selected_option=user['is_coach']),
+            'membership': gen_form_item('membership', label='Membership', field_type='select',
+                                        options=gen_options(membership_types, membership_ids),
+                                        selected_option=user['membership_id'])
         },
         'change_pass': {
             'button': gen_form_item('change_pass', field_type='link',
