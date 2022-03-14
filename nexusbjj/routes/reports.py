@@ -158,10 +158,10 @@ def users_exceeding_membership_limit():
     df_analysis = user_attendance_this_month.set_index('check_in_time').groupby('full_name').resample('1W', label='left')\
                                             .agg({'class_id': 'count', 'sessions_per_week': 'min'})\
                                             .rename(columns={'class_id':'attendance'}).unstack().fillna(0)
-    df_analysis['sessions', 'weekly_average'] = df_analysis['attendance'].mean(axis='columns')
-    df_analysis['sessions', 'limit'] = df_analysis['sessions_per_week'].max(axis=1)
+    df_analysis['sessions', 'weekly_average'] = df_analysis['attendance'].mean(axis='columns').round(2)
+    df_analysis['sessions', 'limit'] = df_analysis['sessions_per_week'].max(axis=1).astype(int)
     df_analysis= df_analysis[df_analysis['sessions', 'weekly_average'] > df_analysis['sessions', 'limit']]
-    attendance = df_analysis['attendance']
+    attendance = df_analysis['attendance'].astype(int)
     df_analysis.drop(columns=['sessions_per_week', 'attendance'], inplace=True)
     df_analysis.columns.names = [None, None]
     df_analysis.index.name = None
