@@ -145,7 +145,7 @@ def absentees():
 
 @bp.route('/users/exceeding-membership-limit')
 @admin_required
-def users_exceeding_membership_limit():
+def users_exceeding_membership_limit(export_to_csv=False):
     db = get_db()
     today = datetime.today()
     start_of_month = today.replace(day=1)
@@ -168,8 +168,12 @@ def users_exceeding_membership_limit():
     column_index = pd.MultiIndex.from_product([['attendance'], pd.to_datetime(attendance.columns).date], names=[None, None])
     df_analysis = df_analysis.join(pd.DataFrame(attendance.to_numpy(), index=attendance.index, columns=column_index))
 
+    if export_to_csv:
+        return df_analysis.to_csv()
+
     return render_template('report.html', table_html=df_analysis.to_html(classes='table'),
-                           table_title='Users Exceeding Membership Limit', page_title='Excess Sessions') 
+                           table_title='Users Exceeding Membership Limit', page_title='Excess Sessions', report='excess_attendances',
+                           to_csv=True, start_date=start_of_last_month.date().isoformat(), end_date=today.date().isoformat()) 
 
 
 # Helpers
@@ -183,7 +187,8 @@ def csv():
         'today': attendance_today,
         'yesterday': attendance_yesterday,
         'last_week': attendance_last_week,
-        'last_month': attendance_last_month
+        'last_month': attendance_last_month,
+        'excess_attendances': users_exceeding_membership_limit
     }
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
@@ -199,7 +204,10 @@ def csv():
     else:
         df_report = attendance_function[attendance_report_requested](export_to_csv=True)
 
-    response = make_response(df_report.to_csv(index=False))
+    if not isinstance(df_report, str):
+        df_report = df_report.to_csv(index=False)
+
+    response = make_response(df_report)
     response.headers['Content-Type'] = 'text/csv'
     response.headers['Content-Disposition'] = 'attachment; filename=' + filename
     return response
