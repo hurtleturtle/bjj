@@ -1,11 +1,10 @@
-from re import template
-from tracemalloc import start
 from flask import Blueprint, make_response, redirect, request, render_template, flash, url_for
-from pandas import options
-from nexusbjj.routes.auth import admin_required, login_required
-from nexusbjj.forms import gen_form_item, gen_options
-from nexusbjj.db import get_db, QueryResult, get_end_of_day
+from nexusbjj.routes.auth import admin_required
+from nexusbjj.forms import gen_form_item
+from nexusbjj.db import get_db, QueryResult
 from datetime import datetime, timedelta
+from typing import Tuple
+import pandas as pd
 
 
 bp = Blueprint('reports', __name__, url_prefix='/reports', template_folder='templates/reports')
