@@ -164,6 +164,7 @@ def users_exceeding_membership_limit():
     attendance = df_analysis['attendance']
     df_analysis.drop(columns=['sessions_per_week', 'attendance'], inplace=True)
     df_analysis.columns.names = [None, None]
+    df_analysis.index.name = None
     column_index = pd.MultiIndex.from_product([['attendance'], pd.to_datetime(attendance.columns).date], names=[None, None])
     df_analysis = df_analysis.join(pd.DataFrame(attendance.to_numpy(), index=attendance.index, columns=column_index))
 
