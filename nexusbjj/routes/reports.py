@@ -140,7 +140,7 @@ def attendance_last_month(export_to_csv=False):
 @bp.route('/users/absentees')
 @admin_required
 def absentees():
-    pass
+    return render_template('report.html')
 
 
 @bp.route('/users/exceeding-membership-limit')
@@ -152,18 +152,23 @@ def users_exceeding_membership_limit():
     end_of_last_month = start_of_month - timedelta(days=1)
     start_of_last_month = end_of_last_month.replace(day=1)
     
-    user_attendance_this_month, error = get_attendance(start_of_month, today, headcount=True, extra_query_columns=['sessions_per_week'],
+    user_attendance_this_month, error = get_attendance(start_of_last_month, today, headcount=True, extra_query_columns=['sessions_per_week'],
                                                        extra_result_columns=['sessions_per_week'])
-    #df_analysis = user_attendance_this_month.groupby('full_name').agg({'class_id': 'count', 'sessions_per_week': 'min'})
-    df_analysis = user_attendance_this_month.pivot('check_in_time', 'full_name', ['class_id', 'sessions_per_week'])
-    #df_analysis = df_analysis.resample('1W', level=1).agg({'class_id': 'count', 'sessions_per_week': 'min'})
-    
-    #df_analysis = QueryResult(df_analysis.rename(columns={'class_id': 'avg_classes_attended_per_week'}))
-    #df_analysis['avg_classes_attended_per_week'] = (df_analysis['avg_classes_attended_per_week'] / 7).round(2)
 
-    # TODO: resample df wih full name/user id as columns then reshape
+    df_analysis = user_attendance_this_month.set_index('check_in_time').groupby('full_name').resample('1W')\
+                                            .agg({'class_id': 'count', 'sessions_per_week': 'min'})\
+                                            .rename(columns={'class_id':'attendance'}).unstack().fillna(0)
+    df_analysis['sessions', 'weekly_average'] = df_analysis['attendance'].mean(axis='columns')
+    df_analysis['sessions', 'limit'] = df_analysis['sessions_per_week'].max(axis=1)
+    df_analysis['sessions', 'exceeding_threshold'] = df_analysis['sessions', 'weekly_average'] > df_analysis['sessions', 'limit']
+    attendance = df_analysis['attendance']
+    df_analysis.drop(columns=['sessions_per_week', 'attendance'], inplace=True)
+    df_analysis = df_analysis.join(pd.DataFrame(attendance.to_numpy(), index=attendance.index, 
+                                                columns=pd.MultiIndex.from_product([['attendance'], 
+                                                                                   pd.to_datetime(attendance.columns).date])))
 
-    return get_report_template(QueryResult(df_analysis), start_of_month, today, 'users_exceeding_membership_limit', show_index=True)
+    return render_template('report.html', table_html=df_analysis[df_analysis['sessions', 'exceeding_threshold']].to_html(classes='table'),
+                           table_title='Users Exceeding Membership Limit') 
 
 
 # Helpers
@@ -201,7 +206,7 @@ def csv():
 
 
 def get_attendance(start_date, end_date, brief=False, headcount=False, query_columns=None, extra_query_columns=None, 
-                   result_columns=None, extra_result_columns=None, sort=True):
+                   result_columns=None, extra_result_columns=None, sort=True) -> Tuple[QueryResult, str]:
     error = ''
     start_date = datetime.fromisoformat(start_date) if type(start_date) == str else start_date
     end_date = datetime.fromisoformat(end_date) if type(end_date) == str else end_date

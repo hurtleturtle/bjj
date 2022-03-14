@@ -93,6 +93,16 @@ td {
   text-shadow: 0.1em 0.1em 0.1em black;
 }
 
+/* DataFrame tables */
+.dataframe tbody > tr > th {
+  border-right: 1px solid #222;
+  background: #ca2017 !important;
+}
+.dataframe th {
+  background: #333 !important;
+  color: white !important;
+}
+
 /* Download button */
 .btn-download {
   border-top-left-radius: 0.5em !important;
