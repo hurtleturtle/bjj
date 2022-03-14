@@ -169,7 +169,7 @@ def users_exceeding_membership_limit():
     df_analysis = df_analysis.join(pd.DataFrame(attendance.to_numpy(), index=attendance.index, columns=column_index))
 
     return render_template('report.html', table_html=df_analysis[df_analysis['sessions', 'exceeding_threshold']].to_html(classes='table'),
-                           table_title='Users Exceeding Membership Limit') 
+                           table_title='Users Exceeding Membership Limit', page_title='Excess Sessions') 
 
 
 # Helpers
