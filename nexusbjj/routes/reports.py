@@ -163,9 +163,9 @@ def users_exceeding_membership_limit():
     df_analysis['sessions', 'exceeding_threshold'] = df_analysis['sessions', 'weekly_average'] > df_analysis['sessions', 'limit']
     attendance = df_analysis['attendance']
     df_analysis.drop(columns=['sessions_per_week', 'attendance'], inplace=True)
-    df_analysis = df_analysis.join(pd.DataFrame(attendance.to_numpy(), index=attendance.index, 
-                                                columns=pd.MultiIndex.from_product([['attendance'], 
-                                                                                   pd.to_datetime(attendance.columns).date])))
+    df_analysis.columns.names = [None, None]
+    column_index = pd.MultiIndex.from_product([['attendance'], pd.to_datetime(attendance.columns).date], names=[None, None])
+    df_analysis = df_analysis.join(pd.DataFrame(attendance.to_numpy(), index=attendance.index, columns=column_index))
 
     return render_template('report.html', table_html=df_analysis[df_analysis['sessions', 'exceeding_threshold']].to_html(classes='table'),
                            table_title='Users Exceeding Membership Limit') 
