@@ -155,7 +155,7 @@ def users_exceeding_membership_limit():
     user_attendance_this_month, error = get_attendance(start_of_last_month, today, headcount=True, extra_query_columns=['sessions_per_week'],
                                                        extra_result_columns=['sessions_per_week'])
 
-    df_analysis = user_attendance_this_month.set_index('check_in_time').groupby('full_name').resample('1W')\
+    df_analysis = user_attendance_this_month.set_index('check_in_time').groupby('full_name').resample('1W', label='left')\
                                             .agg({'class_id': 'count', 'sessions_per_week': 'min'})\
                                             .rename(columns={'class_id':'attendance'}).unstack().fillna(0)
     df_analysis['sessions', 'weekly_average'] = df_analysis['attendance'].mean(axis='columns')
