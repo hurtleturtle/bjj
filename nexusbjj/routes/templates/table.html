@@ -14,6 +14,9 @@
       <table class="table">
         <thead>
           <tr>
+            {% if show_index %}
+              <th>{{ table_data.index.name }}</th>
+            {% endif %}
             {% for column in table_data.columns %}
               <th>{{ column }}</th>
             {% endfor %}
@@ -23,6 +26,9 @@
         <tbody>
           {% for index, row in table_data.iterrows() %}
             <tr>
+              {% if show_index %}
+                <td>{{ index }}</td>
+              {% endif %}
               {% for cell in row %}
                 <td>{{ cell }}</td>
               {% endfor %}
