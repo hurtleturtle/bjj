@@ -157,7 +157,6 @@ def absentees(export_to_csv=False):
 @bp.route('/users/exceeding-membership-limit')
 @admin_required
 def users_exceeding_membership_limit(export_to_csv=False):
-    db = get_db()
     today = datetime.today()
     start_of_month = today.replace(day=1)
     end_of_last_month = start_of_month - timedelta(days=1)
@@ -165,8 +164,9 @@ def users_exceeding_membership_limit(export_to_csv=False):
     
     user_attendance_this_month, error = get_attendance(start_of_last_month, today, headcount=True, extra_query_columns=['sessions_per_week'],
                                                        extra_result_columns=['sessions_per_week'])
+    users = user_attendance_this_month[['user_id', 'full_name']].drop_duplicates()
 
-    df_analysis = user_attendance_this_month.set_index('check_in_time').groupby('full_name').resample('1W-MON', label='left')\
+    df_analysis = user_attendance_this_month.set_index('check_in_time').groupby('user_id').resample('1W-MON', label='left')\
                                             .agg({'class_id': 'count', 'sessions_per_week': 'min'})\
                                             .rename(columns={'class_id':'attendance'}).unstack().fillna(0)
     df_analysis['sessions', 'weekly_average'] = df_analysis['attendance'].mean(axis='columns').round(2)
@@ -175,9 +175,13 @@ def users_exceeding_membership_limit(export_to_csv=False):
     attendance = df_analysis['attendance'].astype(int)
     df_analysis.drop(columns=['sessions_per_week', 'attendance'], inplace=True)
     df_analysis.columns.names = [None, None]
-    df_analysis.index.name = None
+
     column_index = pd.MultiIndex.from_product([['attendance'], pd.to_datetime(attendance.columns).date], names=[None, None])
+    row_index = pd.merge(pd.Series(df_analysis.index, name='user_id'), users, on='user_id')['full_name']
+
     df_analysis = df_analysis.join(pd.DataFrame(attendance.to_numpy(), index=attendance.index, columns=column_index))
+    df_analysis.index = row_index
+    df_analysis.index.name = None
 
     if export_to_csv:
         return df_analysis.to_csv()
@@ -199,7 +203,8 @@ def csv():
         'yesterday': attendance_yesterday,
         'last_week': attendance_last_week,
         'last_month': attendance_last_month,
-        'excess_attendances': users_exceeding_membership_limit
+        'excess_attendances': users_exceeding_membership_limit,
+        'absentees': absentees
     }
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
