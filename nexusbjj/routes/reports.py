@@ -139,8 +139,19 @@ def attendance_last_month(export_to_csv=False):
 
 @bp.route('/users/absentees')
 @admin_required
-def absentees():
-    return render_template('report.html')
+def absentees(export_to_csv=False):
+    db = get_db()
+    today = datetime.today()
+    start = today - timedelta(days=14)
+    title = 'Absentees'
+    sub_title = f'No classes attended since {format_time(start)}'
+    attendance = QueryResult(pd.DataFrame(db.get_absentees(from_date=start)).fillna('None'))
+
+    if export_to_csv:
+        return attendance
+
+    return render_template('report.html', table_data=attendance, page_title=title, table_title=title, table_subtitle=sub_title, to_csv=True,
+                           report='absentees', start_date=today.date().isoformat(), end_date=today.date().isoformat())
 
 
 @bp.route('/users/exceeding-membership-limit')
