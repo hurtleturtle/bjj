@@ -242,6 +242,13 @@ class Database:
         self.execute(query)
         return self.commit()
 
+    def add_password_reset(self, uid, token):
+        query = 'INSERT INTO password_resets (user_id, token, valid_until) VALUES (%s, %s, %s)'
+        valid_until = (datetime.today() + timedelta(days=1))
+        params = (uid, token, valid_until)
+        self.execute(query, params)
+        self.commit()
+
 
 class QueryResult(DataFrame):
     def __bool__(self):

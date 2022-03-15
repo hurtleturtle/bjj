@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block header %}
+  <h1>{% block title %}Password Reset{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+{% if form_groups %}
+  {% include "form.html" %}
+{% endif %}
+{% endblock %}

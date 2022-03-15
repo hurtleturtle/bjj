@@ -68,3 +68,12 @@ CREATE TABLE attendance (
     FOREIGN KEY (user_id) REFERENCES users (id),
     FOREIGN KEY (class_id) REFERENCES classes (id)
 );
+
+CREATE TABLE password_resets (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    token TEXT NOT NULL,
+    created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    valid_until TIMESTAMP NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users (id)
+);

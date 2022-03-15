@@ -1,4 +1,3 @@
-from distutils.command import check
 import functools
 from flask import Blueprint, flash, g, render_template, request, session
 from flask import url_for, redirect, escape, make_response
@@ -6,6 +5,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from nexusbjj.db import get_db, QueryResult
 from nexusbjj.forms import gen_form_item, gen_options
 from datetime import datetime, timedelta
+from secrets import token_urlsafe
 
 
 bp = Blueprint('auth', __name__, url_prefix='/auth', template_folder='templates/auth')
@@ -131,11 +131,46 @@ def get_user_form():
                                     value='Login')
         },
         'reset': {
-            'password-reset': gen_form_item('reset_password', href='/#', value='Forgotten Password?', field_type='link',
-                                            field_class='mx-auto', item_class='password-reset')
+            'password-reset': gen_form_item('reset_password', href=url_for('auth.reset_password'), value='Forgotten Password?',
+                                            field_type='link', field_class='mx-auto', item_class='password-reset')
         }
     }
     return groups
+
+
+@bp.route('/reset-password', methods=['GET', 'POST'])
+def reset_password():
+    groups = {
+        'user': {
+            'group_title': 'Reset Password',
+            'email': gen_form_item('email', label='Email', required=True, item_type='email', placeholder='Enter your email address')
+        },
+        'submit': {
+            'button': gen_form_item('btn-submit', item_type='submit', value='Reset')
+        }
+    }
+
+    if request.method == 'POST':
+        email = request.form.get('email')
+        generate_password_reset(email)
+        return render_template('reset.html')
+
+    return render_template('reset.html', form_groups=groups)
+
+
+def generate_password_reset(email):
+    db = get_db()
+    user = db.get_user(email=email)
+    print(user)
+
+    if user:
+        token = token_urlsafe(64)
+        db.add_password_reset(user['id'], token)
+        print(f'Token: {token} added for user {user}')
+
+    message = 'A password reset link has been emailed to the email address you entered, provided it is linked to an account. '
+    message += 'Please follow the steps in the email to reset your password.'
+    flash(message)
 
 
 @bp.route('/logout')
