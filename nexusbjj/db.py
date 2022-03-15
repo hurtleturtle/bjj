@@ -71,7 +71,7 @@ class Database:
         users = self.cursor.fetchall()
         return users
 
-    def get_user(self, uid=None, name=None, columns=('*',)):
+    def get_user(self, uid=None, email=None, columns=('*',)):
         user_columns = ', '.join(['users.' + column for column in columns])
         query = 'SELECT ' + user_columns + ', age_group_id FROM users LEFT JOIN memberships ON membership_id=memberships.id WHERE '
         params = tuple()
@@ -79,9 +79,9 @@ class Database:
         if uid:
             query += 'users.id = %s'
             params = (uid,)
-        elif name:
+        elif email:
             query += 'email = %s'
-            params = (name,)
+            params = (email,)
         else:
             try:
                 current_user_id = g.user['id']

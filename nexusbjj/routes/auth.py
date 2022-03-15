@@ -24,7 +24,7 @@ def register():
         db = get_db()
         error = None
 
-        if db.get_user(name=email) is not None:
+        if db.get_user(email=email) is not None:
             error = f'User {email} is already registered.'
 
         if error is None:
@@ -92,7 +92,7 @@ def login(check_in=True):
         email = escape(request.form['email'])
         password = escape(request.form['password'])
         error = None
-        user = db.get_user(name=email)
+        user = db.get_user(email=email)
 
         if user is None:
             error = 'Incorrect email or password.'

@@ -69,7 +69,7 @@ if __name__ == '__main__':
     db = Database(**get_database_details(args.db_host, args.db_user, args.db_pass))
 
     try:
-        user = db.get_user(uid=args.user_id, name=args.email)
+        user = db.get_user(uid=args.user_id, email=args.email)
     except Exception:
         user = None
 

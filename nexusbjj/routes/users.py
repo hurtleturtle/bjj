@@ -31,7 +31,7 @@ def edit(uid):
         is_coach = request.form['is_coach']
         membership_id = request.form['membership']
         email_new = (email != user['email'])
-        email_exists = db.get_user(name=email) is not None
+        email_exists = db.get_user(email=email) is not None
 
         if email_new:
             if email_exists:
