@@ -130,6 +130,10 @@ def get_user_form():
             'button': gen_form_item('btn-submit', item_type='submit',
                                     value='Login')
         },
+        'reset': {
+            'password-reset': gen_form_item('reset_password', href='/#', value='Forgotten Password?', field_type='link',
+                                            field_class='mx-auto', item_class='password-reset')
+        }
     }
     return groups
 

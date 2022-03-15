@@ -132,11 +132,15 @@ form {
   margin: 0;
   color: #222;
 }
-.form-item input[type="submit"], .form-item a {
+.form-item input[type="submit"] {
   background-color: #ca2017;
   color: white;
   border: none;
   cursor: pointer;
+  padding: 0.5em 0;
+}
+.form-item.password-reset {
+  display: flex;
   padding: 0.5em 0;
 }
 .form-item a {

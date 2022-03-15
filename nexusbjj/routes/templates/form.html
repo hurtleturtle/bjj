@@ -3,11 +3,12 @@
 <form method="post" {% if form_enc %}enctype="{{ form_enc }}"{% endif %}>
   <div class="form-wrapper container">
     {% for key, group in form_groups.items() %}
+    {% if group.break %}<hr />{% endif %}
     <div class="form-group">
       {% if group.group_title %}
         <h2 class="form-group-title">{{ group.group_title }}</h2>
       {% endif %}
-      {% for key2, item in group.items() if key2 != "group_title" %}
+      {% for key2, item in group.items() if key2 not in  ["group_title", "break"] %}
         <div class="form-item {{ item.item_class }}">
           {% if item.label %}
             <label for="{{ item.name }}" class="form-label {{ item.label_class }}">
