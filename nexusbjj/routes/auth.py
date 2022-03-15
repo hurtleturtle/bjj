@@ -8,7 +8,7 @@ from nexusbjj.forms import gen_form_item, gen_options
 from datetime import datetime, timedelta
 
 
-bp = Blueprint('auth', __name__, url_prefix='/auth')
+bp = Blueprint('auth', __name__, url_prefix='/auth', template_folder='templates/auth')
 
 
 @bp.route('/register', methods=['GET', 'POST'])
@@ -35,11 +35,11 @@ def register():
                 error = 'Your passwords did not match. Please try again.'
                 flash(error)
                 args = (email, first_name, last_name, mobile, membership_type)
-                return render_template('auth/register.html', form_groups=get_registration_form(*args))
+                return render_template('register.html', form_groups=get_registration_form(*args))
 
         flash(error)
 
-    return render_template('auth/register.html', form_groups=get_registration_form())
+    return render_template('register.html', form_groups=get_registration_form())
 
 
 def get_registration_form(email='', first_name='', last_name='', mobile='', membership_id=''):
@@ -116,7 +116,7 @@ def login(check_in=True):
             flash(error)
             status_code = 401
 
-    return render_template('auth/login.html', form_groups=get_user_form()), status_code
+    return render_template('login.html', form_groups=get_user_form()), status_code
 
 
 def get_user_form():
