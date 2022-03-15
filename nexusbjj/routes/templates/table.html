@@ -11,8 +11,10 @@
       </div>
     {% endif %}
     <div class="table-responsive">
+      {% block table %}
       <table class="table">
         <thead>
+          {% block table_head %}
           <tr>
             {% if show_index %}
               <th>{{ table_data.index.name }}</th>
@@ -22,8 +24,10 @@
             {% endfor %}
             {% block extra_table_column_headers %}{% endblock %}
           </tr>
+          {% endblock %}
         </thead>
         <tbody>
+          {% block table_body %}
           {% for index, row in table_data.iterrows() %}
             <tr>
               {% if show_index %}
@@ -35,8 +39,10 @@
               {% block extra_table_column_cells %}{% endblock %}
             </tr>
           {% endfor %}
+          {% endblock %}
         </tbody>
       </table>
+      {% endblock %}
     </div>
 </div>
 {% endif %}
