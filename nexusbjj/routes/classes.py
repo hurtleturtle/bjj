@@ -85,16 +85,31 @@ def toggle_check_in(df_classes: QueryResult, class_id, user_id):
 def show_classes():
     db = get_db()
     classes = QueryResult(db.get_all_classes())
-    attendance = QueryResult(db.get_attendance(user_id=g.user['id']))
-    if attendance:
-        attendance = attendance[['class_id', 'user_id']].rename(columns={'user_id': 'Attendances'})
-        attendance = attendance.groupby('class_id').count().reset_index()
+    columns = ['class_name', 'weekday', 'class_time', 'end_time']
+
+    if g.user['admin'] in g.admin_levels:
+        attendance = QueryResult(db.get_attendance())
+        if attendance:
+            attendance = attendance.set_index('check_in_time').groupby('class_id')\
+                                   .resample('1W-MON', label='left')['user_id'].count().unstack().fillna(0)
+            attendance['avg_weekly_attendance'] = attendance.mean(axis='columns').round(2)
+            attendance = QueryResult(attendance.reset_index()[['class_id', 'avg_weekly_attendance']])
+            columns.append('avg_weekly_attendance')
+    else:
+        attendance = QueryResult(db.get_attendance(user_id=g.user['id']))
+        columns.append('Attendances')
+    
+        if attendance:
+            attendance = attendance[['class_id', 'user_id']].rename(columns={'user_id': 'Attendances'})
+            attendance = QueryResult(attendance.groupby('class_id').count().reset_index())
+
+    if attendance:        
         classes = QueryResult(classes.merge(attendance, on='class_id', how='left'))
     else:
         classes['Attendances'] = 0
 
     if classes:
-        classes = classes[['class_name', 'weekday', 'class_time', 'end_time', 'Attendances']].fillna(0)
+        classes = classes[columns].fillna(0)
         classes['weekday'] = Categorical(classes['weekday'], categories=list(day_name), ordered=True)
         classes.sort_values(by=['weekday', 'class_time', 'class_name'], inplace=True)
         classes.rename(columns={
@@ -103,7 +118,9 @@ def show_classes():
             'class_time': 'Start Time',
             'end_time': 'Finish Time'
         }, inplace=True)
-        classes['Attendances'] = classes['Attendances'].astype(int)
+
+        if g.user['admin'] not in g.admin_levels:
+            classes['Attendances'] = classes['Attendances'].astype(int)
     return render_template('classes.html', table_data=QueryResult(classes), table_title='Classes')
 
 

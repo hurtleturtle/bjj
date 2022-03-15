@@ -216,7 +216,8 @@ class Database:
             params.append(class_id)
 
         where_clause += ' AND '.join(conditions)
-        query += where_clause
+        if conditions:
+            query += where_clause
         self.execute(query, params)
         return self.cursor.fetchall()
 
