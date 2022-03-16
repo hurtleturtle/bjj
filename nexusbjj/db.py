@@ -260,6 +260,12 @@ class Database:
         
         return False, 0
 
+    def remove_password_reset_token(self, token):
+        query = 'DELETE FROM password_resets WHERE token=%s'
+        params = (token,)
+        self.execute(query, params)
+        self.commit()
+
 
 class QueryResult(DataFrame):
     def __bool__(self):

@@ -195,6 +195,7 @@ def reset_password_for_user():
 
             if password == confirm_password:
                 db.change_password(user_id, password)
+                db.remove_password_reset_token(token)
                 flash('Password updated!')
                 return redirect(url_for('auth.login'))
             else:
