@@ -6,6 +6,7 @@ from nexusbjj.db import get_db, QueryResult
 from nexusbjj.forms import gen_form_item, gen_options
 from datetime import datetime, timedelta
 from secrets import token_urlsafe
+from nexusbjj.email import Email
 
 
 bp = Blueprint('auth', __name__, url_prefix='/auth', template_folder='templates/auth')
@@ -166,10 +167,18 @@ def generate_password_reset(email):
     if user:
         token = token_urlsafe(64)
         db.add_password_reset(user['id'], token)
+        domain = 'http://localhost:5000'
+        text_body = 'Please copy and paste the following link into your browser to reset your password: {}{}\n\nThe link is available for '
+        text_body += '24 hours.'
+        text_body = text_body.format(domain, url_for('auth.reset_password', token=token))
+        email_body = render_template('reset_email.html', token=token, domain=domain)
+        msg = Email(to=user['email'], text_body=text_body, html_body=email_body)
+        msg.send_message()
         print(f'Token: {token} added for user {user}')
 
     message = 'A password reset link has been emailed to the email address you entered, provided it is linked to an account. '
-    message += 'Please follow the steps in the email to reset your password.'
+    message += 'Please follow the steps in the email to reset your password (check your junk folder if the email does not appear in your '
+    message += 'inbox).'
     flash(message)
 
 
