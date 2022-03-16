@@ -140,7 +140,7 @@ def get_user_form():
 
 
 @bp.route('/reset-password')
-def reset_password():
+def initiate_password_reset():
     db = get_db()
     token = request.args.get('token')
     groups = {
@@ -149,7 +149,7 @@ def reset_password():
             'email': gen_form_item('email', label='Email', required=True, item_type='email', placeholder='Enter your email address')
         },
         'submit': {
-            'button': gen_form_item('btn-submit', item_type='submit', value='Reset')
+            'button': gen_form_item('btn-submit', item_type='submit', value='Send Reset Email')
         }
     }
 
@@ -163,7 +163,7 @@ def reset_password():
             return render_template('reset.html', form_groups=get_password_form_groups())  
         else:
             flash('Your token has expired. Please begin the password reset process again.')
-            return redirect(url_for('auth.reset_password'))  
+            return redirect(url_for('auth.initiate_password_reset'))  
 
     return render_template('reset.html', form_groups=groups)
 
@@ -200,10 +200,10 @@ def reset_password_for_user():
                 return redirect(url_for('auth.login'))
             else:
                 flash('Passwords do not match. Please try again.')
-                return reset_password()
+                return initiate_password_reset()
         else:
             flash('Your token has expired. Please begin the password reset process again.')
-            return redirect(url_for('auth.reset_password'))
+            return redirect(url_for('auth.initiate_password_reset'))
     else:
         email = request.form.get('email')
         generate_password_reset(email)
@@ -221,7 +221,7 @@ def generate_password_reset(email):
         domain = 'http://localhost:5000'
         text_body = 'Please copy and paste the following link into your browser to reset your password: {}{}\n\nThe link is available for '
         text_body += '24 hours.'
-        text_body = text_body.format(domain, url_for('auth.reset_password', token=token))
+        text_body = text_body.format(domain, url_for('auth.initiate_password_reset', token=token))
         email_body = render_template('reset_email.html', token=token, domain=domain)
         msg = Email(to=user['email'], text_body=text_body, html_body=email_body)
         msg.send_message()
