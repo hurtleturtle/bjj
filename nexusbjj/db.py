@@ -249,6 +249,17 @@ class Database:
         self.execute(query, params)
         self.commit()
 
+    def validate_password_reset(self, token):
+        query = 'SELECT user_id, valid_until FROM password_resets WHERE token=%s'
+        params = (token,)
+        self.execute(query, params)
+        result = self.cursor.fetchone()
+
+        if result and datetime.today() < result.get('valid_until'):
+            return True, result.get('user_id')
+        
+        return False, 0
+
 
 class QueryResult(DataFrame):
     def __bool__(self):

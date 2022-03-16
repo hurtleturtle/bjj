@@ -139,8 +139,10 @@ def get_user_form():
     return groups
 
 
-@bp.route('/reset-password', methods=['GET', 'POST'])
+@bp.route('/reset-password')
 def reset_password():
+    db = get_db()
+    token = request.args.get('token')
     groups = {
         'user': {
             'group_title': 'Reset Password',
@@ -151,18 +153,66 @@ def reset_password():
         }
     }
 
-    if request.method == 'POST':
-        email = request.form.get('email')
-        generate_password_reset(email)
-        return render_template('reset.html')
+    if g.user:
+        flash('You are already logged in. Please change your password here.')
+        return redirect(url_for('users.change_password', uid=g.user['id']))
+
+    if token:
+        valid_token, user_id = db.validate_password_reset(token)
+        if valid_token:
+            return render_template('reset.html', form_groups=get_password_form_groups())  
+        else:
+            flash('Your token has expired. Please begin the password reset process again.')
+            return redirect(url_for('auth.reset_password'))  
 
     return render_template('reset.html', form_groups=groups)
+
+
+def get_password_form_groups():
+    groups = {
+        'passwd': {
+            'group_title': 'Reset Password',
+            'password': gen_form_item('password', placeholder='New password', item_type='password', required=True, item_class='py-1'),
+            'confirm': gen_form_item('confirm', placeholder='Confirm password', item_type='password', required=True, item_class='py-1')
+        },
+        'submit': {
+            'button': gen_form_item('btn_submit', item_type='submit', value='Reset Password')
+        }
+    }
+    return groups
+
+
+@bp.route('/reset-password', methods=['POST'])
+def reset_password_for_user():
+    token = request.args.get('token')
+    db = get_db()
+
+    if token:
+        valid_token, user_id = db.validate_password_reset(token)
+        if valid_token:
+            password = request.form.get('password')
+            confirm_password = request.form.get('confirm')
+
+            if password == confirm_password:
+                db.change_password(user_id, password)
+                flash('Password updated!')
+                return redirect(url_for('auth.login'))
+            else:
+                flash('Passwords do not match. Please try again.')
+                return reset_password()
+        else:
+            flash('Your token has expired. Please begin the password reset process again.')
+            return redirect(url_for('auth.reset_password'))
+    else:
+        email = request.form.get('email')
+        generate_password_reset(email)
+
+    return render_template('reset.html')
 
 
 def generate_password_reset(email):
     db = get_db()
     user = db.get_user(email=email)
-    print(user)
 
     if user:
         token = token_urlsafe(64)
@@ -174,7 +224,6 @@ def generate_password_reset(email):
         email_body = render_template('reset_email.html', token=token, domain=domain)
         msg = Email(to=user['email'], text_body=text_body, html_body=email_body)
         msg.send_message()
-        print(f'Token: {token} added for user {user}')
 
     message = 'A password reset link has been emailed to the email address you entered, provided it is linked to an account. '
     message += 'Please follow the steps in the email to reset your password (check your junk folder if the email does not appear in your '
