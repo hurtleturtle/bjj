@@ -4,7 +4,7 @@
 
     </head>
     <body>
-        <p>In order to reset your password, please click the link below within 24 hours.</p>
+        <p>In order to reset your password, please click the link below. The link is available for 24 hours.</p>
         <div class="password-link">
             <a href="{{ domain }}{{ url_for('auth.initiate_password_reset', token=token) }}">Password Reset</a>
         </div>

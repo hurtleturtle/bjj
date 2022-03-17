@@ -223,7 +223,7 @@ def generate_password_reset(email):
     if user:
         token = token_urlsafe(64)
         db.add_password_reset(user['id'], token)
-        domain = 'http://localhost:5000'
+        domain = 'https://members.warwickjudo.com'
         text_body = 'Please copy and paste the following link into your browser to reset your password: {}{}\n\nThe link is available for '
         text_body += '24 hours.'
         text_body = text_body.format(domain, url_for('auth.initiate_password_reset', token=token))
