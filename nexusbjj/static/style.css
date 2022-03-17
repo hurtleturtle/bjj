@@ -126,6 +126,9 @@ form {
   border-radius: 0.5em;
   box-shadow: 0.1em 0.1em 0.25em 0.1em #222;
 }
+.form-wrapper hr {
+  margin: 0;
+}
 .form-group {
   width: 100%;
   padding: 0.5em 0;
@@ -142,9 +145,19 @@ form {
   cursor: pointer;
   padding: 0.5em 0;
 }
-.form-item.password-reset {
+.form-item.centred-link {
   display: flex;
   padding: 0.5em 0;
+}
+.link-button {
+  background-color: #42b72a !important;
+  color: white;
+  padding: 0.5em;
+  border-radius: 0.5em;
+}
+.link-button:hover {
+  background-color: #36a420 !important;
+  color: white;
 }
 .form-item a {
   text-decoration: none;

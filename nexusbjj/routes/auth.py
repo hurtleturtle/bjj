@@ -133,7 +133,12 @@ def get_user_form():
         },
         'reset': {
             'password-reset': gen_form_item('reset_password', href=url_for('auth.initiate_password_reset'), value='Forgotten Password?',
-                                            field_type='link', field_class='mx-auto', item_class='password-reset')
+                                            field_type='link', field_class='mx-auto', item_class='centred-link small')
+        },
+        'register': {
+            'break': True,
+            'register_button': gen_form_item('register', href=url_for('auth.register'), field_type='link', field_class='link-button mx-auto',
+                                             value='Create Account', item_class='centred-link mx-auto')
         }
     }
     return groups
