@@ -14,9 +14,7 @@ class Email:
         self.msg['Subject'] = 'Password Reset for Warwick Judo & BJJ'
         self.msg.add_alternative(text_body)
         self.msg.add_alternative(html_body, subtype='html')
-        #self.msg.set_content(body, 'text/html')
-        print(self.msg)
-
+        
     def send_message(self):
         session = smtplib.SMTP('email-smtp.eu-west-2.amazonaws.com')
         session.ehlo()
