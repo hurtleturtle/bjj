@@ -44,6 +44,9 @@ nav a:hover, nav span:hover {
   box-shadow: 0em 5px 5px 0em #222;
   color: white;
 }
+.flash > p:last-child {
+  margin-bottom: 0;
+}
 
 /* Standard table format */
 .content table {
