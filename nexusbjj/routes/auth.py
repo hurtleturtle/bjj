@@ -226,9 +226,9 @@ def generate_password_reset(email):
         msg = Email(to=user['email'], text_body=text_body, html_body=email_body)
         msg.send_message()
 
-    message = 'A password reset link has been emailed to the email address you entered, provided it is linked to an account. '
-    message += 'Please follow the steps in the email to reset your password (check your junk folder if the email does not appear in your '
-    message += 'inbox).'
+    message = '<p>A password reset link has been emailed to the email address you entered, provided it is linked to an account.</p>'
+    message += '<p>Please follow the steps in the email to reset your password (check your junk folder if the email does not appear in your '
+    message += 'inbox).</p>'
     flash(message)
 
 
