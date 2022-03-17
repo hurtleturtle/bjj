@@ -9,6 +9,8 @@ from nexusbjj.db import Database, QueryResult
 from datetime import datetime, timedelta
 from numpy.random import randint
 import calendar
+from nexusbjj.email import Email
+from flask.cli import with_appcontext
 
 
 def get_args():
@@ -27,6 +29,7 @@ def get_args():
     parser.add_argument('--db-pass', help='Password to login to database')
     parser.add_argument('--db-host', help='IP address of database')
     parser.add_argument('--reset-password', action='store_true', help='Reset password for user')
+    parser.add_argument('--test-email-to', default='jono.nicholas@hotmail.co.uk', help='Test email connectivity')
 
     return parser.parse_args()
 
@@ -62,6 +65,12 @@ def print_results(rows, err_message='No results returned'):
         print(pd.DataFrame(rows, columns=rows[0].keys()))
     except IndexError:
         print(err_message)
+
+
+@with_appcontext
+def test_email(to):
+    msg = Email(to=to, body='This is a test')
+    msg.send_message()
 
 
 if __name__ == '__main__':
@@ -131,3 +140,6 @@ if __name__ == '__main__':
 
         if args.commit:
             db.commit()
+
+    if args.test_email_to:
+        test_email(args.test_email_to)
