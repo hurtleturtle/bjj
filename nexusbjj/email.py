@@ -21,7 +21,11 @@ class Email:
 
         
     def send_message(self):
-        session = smtplib.SMTP('email-smtp.eu-west-2.amazonaws.com')
+        smtp_server = 'email-smtp.eu-west-2.amazonaws.com'
+        
+        if self.debug:
+            print(f'Connecting to SMTP server: {smtp_server}')
+        session = smtplib.SMTP(smtp_server, port=587)
 
         if self.debug:
             session.set_debuglevel(2)
