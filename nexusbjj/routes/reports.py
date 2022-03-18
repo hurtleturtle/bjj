@@ -219,7 +219,7 @@ def class_totals():
     classes.rename(columns={'weekday': 'Day', 'class_name': 'Class'}, inplace=True)
     classes = QueryResult(classes.sort_values(by=['Day', 'class_time'])[['Day', 'Class', 'Attendance']])
 
-    return render_template('report.html', table_data=classes, page_title=title, table_title=title)
+    return render_template('report.html', table_html=classes.to_html(index=False), page_title=title, table_title=title)
 
 
 # Helpers
