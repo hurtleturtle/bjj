@@ -76,7 +76,7 @@ def print_results(rows, err_message='No results returned'):
 
 def test_email(to):
     config = get_config()
-    msg = Email(to=to, body='This is a test', user=config['SMTP_USER'], passwd=config['SMTP_PASS'])
+    msg = Email(to=to, text_body='This is a test', user=config['SMTP_USER'], passwd=config['SMTP_PASS'])
     msg.send_message()
 
 
