@@ -82,7 +82,7 @@ def toggle_check_in(df_classes: QueryResult, class_id, user_id):
 
 @bp.route('/')
 @login_required
-def show_classes():
+def timetable():
     db = get_db()
     classes = QueryResult(db.get_all_classes())
     columns = ['class_name', 'weekday', 'class_time', 'end_time']
