@@ -188,7 +188,7 @@ class Database:
         self.commit()
 
     def get_attendance(self, from_date='', to_date='', user_id=None, class_id=None, 
-                       columns=('classes.class_name', 'class_date', 'DATE_FORMAT(class_time, "%H:%i") class_time', 'class_id', 'user_id',
+                       columns=('classes.class_name', 'DATE_FORMAT(class_time, "%H:%i") class_time', 'class_date', 'class_id', 'user_id',
                                 'CONCAT(users.first_name, " ", users.last_name) AS full_name', 'membership_type', 'date AS check_in_time'),
                        extra_columns=None):
         query_columns = ', '.join(columns)

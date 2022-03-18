@@ -198,27 +198,42 @@ def users_exceeding_membership_limit(export_to_csv=False):
 
 @bp.route('/classes/total-attendance')
 @admin_required
-def class_totals():
+def class_totals(export_to_csv=False):
     db = get_db()
     classes = QueryResult(db.get_all_classes())
     title = 'Class Attendances'
     attendance = QueryResult(db.get_attendance())
+    today = datetime.today().date().isoformat()
+
+    classes['weekday'] = pd.Categorical(classes['weekday'], categories=list(day_name), ordered=True)
+    classes.rename(columns={'weekday': 'Day', 'class_name': 'Class', 'class_time': 'start_time'}, inplace=True)
+    classes = classes[['class_id', 'Day', 'Class', 'start_time', 'end_time']]
 
     if attendance:
         attendance = attendance.set_index('check_in_time').groupby('class_id')\
-                                .resample('1W-MON', label='left')['user_id'].count().unstack()
-        attendance['Attendance'] = attendance.sum(axis='columns')
-        attendance = attendance.reset_index()[['class_id', 'Attendance']]
+                                .resample('1W-MON', label='left')['user_id'].count().unstack().fillna(0).astype(int)
+        attendance = pd.DataFrame(attendance, index=attendance.index, columns=pd.to_datetime(attendance.columns).date)
+        total_attendances = attendance.sum(axis='columns')
+        attendance.insert(loc=0, column='Attendance', value=total_attendances)
+        if not export_to_csv:
+            attendance = attendance.reset_index()[['class_id', 'Attendance']]
+
         classes = classes.merge(attendance, on='class_id', how='left')
     else:
         classes['Attendance'] = 0
 
-    classes['weekday'] = pd.Categorical(classes['weekday'], categories=list(day_name), ordered=True)
-    classes.rename(columns={'weekday': 'Day', 'class_name': 'Class'}, inplace=True)
     classes['Attendance'] = classes['Attendance'].fillna(0).astype(int)
-    classes = QueryResult(classes.sort_values(by=['Day', 'class_time'])[['Day', 'Class', 'Attendance']])
 
-    return render_template('report.html', table_data=classes, page_title=title, table_title=title)
+    if export_to_csv:
+        classes = QueryResult(classes.sort_values(by=['Day', 'start_time']))
+    else:
+        classes = QueryResult(classes.sort_values(by=['Day', 'start_time'])[['Day', 'Class', 'Attendance']])
+
+    if export_to_csv:
+        return classes
+
+    return render_template('report.html', table_data=classes, page_title=title, table_title=title, to_csv=True, start_date=today,
+                           end_date=today, report='class_totals')
 
 
 # Helpers
@@ -234,7 +249,8 @@ def csv():
         'last_week': attendance_last_week,
         'last_month': attendance_last_month,
         'excess_attendances': users_exceeding_membership_limit,
-        'absentees': absentees
+        'absentees': absentees,
+        'class_totals': class_totals
     }
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
