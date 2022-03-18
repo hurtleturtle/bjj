@@ -20,7 +20,7 @@
           <li class="nav-item dropdown">
             <a class="nav-link rounded dropdown-toggle" data-bs-toggle="dropdown" href="#">Classes</a>
             <ul class="dropdown-menu">
-              
+              <li><a class="dropdown-item" href="{{ url_for('reports.class_totals') }}">Totals</a></li>
               <li><a class="dropdown-item" href="{{ url_for('classes.add_class') }}">Add Class</a></li>
               
             </ul>

@@ -5,6 +5,7 @@ from nexusbjj.db import get_db, QueryResult
 from datetime import datetime, timedelta
 from typing import Tuple
 import pandas as pd
+from calendar import day_name
 
 
 bp = Blueprint('reports', __name__, url_prefix='/reports', template_folder='templates/reports')
@@ -199,28 +200,24 @@ def users_exceeding_membership_limit(export_to_csv=False):
 @admin_required
 def class_totals():
     db = get_db()
-    classes = db.get_all_classes()
+    classes = QueryResult(db.get_all_classes())
+    title = 'Class Attendances'
+    attendance = QueryResult(db.get_attendance())
 
-    if g.user['admin'] in g.admin_levels:
-        attendance = QueryResult(db.get_attendance())
-        if attendance:
-            attendance = attendance.set_index('check_in_time').groupby('class_id')\
-                                   .resample('1W-MON', label='left')['user_id'].count().unstack().fillna(0)
-            attendance['avg_weekly_attendance'] = attendance.mean(axis='columns').round(2)
-            attendance = QueryResult(attendance.reset_index()[['class_id', 'avg_weekly_attendance']])
-            #columns.append('avg_weekly_attendance')
+    if attendance:
+        attendance = attendance.set_index('check_in_time').groupby('class_id')\
+                                .resample('1W-MON', label='left')['user_id'].count().unstack().fillna(0)
+        attendance['Attendance'] = attendance.sum(axis='columns').astype(int)
+        attendance = attendance.reset_index()[['class_id', 'Attendance']]
+        classes = classes.merge(attendance, on='class_id', how='left')
     else:
-        attendance = QueryResult(db.get_attendance(user_id=g.user['id']))
-        #columns.append('Attendances')
-    
-        if attendance:
-            attendance = attendance[['class_id', 'user_id']].rename(columns={'user_id': 'Attendances'})
-            attendance = QueryResult(attendance.groupby('class_id').count().reset_index())
+        classes['Attendance'] = 0
 
-    if attendance:        
-        classes = QueryResult(classes.merge(attendance, on='class_id', how='left'))
-    else:
-        pass#classes['Attendances'] = 0
+    classes['weekday'] = pd.Categorical(classes['weekday'], categories=list(day_name), ordered=True)
+    classes.rename(columns={'weekday': 'Day', 'class_name': 'Class'}, inplace=True)
+    classes = QueryResult(classes.sort_values(by=['Day', 'class_time'])[['Day', 'Class', 'Attendance']])
+
+    return render_template('report.html', table_data=classes, page_title=title, table_title=title)
 
 
 # Helpers
