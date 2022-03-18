@@ -7,21 +7,4 @@
     {% include "form.html" %}
   {% endif %}
   {% include "table.html" %}
-  {% if table_html %}
-    <div class="container nexus-table">
-      <div class="rounded title py-1 my-2">
-          <h1>{{ table_title }}</h1>
-          {% if table_subtitle %}<h2>{{ table_subtitle }}</h2>{% endif %}
-      </div>
-      {% if g.user and g.user['admin'] in g.admin_levels and to_csv %}
-        <div class="d-flex flex-row-reverse">
-          <a class="btn btn-primary btn-download" 
-          href="{{ url_for('reports.csv', report=report, start_date=start_date, end_date=end_date) }}">Download</a>
-        </div>
-      {% endif %}
-      <div class="table-responsive">
-        {{ table_html | safe }}
-      </div>
-    </div>
-  {% endif %}
 {% endblock %}

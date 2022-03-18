@@ -1,4 +1,4 @@
-{% if table_data %}
+{% if table_data or table_html %}
 <div class="container nexus-table">
     <div class="rounded title py-1 my-2">
         <h1>{{ table_title }}</h1>
@@ -10,39 +10,45 @@
          href="{{ url_for('reports.csv', report=report, start_date=start_date, end_date=end_date) }}">Download</a>
       </div>
     {% endif %}
-    <div class="table-responsive">
-      {% block table %}
-      <table class="table">
-        <thead>
-          {% block table_head %}
-          <tr>
-            {% if show_index %}
-              <th>{{ table_data.index.name }}</th>
-            {% endif %}
-            {% for column in table_data.columns %}
-              <th>{{ column }}</th>
-            {% endfor %}
-            {% block extra_table_column_headers %}{% endblock %}
-          </tr>
-          {% endblock %}
-        </thead>
-        <tbody>
-          {% block table_body %}
-          {% for index, row in table_data.iterrows() %}
+    {% if table_data %}
+      <div class="table-responsive">
+        {% block table %}
+        <table class="table">
+          <thead>
+            {% block table_head %}
             <tr>
               {% if show_index %}
-                <td>{{ index }}</td>
+                <th>{{ table_data.index.name }}</th>
               {% endif %}
-              {% for cell in row %}
-                <td>{{ cell }}</td>
+              {% for column in table_data.columns %}
+                <th>{{ column }}</th>
               {% endfor %}
-              {% block extra_table_column_cells %}{% endblock %}
+              {% block extra_table_column_headers %}{% endblock %}
             </tr>
-          {% endfor %}
-          {% endblock %}
-        </tbody>
-      </table>
-      {% endblock %}
-    </div>
+            {% endblock %}
+          </thead>
+          <tbody>
+            {% block table_body %}
+            {% for index, row in table_data.iterrows() %}
+              <tr>
+                {% if show_index %}
+                  <td>{{ index }}</td>
+                {% endif %}
+                {% for cell in row %}
+                  <td>{{ cell }}</td>
+                {% endfor %}
+                {% block extra_table_column_cells %}{% endblock %}
+              </tr>
+            {% endfor %}
+            {% endblock %}
+          </tbody>
+        </table>
+        {% endblock %}
+      </div>
+    {% elif table_html %}
+      <div class="table-responsive">
+        {{ table_html | safe }}
+      </div>
+    {% endif %}
 </div>
 {% endif %}
