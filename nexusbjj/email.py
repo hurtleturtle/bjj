@@ -4,12 +4,12 @@ from flask import current_app
 
 
 class Email:
-    def __init__(self, to='', text_body='', html_body='', debug=False) -> None:
+    def __init__(self, to='', text_body='', html_body='', debug=False, user=None, passwd=None) -> None:
         self.debug = debug
         self.msg = email.message.EmailMessage()
         self.domain = 'mail.warwickjudo.com'
-        self.user = current_app.config['SMTP_USER']
-        self.password = current_app.config['SMTP_PASS']
+        self.user = current_app.config['SMTP_USER'] if not user else user
+        self.password = current_app.config['SMTP_PASS'] if not passwd else passwd
         self.msg['From'] = 'noreply@' + self.domain
         self.msg['To'] = to
         self.msg['Subject'] = 'Password Reset for Warwick Judo & BJJ'

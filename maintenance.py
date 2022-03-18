@@ -36,21 +36,11 @@ def get_args():
 
 def get_database_details(host, user, password, config_path='instance/config.py'):
     if not all((host, user, password)):
-        config = {}
-        try:
-            with open(config_path) as f:
-                for line in f:
-                    try:
-                        key, equals, value = shlex.split(line)
-                        config[key] = value
-                    except ValueError:
-                        pass
-            host = config.get('DATABASE_HOST') if not host else host
-            user = config.get('DATABASE_USER') if not user else user
-            password = config.get('DATABASE_PASS') if not password else password
-        except OSError:
-            print(f'Error reading database details from {config_path}. Please supply DB details.')
-            exit()
+        config = get_config(config_path)
+        host = config.get('DATABASE_HOST') if not host else host
+        user = config.get('DATABASE_USER') if not user else user
+        password = config.get('DATABASE_PASS') if not password else password
+       
     
     details = {
         'db_host': host,
@@ -60,6 +50,23 @@ def get_database_details(host, user, password, config_path='instance/config.py')
     return details
 
 
+def get_config(config_path='instance/config.py'):
+    config = {}
+    try:
+        with open(config_path) as f:
+            for line in f:
+                try:
+                    key, equals, value = shlex.split(line)
+                    config[key] = value
+                except ValueError:
+                    pass
+    except OSError:
+        print(f'Error reading config details from {config_path}. ')
+        exit()
+    
+    return config
+
+
 def print_results(rows, err_message='No results returned'):
     try:
         print(pd.DataFrame(rows, columns=rows[0].keys()))
@@ -67,9 +74,9 @@ def print_results(rows, err_message='No results returned'):
         print(err_message)
 
 
-@with_appcontext
 def test_email(to):
-    msg = Email(to=to, body='This is a test')
+    config = get_config()
+    msg = Email(to=to, body='This is a test', user=config['SMTP_USER'], passwd=config['SMTP_PASS'])
     msg.send_message()
 
 
