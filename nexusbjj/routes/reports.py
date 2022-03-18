@@ -206,7 +206,7 @@ def class_totals():
 
     if attendance:
         attendance = attendance.set_index('check_in_time').groupby('class_id')\
-                                .resample('1W-MON', label='left')['user_id'].count().unstack().fillna(0)
+                                .resample('1W-MON', label='left')['user_id'].count().unstack().fillna(0).astype(int)
         print(attendance)
         attendance['Attendance'] = attendance.sum(axis='columns').fillna(0).astype(int)
         print(attendance)
