@@ -87,27 +87,6 @@ def timetable():
     classes = QueryResult(db.get_all_classes())
     columns = ['weekday', 'class_name', 'class_time', 'end_time']
 
-    if g.user['admin'] in g.admin_levels:
-        attendance = QueryResult(db.get_attendance())
-        if attendance:
-            attendance = attendance.set_index('check_in_time').groupby('class_id')\
-                                   .resample('1W-MON', label='left')['user_id'].count().unstack().fillna(0)
-            attendance['avg_weekly_attendance'] = attendance.mean(axis='columns').round(2)
-            attendance = QueryResult(attendance.reset_index()[['class_id', 'avg_weekly_attendance']])
-            #columns.append('avg_weekly_attendance')
-    else:
-        attendance = QueryResult(db.get_attendance(user_id=g.user['id']))
-        #columns.append('Attendances')
-    
-        if attendance:
-            attendance = attendance[['class_id', 'user_id']].rename(columns={'user_id': 'Attendances'})
-            attendance = QueryResult(attendance.groupby('class_id').count().reset_index())
-
-    if attendance:        
-        classes = QueryResult(classes.merge(attendance, on='class_id', how='left'))
-    else:
-        pass#classes['Attendances'] = 0
-
     if classes:
         classes = classes[columns].fillna(0)
         classes['weekday'] = Categorical(classes['weekday'], categories=list(day_name), ordered=True)
@@ -121,9 +100,7 @@ def timetable():
             'class_time': 'Time'
         }, inplace=True)
 
-        if g.user['admin'] not in g.admin_levels:
-            pass#classes['Attendances'] = classes['Attendances'].astype(int)
-    return render_template('classes.html', table_html=classes.to_html(classes='table', index=False), table_title='Classes')
+    return render_template('classes.html', table_data=QueryResult(classes), table_title='Classes')
 
 
 @bp.route('/add-class', methods=['GET', 'POST'])

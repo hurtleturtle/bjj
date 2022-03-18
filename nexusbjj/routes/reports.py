@@ -1,4 +1,4 @@
-from flask import Blueprint, make_response, redirect, request, render_template, flash, url_for
+from flask import Blueprint, make_response, redirect, request, render_template, flash, url_for, g
 from nexusbjj.routes.auth import admin_required
 from nexusbjj.forms import gen_form_item
 from nexusbjj.db import get_db, QueryResult
@@ -11,6 +11,7 @@ bp = Blueprint('reports', __name__, url_prefix='/reports', template_folder='temp
 
 
 # Attendance Reports
+
 
 @bp.route('/attendance/headcount')
 @admin_required
@@ -189,6 +190,37 @@ def users_exceeding_membership_limit(export_to_csv=False):
     return render_template('report.html', table_html=df_analysis.to_html(classes='table'),
                            table_title='Users Exceeding Membership Limit', page_title='Excess Sessions', report='excess_attendances',
                            to_csv=True, start_date=start_of_last_month.date().isoformat(), end_date=today.date().isoformat()) 
+
+
+# Class Reports
+
+
+@bp.route('/classes/total-attendance')
+@admin_required
+def class_totals():
+    db = get_db()
+    classes = db.get_all_classes()
+
+    if g.user['admin'] in g.admin_levels:
+        attendance = QueryResult(db.get_attendance())
+        if attendance:
+            attendance = attendance.set_index('check_in_time').groupby('class_id')\
+                                   .resample('1W-MON', label='left')['user_id'].count().unstack().fillna(0)
+            attendance['avg_weekly_attendance'] = attendance.mean(axis='columns').round(2)
+            attendance = QueryResult(attendance.reset_index()[['class_id', 'avg_weekly_attendance']])
+            #columns.append('avg_weekly_attendance')
+    else:
+        attendance = QueryResult(db.get_attendance(user_id=g.user['id']))
+        #columns.append('Attendances')
+    
+        if attendance:
+            attendance = attendance[['class_id', 'user_id']].rename(columns={'user_id': 'Attendances'})
+            attendance = QueryResult(attendance.groupby('class_id').count().reset_index())
+
+    if attendance:        
+        classes = QueryResult(classes.merge(attendance, on='class_id', how='left'))
+    else:
+        pass#classes['Attendances'] = 0
 
 
 # Helpers
