@@ -217,7 +217,7 @@ def class_totals():
 
     classes['weekday'] = pd.Categorical(classes['weekday'], categories=list(day_name), ordered=True)
     classes.rename(columns={'weekday': 'Day', 'class_name': 'Class'}, inplace=True)
-    classes['Attendance'] = classes['Attendance'].astype(int)
+    classes['Attendance'] = classes['Attendance'].fillna(0).astype(int)
     classes = QueryResult(classes.sort_values(by=['Day', 'class_time'])[['Day', 'Class', 'Attendance']])
     print(classes['Attendance'])
 
