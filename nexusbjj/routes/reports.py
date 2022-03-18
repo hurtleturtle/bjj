@@ -210,8 +210,8 @@ def class_totals(export_to_csv=False):
     classes = classes[['class_id', 'Day', 'Class', 'start_time', 'end_time']]
 
     if attendance:
-        attendance = attendance.set_index('check_in_time').groupby('class_id')\
-                                .resample('1W-MON', label='left')['user_id'].count().unstack().fillna(0).astype(int)
+        attendance = attendance.set_index('check_in_time').groupby('class_id').resample('1W-MON', label='left')['user_id']\
+                               .count().unstack().fillna(0).apply(pd.to_numeric, errors='coerce').astype(int)
         attendance = pd.DataFrame(attendance, index=attendance.index, columns=pd.to_datetime(attendance.columns).date)
         total_attendances = attendance.sum(axis='columns')
         attendance.insert(loc=0, column='Attendance', value=total_attendances)
@@ -222,7 +222,7 @@ def class_totals(export_to_csv=False):
     else:
         classes['Attendance'] = 0
 
-    classes['Attendance'] = classes['Attendance'].fillna(0).astype(int)
+    #classes['Attendance'] = classes['Attendance'].fillna(0).astype(int)
 
     if export_to_csv:
         classes = QueryResult(classes.sort_values(by=['Day', 'start_time']))
