@@ -206,10 +206,8 @@ def class_totals():
 
     if attendance:
         attendance = attendance.set_index('check_in_time').groupby('class_id')\
-                                .resample('1W-MON', label='left')['user_id'].count().unstack().fillna(0).astype(int)
-        print(attendance)
-        attendance['Attendance'] = attendance.sum(axis='columns').fillna(0).astype(int)
-        print(attendance)
+                                .resample('1W-MON', label='left')['user_id'].count().unstack()
+        attendance['Attendance'] = attendance.sum(axis='columns')
         attendance = attendance.reset_index()[['class_id', 'Attendance']]
         classes = classes.merge(attendance, on='class_id', how='left')
     else:
@@ -219,9 +217,8 @@ def class_totals():
     classes.rename(columns={'weekday': 'Day', 'class_name': 'Class'}, inplace=True)
     classes['Attendance'] = classes['Attendance'].fillna(0).astype(int)
     classes = QueryResult(classes.sort_values(by=['Day', 'class_time'])[['Day', 'Class', 'Attendance']])
-    print(classes['Attendance'])
 
-    return render_template('report.html', table_html=classes.to_html(index=False), page_title=title, table_title=title)
+    return render_template('report.html', table_data=classes, page_title=title, table_title=title)
 
 
 # Helpers
