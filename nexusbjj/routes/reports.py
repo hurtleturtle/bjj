@@ -211,8 +211,9 @@ def class_totals(export_to_csv=False):
 
     if attendance:
         attendance = attendance.set_index('check_in_time').groupby('class_id').resample('1W-MON', label='left')['user_id']\
-                               .count().unstack().fillna(0).apply(pd.to_numeric, errors='coerce').astype(int)
+                               .count().unstack()
         attendance = pd.DataFrame(attendance, index=attendance.index, columns=pd.to_datetime(attendance.columns).date)
+        attendance = attendance.fillna(0).astype(int)
         total_attendances = attendance.sum(axis='columns')
         attendance.insert(loc=0, column='Attendance', value=total_attendances)
         if not export_to_csv:
