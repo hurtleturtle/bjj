@@ -146,7 +146,7 @@ form {
   padding: 0.5em 0;
 }
 .form-item input[type="submit"]:hover {
-  background-color: #ca0a00;
+  background-color: #b10b03;
 }
 .form-item.centred-link {
   display: flex;
