@@ -20,22 +20,23 @@ def headcount(export_to_csv=False):
     today = datetime.today()
     db = get_db()
     class_date = today.strftime('%A, %d %b %Y')
+    classes = pd.DataFrame(db.get_classes(weekday=today.strftime('%A'))).sort_values(by='class_time')
     results, error = get_attendance(today.isoformat(), today.isoformat(), headcount=True)
-    if results:
-        summary = QueryResult(results[['class_name', 'user_id']].groupby('class_name').count().reset_index()\
-                                                                .rename(columns={
-                                                                    'class_name': 'Class',
-                                                                    'user_id': 'Attendees'
-                                                                }))
-    else:
-        summary = QueryResult(db.get_classes(weekday=today.strftime('%A')))
-        if summary:
-            summary['Attendees'] = 0
-            summary = summary[['class_name', 'Attendees']]
-            summary.rename(columns={'class_name': 'Classes'})
+
+    if not classes.empty:
+        if results:
+            summary = results[['class_id', 'user_id']].groupby('class_id').count().rename(columns={'user_id': 'Attendees'})
+            summary = classes.merge(summary, left_on='id', right_index=True, how='outer')
         else:
-            flash(f'No classes found for {class_date}.')
-            return render_template('report.html')
+            summary = classes
+            summary['Attendees'] = 0
+        
+        summary = summary[['class_name', 'Attendees']].fillna(0)
+        summary['Attendees'] = summary['Attendees'].astype(int)
+        summary.rename(columns={'class_name': 'Class'}, inplace=True)
+    else:
+        flash(f'No classes found for {class_date}.')
+        return render_template('report.html')
 
     return get_report_template(QueryResult(summary), today, today, 'Headcount', 'Headcount', to_csv=False)
 
@@ -205,7 +206,7 @@ def class_totals(export_to_csv=False):
     attendance = QueryResult(db.get_attendance())
     today = datetime.today().date().isoformat()
 
-    classes['weekday'] = pd.Categorical(classes['weekday'], categories=list(day_name), ordered=True)
+    classes['weekday'] = convert_weekday_categorical(classes['weekday'])
     classes.rename(columns={'weekday': 'Day', 'class_name': 'Class', 'class_time': 'start_time'}, inplace=True)
     classes = classes[['class_id', 'Day', 'Class', 'start_time', 'end_time']]
 
@@ -336,6 +337,10 @@ def format_time(time):
     if type(time) == str:
         time = datetime.fromisoformat(time)
     return time.strftime('%A, %d %b %Y')
+
+
+def convert_weekday_categorical(column):
+    return pd.Categorical(column, categories=list(day_name), ordered=True)
 
 
 def format_start_and_end(start_date, end_date):
