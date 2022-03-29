@@ -1,5 +1,5 @@
 {% if table_data or table_html %}
-<div class="container nexus-table">
+  <div class="container nexus-table">
     <div class="rounded title py-1 my-2">
         <h1>{{ table_title }}</h1>
         {% if table_subtitle %}<h2>{{ table_subtitle }}</h2>{% endif %}
@@ -50,5 +50,5 @@
         {{ table_html | safe }}
       </div>
     {% endif %}
-</div>
+  </div>
 {% endif %}
