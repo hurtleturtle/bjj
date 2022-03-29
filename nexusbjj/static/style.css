@@ -60,6 +60,29 @@ table, th, td {
 th, td {
   padding: 0.25em 1em;
 }
+tr.collapsible-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr min-content;
+}
+th.row-toggle {
+  padding-right: 1rem;
+  color: #ca2017 !important;
+  pointer-events: none;
+}
+td.row-toggle {
+  padding-right: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+td.expanded-3 {
+  display: grid;
+  grid-column: 1 / -1;
+  background-color: #222 !important;
+  color: white;
+}
+td.hide-row {
+  display: none;
+}
 td:last-child {
   border-right: none;
 }

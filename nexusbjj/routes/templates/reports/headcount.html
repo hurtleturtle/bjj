@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block scripts %}
+    <script src="{{ url_for('static', filename='scripts/custom.js') }}"></script>
+{% endblock %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+    {% block custom_table %}
+        <div class="container nexus-table">
+            <div class="rounded title py-1 my-2">
+                <h1>{{ table_title }}</h1>
+                {% if table_subtitle %}<h2>{{ table_subtitle }}</h2>{% endif %}
+            </div>
+            {% if g.user and g.user['admin'] in g.admin_levels and to_csv %}
+            <div class="d-flex flex-row-reverse">
+                <a class="btn btn-primary btn-download" 
+                href="{{ url_for('reports.csv', report=report, start_date=start_date, end_date=end_date) }}">Download</a>
+            </div>
+            {% endif %}
+            <table class="table">
+                <thead>
+                    <tr class="collapsible-3">
+                        <th>Class</th>
+                        <th>Attendance</th>
+                        <th class="row-toggle">+</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for index, row in table_data.iterrows() %}
+                        <tr class="collapsible-3">
+                            <td>{{ row.Class }}</td>
+                            <td>{{ row.Attendees }}</td>
+                            <td id="toggle-{{ row.id }}" class="row-toggle" onclick="toggleRow('{{ row.id }}')">+</td>
+                            <td id="collapsed-row-{{ row.id }}" class="expanded-3 hide-row">
+                                <ul class="list-unstyled m-0">
+                                    {% for name in attendance[attendance.class_id == row.id].full_name %}
+                                        <li>{{ name }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endblock %}
+{% endblock %}

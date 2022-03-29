@@ -22,6 +22,7 @@ def headcount(export_to_csv=False):
     class_date = today.strftime('%A, %d %b %Y')
     classes = pd.DataFrame(db.get_classes(weekday=today.strftime('%A'))).sort_values(by='class_time')
     results, error = get_attendance(today.isoformat(), today.isoformat(), headcount=True)
+    title = 'Headcount'
 
     if not classes.empty:
         if results:
@@ -31,14 +32,15 @@ def headcount(export_to_csv=False):
             summary = classes
             summary['Attendees'] = 0
         
-        summary = summary[['class_name', 'Attendees']].fillna(0)
+        summary = summary[['id', 'class_name', 'Attendees']].fillna(0)
         summary['Attendees'] = summary['Attendees'].astype(int)
         summary.rename(columns={'class_name': 'Class'}, inplace=True)
     else:
         flash(f'No classes found for {class_date}.')
         return render_template('report.html')
 
-    return get_report_template(QueryResult(summary), today, today, 'Headcount', 'Headcount', to_csv=False)
+    return render_template('headcount.html', table_data=QueryResult(summary), attendance=results, page_title=title, table_title=title,
+                            to_csv=False)
 
 
 @bp.route('/attendance/custom', methods=['GET', 'POST'])
