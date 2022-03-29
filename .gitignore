@@ -9,6 +9,7 @@ instance/
 .coverage
 htmlcov/
 .idea/
+sumup_api/
 
 .venv/
 venv/
