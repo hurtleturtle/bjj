@@ -226,7 +226,8 @@ class Database:
             from_date = datetime.today() - timedelta(days=14)
 
         query = 'SELECT DISTINCT CONCAT(users.first_name, " ", users.last_name) AS full_name, users.email, users.mobile_number, '
-        query += 'a1.date last_class FROM attendance a1 RIGHT JOIN users ON a1.user_id=users.id WHERE users.is_coach = false AND'
+        query += 'DATE_FORMAT(a1.date, "%a %d/%e/%Y") last_class '
+        query += 'FROM attendance a1 RIGHT JOIN users ON a1.user_id=users.id WHERE users.is_coach = false AND'
         query += '((a1.date = (SELECT MAX(a2.date) FROM attendance a2 WHERE a2.user_id=a1.user_id) AND a1.date <= %s) OR a1.date IS NULL)'
         params = (from_date.date(),)
         self.execute(query, params)
