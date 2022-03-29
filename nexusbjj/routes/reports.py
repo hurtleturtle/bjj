@@ -152,6 +152,8 @@ def absentees(export_to_csv=False):
 
     if export_to_csv:
         return attendance
+    else:
+        attendance = QueryResult(attendance[['full_name', 'last_class']])
 
     return render_template('report.html', table_data=attendance, page_title=title, table_title=title, table_subtitle=sub_title, to_csv=True,
                            report='absentees', start_date=today.date().isoformat(), end_date=today.date().isoformat())
