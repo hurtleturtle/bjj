@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+  {% if form_groups %}
+    {% include "form.html" %}
+  {% endif %}
+  {% include "table.html" %}
+{% endblock %}

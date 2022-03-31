@@ -51,6 +51,7 @@
             <a class="nav-link rounded dropdown-toggle" data-bs-toggle="dropdown" href="{{ url_for('users.show_all') }}">Admin</a>
             <ul class="dropdown-menu">
               <a class="dropdown-item" href="{{ url_for('users.show_all') }}">Users</a>
+              <a class="dropdown-item" href="{{ url_for('admin.get_memberships') }}">Memberships</a>
             </ul>
           </li>
         {% endif %}

@@ -233,8 +233,19 @@ class Database:
         self.execute(query, params)
         return self.cursor.fetchall()
 
-    def get_membership_types(self):
+    def get_membership_types(self, extra_cols=[]):
         query = 'SELECT memberships.id, membership_type, age_groups.name FROM memberships JOIN age_groups ON age_group_id=age_groups.id'
+        self.execute(query)
+        return self.cursor.fetchall()
+
+    def add_membership(self, name, age_group_id, sessions_per_week):
+        query = 'INSERT INTO memberships (membership_type, age_group_id, sessions_per_week) VALUES (%s, %s, %s)'
+        params = [name, age_group_id, sessions_per_week]
+        self.execute(query, params)
+        self.commit()
+    
+    def get_age_groups(self):
+        query = 'SELECT id, name FROM age_groups'
         self.execute(query)
         return self.cursor.fetchall()
 
