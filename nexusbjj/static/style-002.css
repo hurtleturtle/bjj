@@ -118,6 +118,11 @@ td {
   font-weight: bold;
   text-shadow: 0.1em 0.1em 0.1em black;
 }
+.inner-table-btn {
+  text-decoration: none;
+  color: inherit !important;
+  padding: 2px;
+}
 
 /* DataFrame tables */
 .dataframe tbody > tr > th {

@@ -32,10 +32,10 @@
                     <td>{{ cell }}</td>
                   {% endfor %}
                   <td>
-                    <a href="{{ url_for('users.toggle_coach', user_id=row['id']) }}">
+                    <a class='inner-table-btn' href="{{ url_for('users.toggle_coach', user_id=row['id']) }}">
                       <i class="fas fa-user"></i>
                     </a>
-                    <a  href="{{ url_for('users.edit', uid=row['id']) }}">
+                    <a class='inner-table-btn' href="{{ url_for('users.edit', uid=row['id']) }}">
                       <i class="fas fa-edit"></i>
                     </a>
                   </td>
