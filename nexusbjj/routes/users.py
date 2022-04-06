@@ -23,7 +23,8 @@ def show_all():
         return response
     else:
         users['Name'] = users['first_name'].str.cat(users['last_name'], sep=' ')
-        users = QueryResult(users[['id', 'Name', 'membership_type']])
+        users = users.rename(columns={'membership_type': 'Membership'})
+        users = QueryResult(users[['id', 'Name', 'Membership']])
     return render_template('users/list.html', table_data=users, table_title='Users', to_csv=True)
 
 
