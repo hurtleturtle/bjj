@@ -9,6 +9,12 @@
             <h1>{{ table_title }}</h1>
             {% if table_subtitle %}<h2>{{ table_subtitle }}</h2>{% endif %}
         </div>
+        {% if g.user and g.user['admin'] in g.admin_levels and to_csv %}
+          <div class="d-flex flex-row-reverse">
+            <a class="btn btn-primary btn-table" 
+            href="{{ url_for('users.show_all', export_to_csv=True) }}">Download</a>
+          </div>
+        {% endif %}
         <div class="table-responsive">
           <table class="table">
             <thead>

@@ -1,9 +1,10 @@
 from flask import Blueprint, flash, g, render_template, request, url_for
-from flask import redirect, escape
+from flask import redirect, escape, make_response
 from werkzeug.security import check_password_hash, generate_password_hash
 from nexusbjj.db import get_db, QueryResult
 from nexusbjj.routes.auth import admin_required, write_admin_required, login_required
 from nexusbjj.forms import gen_form_item, gen_options
+from datetime import datetime
 
 
 bp = Blueprint('users', __name__, url_prefix='/users')
@@ -13,8 +14,17 @@ bp = Blueprint('users', __name__, url_prefix='/users')
 @admin_required
 def show_all():
     db = get_db()
-    users = QueryResult(db.get_users(columns=('id', 'first_name', 'last_name', 'last_access')))
-    return render_template('users/list.html', table_data=users, table_title='Users')
+    users = QueryResult(db.get_users()).drop('password', axis='columns')
+    if request.args.get('export_to_csv'):
+        filename = 'users' + datetime.today().date().isoformat() + '.csv'
+        response = make_response(users.to_csv(index=False))
+        response.headers['Content-Type'] = 'text/csv'
+        response.headers['Content-Disposition'] = 'attachment; filename=' + filename
+        return response
+    else:
+        users['Name'] = users['first_name'].str.cat(users['last_name'], sep=' ')
+        users = QueryResult(users[['id', 'Name', 'membership_type']])
+    return render_template('users/list.html', table_data=users, table_title='Users', to_csv=True)
 
 
 @bp.route('/<int:uid>/edit', methods=['GET', 'POST'])
