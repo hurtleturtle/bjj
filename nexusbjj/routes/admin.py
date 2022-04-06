@@ -1,5 +1,5 @@
 from flask import Blueprint, make_response, redirect, request, render_template, flash, url_for, g
-from nexusbjj.routes.auth import admin_required
+from nexusbjj.routes.auth import admin_required, write_admin_required
 from nexusbjj.forms import gen_form_item, gen_options
 from nexusbjj.db import get_db, QueryResult
 from datetime import datetime, timedelta
@@ -11,6 +11,7 @@ bp = Blueprint('admin', __name__, url_prefix='/admin', template_folder='template
 
 
 @bp.route('/memberships', methods=['GET'])
+@admin_required
 def get_memberships():
     db = get_db()
     memberships = QueryResult(db.get_membership_types())
@@ -19,6 +20,7 @@ def get_memberships():
 
 
 @bp.route('/memberships/add', methods=['GET', 'POST'])
+@write_admin_required
 def add_membership():
     db = get_db()
     age_groups = QueryResult(db.get_age_groups())
