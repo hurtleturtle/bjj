@@ -115,19 +115,19 @@ def delete(uid):
     return redirect(url_for('users.show_all'))
 
 
-@bp.route('/<int:uid>/add-coach', methods=['GET', 'POST'])
+@bp.route('/toggle-coach')
 @write_admin_required
-def add_coach(uid):
+def toggle_coach():
+    user_id = int(request.args.get('user_id'))
     db = get_db()
-    db.update_user(uid, 'is_coach', True)
-    return redirect(url_for('users.show_all'))
+    user = db.get_user(uid=user_id, columns=('is_coach',))
 
+    if user:
+        db.update_user(user_id, 'is_coach', not user.get('is_coach'))
+        flash('User updated successfully')
+    else:
+        flash('User not updated')
 
-@bp.route('/<int:uid>/remove-coach', methods=['GET', 'POST'])
-@write_admin_required
-def remove_coach(uid):
-    db = get_db()
-    db.update_user(uid, 'is_coach', False)
     return redirect(url_for('users.show_all'))
 
 

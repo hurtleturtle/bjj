@@ -32,11 +32,8 @@
                     <td>{{ cell }}</td>
                   {% endfor %}
                   <td>
-                    <a class="btn" href="{{ url_for('users.add_coach', uid=row['id']) }}">
-                      <i class="fas fa-lock-open"></i>
-                    </a>
-                    <a class="btn" href="{{ url_for('users.remove_coach', uid=row['id']) }}">
-                      <i class="fas fa-ban"></i>
+                    <a class="btn" href="{{ url_for('users.toggle_coach', user_id=row['id']) }}">
+                      <i class="fas fa-user"></i>
                     </a>
                     <a class="btn" href="{{ url_for('users.edit', uid=row['id']) }}">
                       <i class="fas fa-edit"></i>
