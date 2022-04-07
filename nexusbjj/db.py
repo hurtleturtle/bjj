@@ -64,17 +64,24 @@ class Database:
         self.execute(query, params)
         self.commit()
 
-    def get_users(self, columns=('*',)):
+    def get_users(self, columns=('*',), conditions='', params=tuple()):
         user_columns = ', '.join(['users.' + column for column in columns])
-        query = 'SELECT ' + user_columns + ', age_group_id, membership_type FROM users LEFT JOIN memberships ON membership_id=memberships.id'
-        self.execute(query)
+        query = 'SELECT ' + user_columns + ', age_group_id, membership_type, age_groups.name AS age_group FROM users'
+        query += ' LEFT JOIN memberships ON membership_id=memberships.id LEFT JOIN age_groups ON age_group_id=age_groups.id'
+        
+        if conditions:
+            query += ' WHERE ' + conditions
+            self.execute(query, params)
+        else:
+            self.execute(query)
+        
         users = self.cursor.fetchall()
         return users
 
     def get_user(self, uid=None, email=None, columns=('*',)):
         user_columns = ', '.join(['users.' + column for column in columns])
-        query = 'SELECT ' + user_columns + ', age_group_id, membership_type FROM users LEFT JOIN memberships'
-        query += ' ON membership_id=memberships.id WHERE '
+        query = 'SELECT ' + user_columns + ', age_group_id, membership_type, age_groups.name AS age_group FROM users LEFT JOIN memberships'
+        query += ' ON membership_id=memberships.id LEFT JOIN age_groups ON age_group_id=age_groups.id WHERE '
         params = tuple()
 
         if uid:
@@ -93,6 +100,11 @@ class Database:
 
         self.execute(query, params)
         return self.cursor.fetchone()
+
+    def get_children(self, parent_id):
+        conditions = 'parent_id = %s'
+        children = self.get_users(conditions=conditions, params=(parent_id,))
+        return children
 
     def add_user(self, email, password, first_name, last_name, mobile_number, membership_id, admin_level='no'):
         query = 'INSERT INTO users (email, password, first_name, last_name, mobile_number, membership_id, admin)'
