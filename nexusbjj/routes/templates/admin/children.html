@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+  {% if form_groups %}
+    {% include "form.html" %}
+  {% endif %}
+  {% if table_data or table_html %}
+    {% include "table.html" %}
+  {% elif not form_groups %}
+    <div class="container">
+      <a class="bjj-class" href="{{ url_for(add_func) }}">Add Child</a>
+    </div>
+  {% endif %}
+{% endblock %}

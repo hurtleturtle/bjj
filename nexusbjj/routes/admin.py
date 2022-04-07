@@ -1,5 +1,5 @@
 from flask import Blueprint, make_response, redirect, request, render_template, flash, url_for, g
-from nexusbjj.routes.auth import admin_required, write_admin_required
+from nexusbjj.routes.auth import admin_required, write_admin_required, login_required
 from nexusbjj.forms import gen_form_item, gen_options
 from nexusbjj.db import get_db, QueryResult
 from datetime import datetime, timedelta
@@ -48,3 +48,37 @@ def add_membership():
         return redirect(url_for('admin.get_memberships'))
 
     return render_template('memberships.html', form_groups=groups)
+
+
+@bp.route('/children')
+@login_required
+def list_children():
+    db = get_db()
+    user_id = g.user['id']
+    children = QueryResult(db.get_children(user_id))
+    title = 'Children'
+    return render_template('children.html', table_data=children, table_title=title, page_title=title, add_func='admin.add_child')
+
+
+@bp.route('/children/add', methods=['GET', 'POST'])
+@login_required
+def add_child():
+    groups = {
+        'child': {
+            'group_title': 'Add Child',
+            'first_name': gen_form_item('first_name', label='First Name', required=True),
+            'last_name': gen_form_item('last_name', label='Last Name', required=True)
+        },
+        'submit': {
+            'btn_submit': gen_form_item('btn-submit', item_type='submit', value='Add') 
+        }
+    }
+    title='Add Child'
+
+    if request.method == 'POST':
+        db = get_db()
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
+        db.add_user()
+
+    return render_template('children.html', form_groups=groups, table_title=title, page_title=title, add_func='admin.add_child')

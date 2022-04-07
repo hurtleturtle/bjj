@@ -58,6 +58,9 @@
         <li class="nav-item dropdown">
           <a class="nav-link rounded dropdown-toggle" data-bs-toggle="dropdown" href="#">{{ g.user['first_name'] + ' ' + g.user['last_name'] }}</a>
           <ul class="dropdown-menu align-right">
+            {% if g.user['age_group'] == 'family' %}
+              <a class="dropdown-item" href="{{ url_for('admin.list_children') }}">Children</a>
+            {% endif %}
             <a class="dropdown-item" href="{{ url_for('users.change_password', uid=g.user['id']) }}">Change Password</a>
           </ul>
         </li>
