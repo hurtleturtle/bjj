@@ -102,9 +102,16 @@ class Database:
         return self.cursor.fetchone()
 
     def get_children(self, parent_id):
-        conditions = 'parent_id = %s'
-        children = self.get_users(conditions=conditions, params=(parent_id,))
-        return children
+        query = 'SELECT * FROM children WHERE parent_id = %s'
+        params = (parent_id, )
+        self.execute(query, params)
+        return self.cursor.fetchall()
+
+    def add_child(self, first_name, last_name, parent_id):
+        query = 'INSERT INTO children (first_name, last_name, parent_id) VALUES (%s, %s, %s)'
+        params = (first_name, last_name, parent_id)
+        self.execute(query, params)
+        self.commit()
 
     def add_user(self, email, password, first_name, last_name, mobile_number, membership_id, admin_level='no'):
         query = 'INSERT INTO users (email, password, first_name, last_name, mobile_number, membership_id, admin)'
