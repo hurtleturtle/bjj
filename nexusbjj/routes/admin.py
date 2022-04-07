@@ -55,7 +55,8 @@ def add_membership():
 def list_children():
     db = get_db()
     user_id = g.user['id']
-    children = QueryResult(db.get_children(user_id))
+    children = QueryResult(db.get_children(user_id))[['first_name', 'last_name']]
+    children = QueryResult(children.rename(columns={'first_name': 'First Name', 'last_name': 'Last Name'}))
     title = 'Children'
     return render_template('children.html', table_data=children, table_title=title, page_title=title, add_func='admin.add_child')
 
@@ -79,6 +80,10 @@ def add_child():
         db = get_db()
         first_name = request.form.get('first_name')
         last_name = request.form.get('last_name')
-        db.add_user()
+        db.add_child(first_name, last_name, g.user['id'])
+
+        parent_name = g.user['first_name'] + ' ' + g.user['last_name']
+        flash(f'{first_name} {last_name} added as child of {parent_name}')
+        return redirect(url_for('admin.list_children'))
 
     return render_template('children.html', form_groups=groups, table_title=title, page_title=title, add_func='admin.add_child')
