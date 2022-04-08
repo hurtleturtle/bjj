@@ -211,7 +211,7 @@ def class_totals(export_to_csv=False):
     today = datetime.today().date().isoformat()
 
     classes['weekday'] = convert_weekday_categorical(classes['weekday'])
-    classes.rename(columns={'weekday': 'Day', 'class_name': 'Class', 'class_time': 'start_time'}, inplace=True)
+    classes.rename(columns={'weekday': 'Day', 'class_name': 'Class', 'class_time': 'start_time', 'id': 'class_id'}, inplace=True)
     classes = classes[['class_id', 'Day', 'Class', 'start_time', 'end_time']]
 
     if attendance:
