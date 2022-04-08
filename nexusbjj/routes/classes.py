@@ -80,8 +80,10 @@ def check_in_to_class():
             mask = df_classes['child_id'] == NOT_A_CHILD
         
         user_classes['classes'] = df_classes.loc[mask]
-        classes_by_user.append(user_classes)
-    
+
+        if not user_classes['classes'].empty:
+            classes_by_user.append(user_classes)
+
     return render_template('checkin.html', classes=df_classes.to_dict('records'), user_classes=classes_by_user, 
                            all_classes_attended=flag_all_classes_attended, children=children)
 
