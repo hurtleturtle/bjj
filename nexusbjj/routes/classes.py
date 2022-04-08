@@ -2,7 +2,7 @@ from flask import Blueprint, request, render_template, flash, g
 from nexusbjj.routes.auth import admin_required, login_required
 from nexusbjj.forms import gen_form_item, gen_options
 from nexusbjj.db import get_db, QueryResult
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from calendar import day_name
 from pandas import Categorical
 
@@ -14,46 +14,69 @@ bp = Blueprint('classes', __name__, url_prefix='/classes', template_folder='temp
 @login_required
 def check_in_to_class():
     db = get_db()
-    current_user = db.get_user()
+    current_user = db.get_user(columns=('id', 'first_name', 'last_name', 'parent_id'))
+    children = QueryResult(db.get_children(current_user['id']))
     today = datetime.today()
     today_start = datetime.combine(today.date(), time.fromisoformat('00:00:00')).isoformat()
     today_end = datetime.combine(today.date(), time.fromisoformat('23:59:59')).isoformat()
     current_user_attendance = QueryResult(db.get_attendance(from_date=today_start, to_date=today_end,
                                           user_id=current_user['id']))
+    age_groups = QueryResult(db.get_age_groups())
+    age_group_id = current_user['age_group_id']
+    child_id = request.args.get('child_id')
+    child_age_group_id = age_groups.set_index('name').loc['junior', 'id']
+
+    if current_user['age_group'] == 'family':
+        age_group_id = int(age_groups.set_index('name').loc['senior', 'id'])
+        current_user['age_group_id'] = age_group_id
+
+        if children:
+            children['age_group_id'] = child_age_group_id
+
+    users = QueryResult([current_user]).append(children, ignore_index=True)
 
     try:
         request_class_id = int(request.args.get('class_id'))
     except:
         request_class_id = request.args.get('class_id')
-    classes = QueryResult(db.get_classes(age_group=current_user['age_group_id']))
     
+    #classes = QueryResult(db.get_classes(age_groups=age_group_id))
+    # if children:
+    #     child_classes = QueryResult(db.get_classes(age_groups=age_group_id))
+    
+    classes = QueryResult(db.get_all_classes(conditions='weekday = %s', params=[today.strftime('%A')]))
+
     if not classes:
         flash('No classes available')
         return render_template('checkin.html')
     
     
     classes.sort_values(by=['class_time'], inplace=True)
-    df_classes = check_attendance(classes.set_index('id'), current_user_attendance)
+    df_classes = check_attendance(users, classes.set_index('id'), current_user_attendance)
     df_classes['class_date'] = today.date().isoformat()
 
     if request_class_id:
-        toggle_check_in(df_classes, request_class_id, current_user['id'])
+        toggle_check_in(df_classes, request_class_id, current_user['id'], child_id)
 
+    print(df_classes)
+    print(current_user_attendance)
     flag_all_classes_attended = all(df_classes['attendance'])
     
     return render_template('checkin.html', classes=df_classes.reset_index().to_dict('records'), 
-                           all_classes_attended=flag_all_classes_attended)
+                           all_classes_attended=flag_all_classes_attended, children=children)
 
 
-def check_attendance(classes: QueryResult, user_attendance: QueryResult) -> QueryResult:
-    if user_attendance:
-        classes['attendance'] = classes.index.to_series().apply(lambda x: x in user_attendance['class_id'].values)
+def check_attendance(users: QueryResult, classes: QueryResult, attendance: QueryResult) -> QueryResult:
+    print(users)
+    print(classes)
+    if attendance:
+        classes['attendance'] = classes.index.to_series().apply(lambda x: x in attendance['class_id'].values)
     else:
         classes['attendance'] = False
     return classes
 
 
-def toggle_check_in(df_classes: QueryResult, class_id, user_id):
+def toggle_check_in(df_classes: QueryResult, class_id, user_id, child_id=None):
     db = get_db()
     df_classes['check_in_function'] = 'no operation'
 
@@ -77,7 +100,7 @@ def toggle_check_in(df_classes: QueryResult, class_id, user_id):
             df_classes.loc[class_id, 'attendance'] = True
 
     for row in df_classes[df_classes['check_in_function'] != 'no operation'].itertuples():
-        row.check_in_function(row.Index, user_id, row.class_date, row.class_time)
+        row.check_in_function(row.Index, user_id, row.class_date, row.class_time, child_id)
 
 
 @bp.route('/')
@@ -109,13 +132,19 @@ def add_class():
     db = get_db()
     coaches = QueryResult(db.get_coaches())
     coaches['full_name'] = coaches['first_name'].str.cat(coaches['last_name'], sep=' ')
+    age_groups = QueryResult(db.get_age_groups())
+    default_age_group = age_groups.set_index('name').loc['senior', 'id']
+    
     groups = {
         'class': {
             'group_title': 'Add Class',
             'class_name': gen_form_item('class_name', label='Class Name'),
+            'class_age': gen_form_item('class_age_group', label='Age Group', field_type='select', 
+                                       options=gen_options(age_groups['name'].str.capitalize().to_list(), 
+                                       values=age_groups['id'].to_list()),
+                                       selected_option=default_age_group),
             'class_type': gen_form_item('class_type', label='Class Type', field_type='select',
-                                        options=gen_options(('No Gi', 'Gi')), value='No Gi',
-                                        selected_option='No Gi'),
+                                        options=gen_options(('No Gi', 'Gi'))),
             'class_coach': gen_form_item('class_coach', label='Coach', field_type='select',
                                          options=gen_options(coaches['full_name'].to_list(), 
                                          values=coaches['id'].to_list())),
@@ -138,8 +167,9 @@ def add_class():
         class_day = form.get('class_day')
         class_time = form.get('class_time')
         class_duration = form.get('class_duration')
+        class_age_group = form.get('class_age_group')
 
-        db.add_class(class_name, class_day, class_time, class_duration, class_coach_id, class_type)
+        db.add_class(class_name, class_day, class_time, class_duration, class_coach_id, class_age_group, class_type,)
         db.update_unlimited_class_count()
 
         flash('Class added!')
