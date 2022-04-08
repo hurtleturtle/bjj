@@ -217,10 +217,16 @@ form {
 }
 
 div.bjj-classes-inner-wrapper {
-  overflow-y: auto;
+  overflow-y: hidden;
   padding: 1rem 1rem;
   border-radius: 1em;
   background-color: lightgrey;
+}
+div.bjj-classes-inner-wrapper.no-top {
+  padding: 0 1rem 1rem;
+}
+div.bjj-classes-inner-wrapper.no-bottom {
+  padding: 1rem 1rem 0;
 }
 .bjj-class {
     display: block;
@@ -228,23 +234,32 @@ div.bjj-classes-inner-wrapper {
     color: black;
     text-align: center;
     padding: 1rem;
-    margin: 1rem;
+    /* margin: 1rem; */
     border-radius: 0.5rem;
     background-color: #ca2017;
 }
 .bjj-class.checked-in {
-  display: block;
-  text-decoration: none;
-  color: black;
-  text-align: center;
-  padding: 1rem;
-  margin: 1rem;
-  border-radius: 0.5rem;
   background-color: green;
 }
 .bjj-class:hover {
     background-color: #222;
     color: white;
+}
+.bjj-class-toggle {
+  background-color: #222;
+  color: white;
+  text-decoration: none;
+  display: flex;
+  /* display: block; */
+  text-align: left;
+  padding: 0.5em 1em 0.5em 1em;
+}
+.bjj-class-toggle > span {
+  flex-grow: 1;
+}
+.bjj-class-toggle > i {
+  padding: 0 0.5em;
+  line-height: inherit;
 }
 /* Helpers */
 .do-not-wrap {

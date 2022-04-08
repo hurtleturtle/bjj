@@ -4,7 +4,8 @@ from nexusbjj.forms import gen_form_item, gen_options
 from nexusbjj.db import get_db, QueryResult
 from datetime import datetime, time, timedelta
 from calendar import day_name
-from pandas import Categorical
+from pandas import Categorical, concat, DataFrame
+from numpy import nan, float64, isnan
 
 
 bp = Blueprint('classes', __name__, url_prefix='/classes', template_folder='templates/classes')
@@ -24,6 +25,12 @@ def check_in_to_class():
     age_groups = QueryResult(db.get_age_groups())
     age_group_id = current_user['age_group_id']
     child_id = request.args.get('child_id')
+    NOT_A_CHILD = -1
+    
+    if child_id:
+        child_id = int(child_id)
+    
+    request_class_id = request.args.get('class_id')
     child_age_group_id = age_groups.set_index('name').loc['junior', 'id']
 
     if current_user['age_group'] == 'family':
@@ -32,17 +39,16 @@ def check_in_to_class():
 
         if children:
             children['age_group_id'] = child_age_group_id
+            children.rename(columns={'id': 'child_id'}, inplace=True)
+            children['id'] = current_user['id']
 
-    users = QueryResult([current_user]).append(children, ignore_index=True)
+    users = concat([QueryResult([current_user]), children], axis='index', ignore_index=True)
 
     try:
-        request_class_id = int(request.args.get('class_id'))
-    except:
-        request_class_id = request.args.get('class_id')
-    
-    #classes = QueryResult(db.get_classes(age_groups=age_group_id))
-    # if children:
-    #     child_classes = QueryResult(db.get_classes(age_groups=age_group_id))
+        if users['child_id'].empty:
+            users['child_id'] = nan
+    except KeyError:
+        users['child_id'] = nan
     
     classes = QueryResult(db.get_all_classes(conditions='weekday = %s', params=[today.strftime('%A')]))
 
@@ -50,35 +56,70 @@ def check_in_to_class():
         flash('No classes available')
         return render_template('checkin.html')
     
-    
     classes.sort_values(by=['class_time'], inplace=True)
-    df_classes = check_attendance(users, classes.set_index('id'), current_user_attendance)
+    df_classes = check_attendance(users, classes, current_user_attendance)
     df_classes['class_date'] = today.date().isoformat()
 
     if request_class_id:
         toggle_check_in(df_classes, request_class_id, current_user['id'], child_id)
 
-    print(df_classes)
-    print(current_user_attendance)
     flag_all_classes_attended = all(df_classes['attendance'])
+    df_classes['child_id'] = df_classes['child_id'].fillna(NOT_A_CHILD).astype(int)
+
+    classes_by_user = []
+    for index, user in users.iterrows():
+        user_classes = {
+            'index': index,
+            'name': user['first_name'] + ' ' + user['last_name']
+        }
+
+        if not isnan(user['child_id']):
+            user_classes['child_id'] = int(user['child_id'])
+            mask = df_classes['child_id'] == int(user['child_id'])
+        else:
+            mask = df_classes['child_id'] == NOT_A_CHILD
+        
+        user_classes['classes'] = df_classes.loc[mask]
+        classes_by_user.append(user_classes)
     
-    return render_template('checkin.html', classes=df_classes.reset_index().to_dict('records'), 
+    print(classes_by_user)
+    return render_template('checkin.html', classes=df_classes.to_dict('records'), user_classes=classes_by_user, 
                            all_classes_attended=flag_all_classes_attended, children=children)
 
 
 def check_attendance(users: QueryResult, classes: QueryResult, attendance: QueryResult) -> QueryResult:
-    print(users)
-    print(classes)
-    if attendance:
-        classes['attendance'] = classes.index.to_series().apply(lambda x: x in attendance['class_id'].values)
-    else:
-        classes['attendance'] = False
-    return classes
+    total_attendance = DataFrame()
+
+    for index, user in users.iterrows():
+        user_classes = classes[classes['age_group_id'] == user['age_group_id']].copy()
+        user_classes['user_id'] = user['id']
+        user_classes['child_id'] = user['child_id']
+        
+        if attendance:
+            attendance['child_id'] = attendance['child_id'].astype(float64)
+            if isnan(user['child_id']):
+                child_mask = attendance['child_id'].isnull()
+            else:
+                child_mask = attendance['child_id'] == user['child_id']
+                
+            user_classes['attendance'] = user_classes['id'].apply(lambda x: x in attendance.loc[child_mask, 'class_id'].values)
+        else:
+            user_classes['attendance'] = False
+        
+        total_attendance = concat([total_attendance, user_classes], ignore_index=True)
+    
+    return total_attendance
 
 
 def toggle_check_in(df_classes: QueryResult, class_id, user_id, child_id=None):
     db = get_db()
-    df_classes['check_in_function'] = 'no operation'
+
+    if not child_id:
+        user_mask = (df_classes['user_id'] == user_id) & (df_classes['child_id'].isnull())
+    else:
+        user_mask = (df_classes['user_id'] == user_id) & (df_classes['child_id'] == child_id)
+    df_classes.loc[:, 'check_in_function'] = 'no operation'
+    print(df_classes)
 
     if class_id == 'all':
         if all(df_classes['attendance']):
@@ -92,15 +133,16 @@ def toggle_check_in(df_classes: QueryResult, class_id, user_id, child_id=None):
             df_classes.loc[mask, 'check_in_function'] = db.check_in
             df_classes.loc[mask, 'attendance'] = True
     else:
-        if df_classes.loc[class_id, 'attendance']:
-            df_classes.loc[class_id, 'check_in_function'] = db.remove_check_in
-            df_classes.loc[class_id, 'attendance'] = False
+        class_mask = df_classes['id'] == int(class_id)
+        if df_classes.loc[user_mask & class_mask, 'attendance'].all():
+            df_classes.loc[user_mask & class_mask, 'check_in_function'] = db.remove_check_in
+            df_classes.loc[user_mask & class_mask, 'attendance'] = False
         else:
-            df_classes.loc[class_id, 'check_in_function'] = db.check_in
-            df_classes.loc[class_id, 'attendance'] = True
+            df_classes.loc[user_mask & class_mask, 'check_in_function'] = db.check_in
+            df_classes.loc[user_mask & class_mask, 'attendance'] = True
 
     for row in df_classes[df_classes['check_in_function'] != 'no operation'].itertuples():
-        row.check_in_function(row.Index, user_id, row.class_date, row.class_time, child_id)
+        row.check_in_function(row.id, user_id, row.class_date, row.class_time, row.child_id)
 
 
 @bp.route('/')

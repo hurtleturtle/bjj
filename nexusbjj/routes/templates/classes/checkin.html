@@ -1,26 +1,48 @@
 {% extends "base.html" %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='scripts/custom.js')}}"></script>
+{% endblock %}
 {% block title %}Check In{% endblock %}
 {% block content %}
   <div class="bjj-classes-outer-wrapper container">
-  {% if classes %}
+  {% if user_classes %}
     <div class="bjj-classes-mid-wrapper">
       <h2>Classes</h2>
       <p>Check in for one or all of the classes below</p>
-      <div class="bjj-classes-inner-wrapper">
+      <div class="bjj-classes-inner-wrapper {% if user_classes.__len__() == 1 %}no-bottom{% endif %}">
         <a class="bjj-class {% if all_classes_attended %}checked-in{% endif %}" 
          href="{{ url_for('classes.check_in_to_class', class_id='all') }}">
           <h2>All Classes</h2>
           <p>Check in to all classes listed below</p>
         </a>
         <hr />
-        {% for bjj_class in classes %}
-        <a class="bjj-class {% if bjj_class.attendance %}checked-in{% endif %}" 
-        href="{{ url_for('classes.check_in_to_class', class_id=bjj_class.id) }}">
-            <h2>{{ bjj_class.class_name }} {% if bjj_class.attendance %}(Checked In){% endif %}</h2>
-            <p>{{ bjj_class.class_time }} - {{ bjj_class.end_time }}</p>
-        </a>
-        {% endfor %}
       </div>
+      {% for user_class in user_classes %}
+        {% if user_classes.__len__() > 1 %}
+          <a class="bjj-class-toggle" data-bs-toggle="collapse" onclick="toggleAngle(this)" 
+          href="#classes-for-user-{{ user_class.index }}">
+          <span>{{ user_class.name }}</span>
+          <i class="fas {% if user_class.child_id %}fa-chevron-right{% else %}fa-chevron-down{% endif %}"></i> 
+          </a>
+        {% endif %}
+        
+        <div class="bjj-classes-inner-wrapper collapse {% if user_classes.__len__() == 1 or not user_class.child_id %}show{% endif %}
+                    {% if user_classes.__len__() == 1 %}no-top{% endif %}" 
+         id="classes-for-user-{{ user_class.index }}">
+          {% for index, bjj_class in user_class.classes.iterrows() %}
+            <a class="bjj-class {% if bjj_class.attendance %}checked-in{% endif %}" 
+            {% if user_class.child_id %}
+            href="{{ url_for('classes.check_in_to_class', class_id=bjj_class.id, child_id=user_class.child_id) }}"
+            {% else %}
+            href="{{ url_for('classes.check_in_to_class', class_id=bjj_class.id) }}"
+            {% endif %}
+            >
+              <h2>{{ bjj_class.class_name }} {% if bjj_class.attendance %}(Checked In){% endif %}</h2>
+              <p>{{ bjj_class.class_time }} - {{ bjj_class.end_time }}</p>
+            </a>
+          {% endfor %}
+        </div>
+      {% endfor %}
     </div>
   {% endif %}
   </div>

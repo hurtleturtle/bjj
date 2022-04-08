@@ -10,3 +10,9 @@ const toggleRow = (elementId) => {
         button.innerHTML = '+'
     }
 }
+
+function toggleAngle(element) {
+    icon = element.lastElementChild
+    icon.classList.toggle('fa-chevron-right')
+    icon.classList.toggle('fa-chevron-down')
+}

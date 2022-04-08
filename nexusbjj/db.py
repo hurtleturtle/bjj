@@ -11,6 +11,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from pandas import DataFrame
 from datetime import time, timedelta, datetime
 from time import localtime, strftime
+from numpy import isnan
 
 
 class Database:
@@ -148,19 +149,19 @@ class Database:
         self.execute(query)
         return self.cursor.fetchall()
 
-    def add_class(self, class_name, weekday, time, duration, coach_id, class_type='No Gi'):
+    def add_class(self, class_name, weekday, time, duration, coach_id, age_group_id, class_type='No Gi'):
         if class_type not in ['Gi', 'No Gi']:
             flash('Invalid class type. Class type must be either Gi or No Gi')
             return False
 
-        query = 'INSERT INTO classes (class_name, class_type, weekday, time, duration, coach_id) '
-        query += 'VALUES (%s, %s, %s, %s, %s, %s)'
-        params = (class_name, class_type, weekday, time, duration, coach_id)
+        query = 'INSERT INTO classes (class_name, class_type, weekday, time, duration, coach_id, age_group_id) '
+        query += 'VALUES (%s, %s, %s, %s, %s, %s, %s)'
+        params = (class_name, class_type, weekday, time, duration, coach_id, age_group_id)
         self.execute(query, params)
         self.commit()
         return True
 
-    def get_classes(self, weekday=None, class_time=None, age_group=None):
+    def get_classes(self, weekday=None, class_time=None, age_groups=None):
         query = 'SELECT id, DATE_FORMAT(time, "%H:%i") class_time, class_name, duration, '
         query += 'DATE_FORMAT(ADDTIME(time, duration), "%H:%i") end_time, weekday, age_group_id'
         query += ' FROM classes WHERE weekday = %s AND time >= %s'
@@ -179,37 +180,67 @@ class Database:
 
         params.append(show_classes_from_time)
 
-        if age_group:
-            query += ' AND age_group_id = %s'
-            params.append(age_group)
+        if age_groups:
+            if isinstance(age_groups, int) or len(age_groups) == 1:
+                query += ' AND age_group_id = %s'
+
+                if isinstance(age_groups, int):
+                    params.append(age_groups)
+                else:
+                    params.extend(age_groups)
+                print(params)
+            else:
+                query += ' AND age_group_id IN (' + ', '.join(['%s'] * len(age_groups)) + ')'
+                params.extend(age_groups)
 
         self.execute(query, params)
         todays_classes = self.cursor.fetchall()
         return todays_classes
 
-    def get_all_classes(self):
-        query = 'SELECT id class_id, DATE_FORMAT(time, "%H:%i") class_time, class_name, duration, '
-        query += 'DATE_FORMAT(ADDTIME(time, duration), "%H:%i") end_time, weekday'
+    def get_all_classes(self, conditions=None, params=None):
+        query = 'SELECT id, DATE_FORMAT(time, "%H:%i") class_time, class_name, duration, '
+        query += 'DATE_FORMAT(ADDTIME(time, duration), "%H:%i") end_time, weekday, age_group_id'
         query += ' FROM classes'
-        self.execute(query)
+
+        if conditions:
+            query += ' WHERE ' + conditions
+            self.execute(query, params)
+        else:
+            self.execute(query)
+        
         return self.cursor.fetchall()
 
 
-    def check_in(self, class_id, user_id, class_date, class_time):
-        query = 'INSERT INTO attendance (user_id, class_id, class_date, class_time) VALUES (%s, %s, %s, %s);'
-        params = (user_id, class_id, class_date, class_time)
+    def check_in(self, class_id, user_id, class_date, class_time, child_id=None):
+        columns = ['user_id', 'class_id', 'class_date', 'class_time']
+        params = [user_id, class_id, class_date, class_time]
+        
+        if child_id and not isnan(child_id):
+            columns.append('child_id')
+            params.append(child_id)
+
+        query = 'INSERT INTO attendance (' + ', '.join(columns) + ') VALUES (' + ', '.join(['%s'] * len(params)) + ')'
         self.execute(query, params)
         self.commit()
 
-    def remove_check_in(self, class_id, user_id, class_date, class_time):
-        query = 'DELETE FROM attendance WHERE class_id = %s AND user_id = %s AND class_date = %s AND class_time = %s'
-        params = (class_id, user_id, class_date, class_time)
+    def remove_check_in(self, class_id, user_id, class_date, class_time, child_id=None):
+        conditions = ['user_id', 'class_id', 'class_date', 'class_time']
+        params = [user_id, class_id, class_date, class_time]
+        
+        if child_id and not isnan(child_id):
+            conditions.append('child_id')
+            params.append(child_id)
+
+        condition_string = ' = %s AND '.join(conditions) + ' = %s'
+        query = 'DELETE FROM attendance WHERE ' + condition_string
+
         self.execute(query, params)
         self.commit()
 
     def get_attendance(self, from_date='', to_date='', user_id=None, class_id=None, 
                        columns=('classes.class_name', 'DATE_FORMAT(class_time, "%H:%i") class_time', 'class_date', 'class_id', 'user_id',
-                                'CONCAT(users.first_name, " ", users.last_name) AS full_name', 'membership_type', 'date AS check_in_time'),
+                                'CONCAT(users.first_name, " ", users.last_name) AS full_name', 'membership_type', 'date AS check_in_time',
+                                'child_id'),
                        extra_columns=None):
         query_columns = ', '.join(columns)
         if extra_columns:
