@@ -82,7 +82,6 @@ def check_in_to_class():
         user_classes['classes'] = df_classes.loc[mask]
         classes_by_user.append(user_classes)
     
-    print(classes_by_user)
     return render_template('checkin.html', classes=df_classes.to_dict('records'), user_classes=classes_by_user, 
                            all_classes_attended=flag_all_classes_attended, children=children)
 
@@ -119,7 +118,6 @@ def toggle_check_in(df_classes: QueryResult, class_id, user_id, child_id=None):
     else:
         user_mask = (df_classes['user_id'] == user_id) & (df_classes['child_id'] == child_id)
     df_classes.loc[:, 'check_in_function'] = 'no operation'
-    print(df_classes)
 
     if class_id == 'all':
         if all(df_classes['attendance']):
