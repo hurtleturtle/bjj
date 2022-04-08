@@ -20,8 +20,12 @@
       </div>
       {% if user_classes.__len__() > 1 %}
       <div class="d-flex flex-row-reverse">
-        <a class="btn btn-primary btn-collapse" href="#" onclick="expand('.collapse-container')">Expand All</a>
-        <a class="btn btn-primary btn-collapse" href="#" onclick="expand('.collapse-container')">Collapse All</a>
+        <a class="btn btn-primary btn-collapse" href="#" onclick="expand('.collapse-container > a', '.collapse-container > div')">
+          Expand All
+        </a>
+        <a class="btn btn-primary btn-collapse" href="#" onclick="collapse('.collapse-container > a', '.collapse-container > div')">
+          Collapse All
+        </a>
       </div>
       {% endif %}
       <div class="collapse-container">

@@ -260,6 +260,9 @@ div.bjj-classes-inner-wrapper.no-bottom {
 .btn-collapse:last-of-type {
   border-top-left-radius: 0.5em !important;
 }
+.btn-collapse:focus {
+  box-shadow: none;
+}
 .collapse-container {
   border-radius: 0.5rem;
   box-shadow: 0 0.5em 0.25em 0 #222;
