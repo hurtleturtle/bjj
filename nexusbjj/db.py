@@ -299,9 +299,12 @@ class Database:
         self.execute(query, params)
         return self.cursor.fetchall()
 
-    def get_membership_types(self, extra_cols=[]):
+    def get_membership_types(self, conditions=None, params=None, extra_cols=[]):
         query = 'SELECT memberships.id, membership_type, age_groups.name FROM memberships JOIN age_groups ON age_group_id=age_groups.id'
-        self.execute(query)
+        if conditions:
+            query += ' WHERE ' + conditions
+
+        self.execute(query, params)
         return self.cursor.fetchall()
 
     def add_membership(self, name, age_group_id, sessions_per_week):
@@ -323,9 +326,13 @@ class Database:
         self.execute(query, params)
         return self.cursor.fetchone()
 
-    def get_memberships(self):
+    def get_memberships(self, conditions=None, params=None):
         query = 'SELECT * FROM memberships'
-        self.execute(query)
+
+        if conditions:
+            query += ' WHERE ' + conditions
+
+        self.execute(query, params)
         return self.cursor.fetchall()
     
     def get_age_groups(self):

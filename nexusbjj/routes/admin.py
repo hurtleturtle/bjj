@@ -77,6 +77,7 @@ def list_children():
 @bp.route('/children/add', methods=['GET', 'POST'])
 @login_required
 def add_child():
+    db = get_db()
     groups = {
         'child': {
             'group_title': 'Add Child',
@@ -88,12 +89,19 @@ def add_child():
         }
     }
     title='Add Child'
+    parent_membership = db.get_membership(user_id=g.user['id'])
+
+    if parent_membership['sessions_per_week'] == 0:
+        junior_options = QueryResult(db.get_membership_types(conditions='age_groups.name=%s', params=['junior']))
+        groups['child']['membership'] = gen_form_item('membership_id', label='Membership', required=True, field_type='select',
+                                                      options=gen_options(junior_options['membership_type'].str.capitalize().to_list(),
+                                                                          junior_options['id'].to_list()))
 
     if request.method == 'POST':
-        db = get_db()
         first_name = request.form.get('first_name')
         last_name = request.form.get('last_name')
-        db.add_child(first_name, last_name, g.user['id'])
+        membership_id = request.form.get('membership_id')
+        db.add_child(first_name, last_name, g.user['id'], membership_id)
 
         parent_name = g.user['first_name'] + ' ' + g.user['last_name']
         flash(f'{first_name} {last_name} added as child of {parent_name}')
