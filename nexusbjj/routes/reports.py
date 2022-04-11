@@ -39,8 +39,6 @@ def headcount(export_to_csv=False):
         flash(f'No classes found for {class_date}.')
         return render_template('report.html')
 
-    # TODO: add children into junior headcount
-
     return render_template('headcount.html', table_data=QueryResult(summary), attendance=results, page_title=title, table_title=title,
                             to_csv=False)
 
@@ -166,16 +164,18 @@ def absentees(export_to_csv=False):
 @bp.route('/users/exceeding-membership-limit')
 @admin_required
 def users_exceeding_membership_limit(export_to_csv=False):
+    db = get_db()
     today = datetime.today()
     start_of_month = today.replace(day=1)
     end_of_last_month = start_of_month - timedelta(days=1)
     start_of_last_month = end_of_last_month.replace(day=1)
     
-    user_attendance_this_month, error = get_attendance(start_of_last_month, today, headcount=True, extra_query_columns=['sessions_per_week'],
-                                                       extra_result_columns=['sessions_per_week'])
-    users = user_attendance_this_month[['user_id', 'full_name']].drop_duplicates()
+    user_attendance_this_month, error = get_attendance(start_of_last_month, today, headcount=True, 
+                                                       extra_query_columns=['sessions_per_week', 'child_id'],
+                                                       extra_result_columns=['sessions_per_week', 'child_id'])
+    users = user_attendance_this_month[['user_id', 'child_id', 'full_name']].drop_duplicates().set_index(['user_id', 'child_id'])
 
-    df_analysis = user_attendance_this_month.set_index('check_in_time').groupby('user_id').resample('1W-MON', label='left')\
+    df_analysis = user_attendance_this_month.set_index('check_in_time').groupby(['user_id', 'child_id'], dropna=False).resample('1W-MON', label='left')\
                                             .agg({'class_id': 'count', 'sessions_per_week': 'min'})\
                                             .rename(columns={'class_id':'attendance'}).unstack().fillna(0)
     df_analysis['sessions', 'weekly_average'] = df_analysis['attendance'].mean(axis='columns').round(2)
@@ -183,13 +183,12 @@ def users_exceeding_membership_limit(export_to_csv=False):
     df_analysis= df_analysis[df_analysis['sessions', 'weekly_average'] > df_analysis['sessions', 'limit']]
     attendance = df_analysis['attendance'].astype(int)
     df_analysis.drop(columns=['sessions_per_week', 'attendance'], inplace=True)
-    df_analysis.columns.names = [None, None]
+    df_analysis.columns.names = [None, None]    
 
     column_index = pd.MultiIndex.from_product([['attendance'], pd.to_datetime(attendance.columns).date], names=[None, None])
-    row_index = pd.merge(pd.Series(df_analysis.index, name='user_id'), users, on='user_id')['full_name']
 
     df_analysis = df_analysis.join(pd.DataFrame(attendance.to_numpy(), index=attendance.index, columns=column_index))
-    df_analysis.index = row_index
+    df_analysis.index = users.loc[df_analysis.index]['full_name']
     df_analysis.index.name = None
 
     if export_to_csv:
