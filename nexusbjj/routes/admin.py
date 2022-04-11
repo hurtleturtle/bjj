@@ -58,7 +58,18 @@ def list_children():
     children = QueryResult(db.get_children(user_id))
 
     if children:
-        children = QueryResult(children[['first_name', 'last_name']].rename(columns={'first_name': 'First Name', 'last_name': 'Last Name'}))
+        children['Name'] = children['first_name'].str.cat(children['last_name'], sep=' ')
+
+        def get_membership_name(x):
+            if x is None:
+                return 'Unlimited'
+            else:
+                membership = db.get_membership(membership_id=x)
+                return membership['membership_type']
+
+        children['Membership'] = children['membership_id'].apply(get_membership_name)
+        children = QueryResult(children[['Name', 'Membership']])
+
     title = 'Children'
     return render_template('children.html', table_data=children, table_title=title, page_title=title, add_func='admin.add_child')
 
