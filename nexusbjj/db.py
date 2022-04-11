@@ -108,9 +108,15 @@ class Database:
         self.execute(query, params)
         return self.cursor.fetchall()
 
-    def add_child(self, first_name, last_name, parent_id):
-        query = 'INSERT INTO children (first_name, last_name, parent_id) VALUES (%s, %s, %s)'
-        params = (first_name, last_name, parent_id)
+    def add_child(self, first_name, last_name, parent_id, membership_id=None):
+        columns = ['first_name', 'last_name', 'parent_id']
+        params = [first_name, last_name, parent_id]
+
+        if membership_id:
+            columns.append('membership_id')
+            params.append(membership_id)
+
+        query = 'INSERT INTO children (' + ', '.join(columns) + ') VALUES (' + ', '.join(['%s'] * len(params)) + ')'
         self.execute(query, params)
         self.commit()
 
@@ -303,6 +309,24 @@ class Database:
         params = [name, age_group_id, sessions_per_week]
         self.execute(query, params)
         self.commit()
+
+    def get_membership(self, membership_id=None, user_id=None):
+        if membership_id:
+            query = 'SELECT * FROM memberships WHERE id = %s'
+            params = (membership_id, )
+        elif user_id:
+            query = 'SELECT memberships.* FROM users INNER JOIN memberships on membership_id=memberships.id WHERE users.id = %s'
+            params = (user_id, )
+        else:
+            return None
+        
+        self.execute(query, params)
+        return self.cursor.fetchone()
+
+    def get_memberships(self):
+        query = 'SELECT * FROM memberships'
+        self.execute(query)
+        return self.cursor.fetchall()
     
     def get_age_groups(self):
         query = 'SELECT id, name FROM age_groups'
