@@ -15,7 +15,7 @@ bp = Blueprint('classes', __name__, url_prefix='/classes', template_folder='temp
 @login_required
 def check_in_to_class():
     db = get_db()
-    current_user = db.get_user(columns=('id', 'first_name', 'last_name', 'parent_id'))
+    current_user = db.get_user(columns=('id', 'first_name', 'last_name'))
     children = QueryResult(db.get_children(current_user['id']))
     today = datetime.today()
     today_start = datetime.combine(today.date(), time.fromisoformat('00:00:00')).isoformat()
