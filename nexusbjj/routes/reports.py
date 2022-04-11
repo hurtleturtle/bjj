@@ -39,6 +39,8 @@ def headcount(export_to_csv=False):
         flash(f'No classes found for {class_date}.')
         return render_template('report.html')
 
+    # TODO: add children into junior headcount
+
     return render_template('headcount.html', table_data=QueryResult(summary), attendance=results, page_title=title, table_title=title,
                             to_csv=False)
 
