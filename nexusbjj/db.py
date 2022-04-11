@@ -315,10 +315,12 @@ class Database:
 
     def get_membership(self, membership_id=None, user_id=None):
         if membership_id:
-            query = 'SELECT * FROM memberships WHERE id = %s'
+            query = 'SELECT memberships.*, age_groups.name FROM memberships INNER JOIN age_groups ON age_group_id=age_groups.id WHERE '
+            query += 'memberships.id = %s'
             params = (membership_id, )
         elif user_id:
-            query = 'SELECT memberships.* FROM users INNER JOIN memberships on membership_id=memberships.id WHERE users.id = %s'
+            query = 'SELECT memberships.*, age_groups.name FROM users INNER JOIN memberships ON membership_id=memberships.id '
+            query += ' INNER JOIN age_groups ON age_group_id=age_groups.id WHERE users.id = %s'
             params = (user_id, )
         else:
             return None

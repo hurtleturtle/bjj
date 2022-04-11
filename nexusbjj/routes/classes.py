@@ -26,6 +26,7 @@ def check_in_to_class():
     age_group_id = current_user['age_group_id']
     child_id = request.args.get('child_id')
     NOT_A_CHILD = -1
+    adult_sessions = True
     
     if child_id:
         child_id = int(child_id)
@@ -36,11 +37,15 @@ def check_in_to_class():
     if current_user['age_group'] == 'family':
         age_group_id = int(age_groups.set_index('name').loc['senior', 'id'])
         current_user['age_group_id'] = age_group_id
+        sessions_per_week = db.get_membership(user_id=current_user['id'])['sessions_per_week']
 
         if children:
             children['age_group_id'] = child_age_group_id
             children.rename(columns={'id': 'child_id'}, inplace=True)
             children['id'] = current_user['id']
+
+        if sessions_per_week == 0:
+            adult_sessions = False
 
     users = concat([QueryResult([current_user]), children], axis='index', ignore_index=True)
 
@@ -59,6 +64,12 @@ def check_in_to_class():
     classes.sort_values(by=['class_time'], inplace=True)
     df_classes = check_attendance(users, classes, current_user_attendance)
     df_classes['class_date'] = today.date().isoformat()
+
+
+    # Drop classes for parents when membership is for kids only
+    if not adult_sessions:
+        index_to_drop = df_classes.loc[df_classes['child_id'].isnull(), :].index
+        df_classes = df_classes.drop(index_to_drop)
 
     if request_class_id:
         toggle_check_in(df_classes, request_class_id, current_user['id'], child_id)
@@ -83,9 +94,10 @@ def check_in_to_class():
 
         if not user_classes['classes'].empty:
             classes_by_user.append(user_classes)
-
+    
+    print(classes_by_user)
     return render_template('checkin.html', classes=df_classes.to_dict('records'), user_classes=classes_by_user, 
-                           all_classes_attended=flag_all_classes_attended, children=children)
+                           all_classes_attended=flag_all_classes_attended, adult_sessions=adult_sessions)
 
 
 def check_attendance(users: QueryResult, classes: QueryResult, attendance: QueryResult) -> QueryResult:
@@ -119,6 +131,7 @@ def toggle_check_in(df_classes: QueryResult, class_id, user_id, child_id=None):
         user_mask = (df_classes['user_id'] == user_id) & (df_classes['child_id'].isnull())
     else:
         user_mask = (df_classes['user_id'] == user_id) & (df_classes['child_id'] == child_id)
+
     df_classes.loc[:, 'check_in_function'] = 'no operation'
 
     if class_id == 'all':
@@ -129,7 +142,7 @@ def toggle_check_in(df_classes: QueryResult, class_id, user_id, child_id=None):
             df_classes['check_in_function'] = db.check_in
             df_classes['attendance'] = True
         else:
-            mask = df_classes['attendance'] == False
+            mask = (df_classes['attendance'] == False)
             df_classes.loc[mask, 'check_in_function'] = db.check_in
             df_classes.loc[mask, 'attendance'] = True
     else:

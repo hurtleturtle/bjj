@@ -29,16 +29,17 @@
       </div>
       {% endif %}
       <div class="collapse-container">
-        {% for user_class in user_classes %}
-          {% if user_classes.__len__() > 1 %}
-            <a class="bjj-class-toggle" data-bs-toggle="collapse" onclick="toggleAngle(this)" aria-expanded="false" 
+        {% for user_class in user_classes if ((user_class['index'] == 0 and adult_sessions) or user_class['index'] > 0) %}
+          {% if user_classes.__len__() > 1 or user_class.child_id %}
+            <a class="bjj-class-toggle" data-bs-toggle="collapse" onclick="toggleAngle(this)" 
+             aria-expanded="{% if user_classes.__len__() == 1 %}true{% else %}false{% endif %}" 
              href="#classes-for-user-{{ user_class.index }}">
             <span>{{ user_class.name }}</span>
-            <i class="fas {% if user_class.child_id %}fa-chevron-right{% else %}fa-chevron-down{% endif %}"></i> 
+            <i class="fas {% if user_classes.__len__() == 1 %}fa-chevron-down{% else %}fa-chevron-right{% endif %}"></i> 
             </a>
           {% endif %}
           
-          <div class="bjj-classes-inner-wrapper collapse {% if user_classes.__len__() == 1 or not user_class.child_id %}show{% endif %}" 
+          <div class="bjj-classes-inner-wrapper collapse {% if user_classes.__len__() == 1 %}show{% endif %}" 
           id="classes-for-user-{{ user_class.index }}">
             {% for index, bjj_class in user_class.classes.iterrows() %}
               <a class="bjj-class {% if bjj_class.attendance %}checked-in{% endif %}" 
