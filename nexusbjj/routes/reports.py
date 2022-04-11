@@ -164,7 +164,6 @@ def absentees(export_to_csv=False):
 @bp.route('/users/exceeding-membership-limit')
 @admin_required
 def users_exceeding_membership_limit(export_to_csv=False):
-    db = get_db()
     today = datetime.today()
     start_of_month = today.replace(day=1)
     end_of_last_month = start_of_month - timedelta(days=1)
