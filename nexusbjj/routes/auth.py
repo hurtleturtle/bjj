@@ -103,6 +103,7 @@ def login(check_in=True):
         if error is None:
             session.clear()
             session['user_id'] = user['id']
+            session.permanent = True
 
             if user.get('is_coach'):
                 url = referrer if referrer else url_for('reports.headcount')
