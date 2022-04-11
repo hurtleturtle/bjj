@@ -102,9 +102,14 @@ class Database:
         self.execute(query, params)
         return self.cursor.fetchone()
 
-    def get_children(self, parent_id):
-        query = 'SELECT * FROM children WHERE parent_id = %s'
-        params = (parent_id, )
+    def get_children(self, parent_id=None):
+        query = 'SELECT * FROM children'
+        params = None
+
+        if parent_id:
+            query += ' WHERE parent_id = %s'
+            params = (parent_id, )
+            
         self.execute(query, params)
         return self.cursor.fetchall()
 
