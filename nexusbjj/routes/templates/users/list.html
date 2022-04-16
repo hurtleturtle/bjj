@@ -19,7 +19,7 @@
           <table class="table">
             <thead>
               <tr>
-                {% for column in table_data[['Name', 'Membership']].columns %}
+                {% for column in table_data[['Name', 'Membership Name']].columns %}
                   <th>{{ column }}</th>
                 {% endfor %}
                 <th>Actions</th>
@@ -28,7 +28,7 @@
             <tbody>
               {% for index, row in table_data.iterrows() %}
                 <tr>
-                  {% for cell in row[['Name', 'Membership']] %}
+                  {% for cell in row[['Name', 'Membership Name']] %}
                     <td>{{ cell }}</td>
                   {% endfor %}
                   <td>
