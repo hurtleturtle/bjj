@@ -95,7 +95,6 @@ def check_in_to_class():
         if not user_classes['classes'].empty:
             classes_by_user.append(user_classes)
     
-    print(classes_by_user)
     return render_template('checkin.html', classes=df_classes.to_dict('records'), user_classes=classes_by_user, 
                            all_classes_attended=flag_all_classes_attended, adult_sessions=adult_sessions)
 

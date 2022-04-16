@@ -199,7 +199,6 @@ class Database:
                     params.append(age_groups)
                 else:
                     params.extend(age_groups)
-                print(params)
             else:
                 query += ' AND age_group_id IN (' + ', '.join(['%s'] * len(age_groups)) + ')'
                 params.extend(age_groups)
@@ -271,7 +270,7 @@ class Database:
         where_clause = ' WHERE '
         conditions = []
         params = []
-        print(query)
+
         if from_date:
             conditions.append('date >= %s')
             params.append(from_date)

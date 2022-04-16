@@ -83,7 +83,6 @@ def login(check_in=True):
     user = db.get_user()
 
     if user:
-        print(user)
         if user.get('is_coach'):
             return redirect(url_for('reports.headcount'))
         else:
