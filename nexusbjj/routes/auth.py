@@ -341,6 +341,22 @@ def write_admin_required(view):
     return wrapped_view
 
 
+@bp.route('/login-as')
+@write_admin_required
+def login_as():
+    user_id = int(request.args.get('user_id'))
+    db = get_db()
+    new_user = db.get_user(user_id)
+
+    if new_user:
+        session.clear()
+        session['user_id'] = new_user['id']
+        g.user = new_user
+        return redirect(url_for('index'))
+    
+    return redirect(request.url)
+
+
 def redirect_to_referrer(url='auth.login', **kwargs):
     referrer = request.full_path
     return redirect(url_for(url, next=referrer, **kwargs))
