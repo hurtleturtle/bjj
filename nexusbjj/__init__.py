@@ -34,6 +34,9 @@ def create_app(test_config=None):
     from nexusbjj.routes import admin
     app.register_blueprint(admin.bp)
 
+    from nexusbjj.api import attendance
+    app.register_blueprint(attendance.bp)
+
     # Add custom jinja2 filters
     app.add_template_filter(os.path.basename, 'basename')
  
