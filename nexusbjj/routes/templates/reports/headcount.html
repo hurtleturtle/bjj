@@ -33,13 +33,15 @@
                             <td>{{ row.Attendees }}</td>
                             <td id="toggle-{{ row.id }}" class="row-toggle" onclick="toggleRow('{{ row.id }}')">+</td>
                             <td id="collapsed-row-{{ row.id }}" class="expanded-3 hide-row">
-                                <ul class="list-unstyled m-0">
+                                <table class="sub-table">
                                     {% if attendance %}
-                                        {% for name in attendance[attendance.class_id == row.id].full_name %}
-                                            <li>{{ name }}</li>
-                                        {% endfor %}
+                                        <tbody>
+                                            {% for name in attendance[attendance.class_id == row.id].full_name %}
+                                                <tr><td>{{ name }}</td></tr>
+                                            {% endfor %}
+                                        </tbody>
                                     {% endif %}
-                                </ul>
+                                </table>
                             </td>
                         </tr>
                     {% endfor %}
