@@ -126,6 +126,15 @@ td {
   padding: 2px;
 }
 
+/* Sub-table format */
+.sub-table tr {
+  background-color: #222;
+  color: white;
+}
+.sub-table td {
+  color: white;
+}
+
 /* DataFrame tables */
 .dataframe tbody > tr > th {
   border-right: 1px solid #222;
