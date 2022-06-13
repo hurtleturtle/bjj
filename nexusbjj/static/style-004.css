@@ -133,13 +133,15 @@ td {
   cursor: pointer;
   user-select: none;
 }
-.sub-table tr:hover {
-  background-color: #ca2017;
+.sub-table tr.checked-in {
+  background-color: green;
 }
-
 .sub-table td {
   color: white;
   padding: 0.5em 0;
+}
+.sub-table td:hover, .sub-table td.checked-in:hover {
+  font-weight: bold;
 }
 
 /* DataFrame tables */
@@ -315,7 +317,7 @@ div.bjj-classes-inner-wrapper.no-bottom {
 .collapse-container .bjj-class p {
   margin-bottom: 0.25em;
 }
-.checked-in {
+.bjj-class.checked-in {
   background-color: green;
 }
 .bjj-class:hover {

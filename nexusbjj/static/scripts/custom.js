@@ -11,6 +11,10 @@ const toggleRow = (elementId) => {
     }
 }
 
+const toggleCheckIn = (user_id, class_id, coach_id, element) => {
+    element.classList.toggle('checked-in')
+}
+
 function toggleAngle(element) {
     icon = element.lastElementChild
     icon.classList.toggle('fa-chevron-right')
