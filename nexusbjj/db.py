@@ -247,9 +247,36 @@ class Database:
         self.execute(query, params)
         self.commit()
 
+    def confirm_check_in(self, attendance_id, coach_id):
+        try:
+            if self.is_check_in_confirmed(attendance_id):
+                query = 'UPDATE attendance SET confirmed_by = NULL, confirmed_at = NULL WHERE id = %s'
+                params = (attendance_id, )
+            else:
+                query = 'UPDATE attendance SET confirmed_by = %s, confirmed_at = CURRENT_TIMESTAMP() WHERE id = %s'
+                params = (coach_id, attendance_id)
+        
+            self.execute(query, params)
+            self.commit()
+            result = {'result': 'success'}
+        except Exception as e:
+            result = {'result': 'failed', 'error': e}
+        
+        return result
+
+    def is_check_in_confirmed(self, attendance_id):
+        query = 'SELECT confirmed_by, confirmed_at FROM attendance WHERE id = %s'
+        params = (attendance_id,)
+        self.execute(query, params)
+        result = self.cursor.fetchone()
+        if result['confirmed_by']:
+            return True
+        else:
+            return False
+
     def get_attendance(self, from_date='', to_date='', user_id=None, class_id=None, 
-                       columns=('classes.class_name', 'DATE_FORMAT(class_time, "%H:%i") class_time', 'class_date', 'class_id', 'user_id',
-                                'membership_type', 'date AS check_in_time', 'child_id'),
+                       columns=('attendance.id', 'classes.class_name', 'DATE_FORMAT(class_time, "%H:%i") class_time', 'class_date', 'class_id', 'user_id',
+                                'membership_type', 'date AS check_in_time', 'child_id', 'confirmed_by'),
                        extra_columns=None):
 
         full_name_col = '''CASE 
