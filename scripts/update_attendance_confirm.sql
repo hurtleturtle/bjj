@@ -1,0 +1,3 @@
+ALTER TABLE attendance ADD COLUMN confirmed_by INTEGER DEFAULT NULL;
+ALTER TABLE attendance ADD CONSTRAINT FOREIGN KEY (confirmed_by) REFERENCES users (id);
+ALTER TABLE attendance ADD COLUMN confirmed_at TIMESTAMP DEFAULT NULL;
