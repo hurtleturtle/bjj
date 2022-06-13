@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block scripts %}
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="{{ url_for('static', filename='scripts/custom.js') }}"></script>
 {% endblock %}
 
@@ -37,7 +38,8 @@
                                     {% if attendance %}
                                         <tbody>
                                             {% for idx, attendee in attendance[attendance.class_id == row.id].iterrows() %}
-                                                <tr onclick="toggleCheckIn('{{ attendee.user_id }}', '{{ g.user.id }}', '{{ row.id }}', this)">
+                                                <tr {% if attendee.confirmed_by %}class="checked-in"{% endif %} 
+                                                 onclick="toggleCheckIn('{{ attendee.id }}', '{{ g.user.id }}', this)">
                                                     <td>{{ attendee.full_name }}</td>
                                                 </tr>
                                             {% endfor %}
