@@ -36,8 +36,8 @@
                                 <table class="sub-table">
                                     {% if attendance %}
                                         <tbody>
-                                            {% for name in attendance[attendance.class_id == row.id].full_name %}
-                                                <tr><td>{{ name }}</td></tr>
+                                            {% for idx, attendee in attendance[attendance.class_id == row.id].iterrows() %}
+                                                <tr onclick="toggleCheckIn('{{ attendee.user_id }}')"><td>{{ attendee.full_name }}</td></tr>
                                             {% endfor %}
                                         </tbody>
                                     {% endif %}

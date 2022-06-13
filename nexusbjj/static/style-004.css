@@ -130,9 +130,16 @@ td {
 .sub-table tr {
   background-color: #222;
   color: white;
+  cursor: pointer;
+  user-select: none;
 }
+.sub-table tr:hover {
+  background-color: #ca2017;
+}
+
 .sub-table td {
   color: white;
+  padding: 0.5em 0;
 }
 
 /* DataFrame tables */
@@ -308,7 +315,7 @@ div.bjj-classes-inner-wrapper.no-bottom {
 .collapse-container .bjj-class p {
   margin-bottom: 0.25em;
 }
-.bjj-class.checked-in {
+.checked-in {
   background-color: green;
 }
 .bjj-class:hover {
