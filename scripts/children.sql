@@ -8,3 +8,5 @@ CREATE TABLE children (
 
 ALTER TABLE attendance ADD COLUMN child_id INT DEFAULT NULL;
 ALTER TABLE attendance ADD constraint foreign key (child_id) REFERENCES children (id);
+ALTER TABLE children ADD COLUMN membership_id INT DEFAULT NULL;
+ALTER TABLE children ADD CONSTRAINT FOREIGN KEY (membership_id) REFERENCES memberships (id);
