@@ -11,8 +11,19 @@ const toggleRow = (elementId) => {
     }
 }
 
-const toggleCheckIn = (user_id, class_id, coach_id, element) => {
-    element.classList.toggle('checked-in')
+async function toggleCheckIn(attendance_record_id, coach_id, element) {
+    try {
+        response = await axios.get('/api/attendance/confirm-check-in?attendance_record_id=' + attendance_record_id
+                                   + '&coach_id=' + coach_id);
+        console.log(response)
+
+        if (response.data['result'] == 'success') {
+            element.classList.toggle('checked-in')
+        }
+    }
+    catch (error) {
+        console.log(error)
+    }
 }
 
 function toggleAngle(element) {
