@@ -1,3 +1,4 @@
+from typing import List
 import mysql.connector
 import click
 from flask import current_app, g, flash
@@ -102,13 +103,21 @@ class Database:
         self.execute(query, params)
         return self.cursor.fetchone()
 
-    def get_children(self, parent_id=None):
-        query = 'SELECT * FROM children'
-        params = None
+    def get_children(self, parent_id:str=None, extra_columns:List=None, extra_table_clause:str=None):
+        columns = ['children.*']
+        params = []
+
+        if extra_columns:
+            columns.extend(extra_columns)
+
+        query = 'SELECT ' + ', '.join(columns) + ' FROM children'
+
+        if extra_table_clause:
+            query += ' ' + extra_table_clause
 
         if parent_id:
             query += ' WHERE parent_id = %s'
-            params = (parent_id, )
+            params.append(parent_id)
             
         self.execute(query, params)
         return self.cursor.fetchall()
