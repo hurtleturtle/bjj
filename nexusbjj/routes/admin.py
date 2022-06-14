@@ -65,7 +65,7 @@ def list_children():
                 return 'Unlimited'
             else:
                 membership = db.get_membership(membership_id=x)
-                return membership['membership_type']
+                return membership['membership_type'].capitalize()
 
         children['Membership'] = children['membership_id'].apply(get_membership_name)
         children = QueryResult(children[['Name', 'Membership']])
@@ -100,7 +100,7 @@ def add_child():
     if request.method == 'POST':
         first_name = request.form.get('first_name')
         last_name = request.form.get('last_name')
-        membership_id = request.form.get('membership_id')
+        membership_id = request.form.get('membership_id', int(parent_membership.get('id')))
         db.add_child(first_name, last_name, g.user['id'], membership_id)
 
         parent_name = g.user['first_name'] + ' ' + g.user['last_name']
