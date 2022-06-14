@@ -1,0 +1,1 @@
+UPDATE children SET membership_id = 9 WHERE membership_id IS NULL;
