@@ -116,10 +116,12 @@ class Database:
             query += ' ' + extra_table_clause
 
         if parent_id is not None:
-            length = 1 if isinstance(parent_id, str) else len(parent_id)
-            param_format_string = ', '.join(['%s'] * length)
+            if isinstance(parent_id, str) or isinstance(parent_id, int):
+                parent_id = [parent_id]
+
+            param_format_string = ', '.join(['%s'] * len(parent_id))
             query += ' WHERE parent_id IN ({})'.format(param_format_string)
-            params = tuple(parent_id)
+            params = parent_id if isinstance(parent_id, str) or isinstance(parent_id, int) else tuple(parent_id)
             
         self.execute(query, params)
         return self.cursor.fetchall()

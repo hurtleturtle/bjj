@@ -41,6 +41,7 @@
                                                 <tr {% if attendee.confirmed_by %}class="checked-in"{% endif %} 
                                                  onclick="toggleCheckIn('{{ attendee.id }}', '{{ g.user.id }}', this)">
                                                     <td>{{ attendee.full_name }}</td>
+                                                    <td>{{ attendee.sessions_remaining }}</td>
                                                 </tr>
                                             {% endfor %}
                                         </tbody>

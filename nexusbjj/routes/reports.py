@@ -22,8 +22,7 @@ def headcount(export_to_csv=False):
     db = get_db()
     class_date = today.strftime('%A, %d %b %Y')
     classes = pd.DataFrame(db.get_classes(weekday=today.strftime('%A'))).sort_values(by='class_time')
-    results, error = get_attendance(today.isoformat(), today.isoformat(), headcount=True)
-    total_attendance, error = get_attendance(today.replace(day=1).isoformat(), today.isoformat(), headcount=True)
+    results = summarise_attendance()
     title = 'Headcount'
 
     if not classes.empty:
@@ -341,7 +340,6 @@ def get_attendance(start_date, end_date, brief=False, headcount=False, query_col
     return results, error
 
 
-@bp.route('/summarise')
 def summarise_attendance(start_date=None, end_date=None):
     if not end_date:
         end_date = datetime.today()
@@ -369,7 +367,7 @@ def summarise_attendance(start_date=None, end_date=None):
     attendance_today = attendance_today.join(memberships)
     attendance_today['sessions_remaining'] = attendance_today['sessions_per_week'] - attendance_today['sessions_attended']
 
-    return attendance_today.to_html()
+    return QueryResult(attendance_today.reset_index().sort_values(by=['class_date', 'class_time', 'sessions_remaining']))
 
 
 def format_time(time):
