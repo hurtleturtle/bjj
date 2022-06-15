@@ -365,7 +365,7 @@ def summarise_attendance(start_date=None, end_date=None):
         children = children.rename(columns={'id': 'child_id', 'parent_id': 'user_id'}).set_index(['user_id', 'child_id'])['sessions_per_week']
         membership_table_list.append(children)
     
-    memberships = pd.concat([memberships, children])
+    memberships = pd.concat(membership_table_list)
 
     summary = attendance[['user_id', 'child_id', 'id']].groupby(['user_id', 'child_id'], dropna=False)\
                                                        .count()\
