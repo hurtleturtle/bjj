@@ -352,11 +352,19 @@ def summarise_attendance(start_date=None, end_date=None):
     memberships_condition = 'users.id IN ({})'.format(', '.join(['%s'] * len(users)))
 
     memberships = QueryResult(db.get_memberships(conditions=memberships_condition, params=tuple(users)))
-    memberships['child_id'] = 0
-    memberships = memberships.set_index(['user_id', 'child_id'])['sessions_per_week']
     children = QueryResult(db.get_children(users, extra_columns=['sessions_per_week'], 
                                            extra_table_clause='JOIN memberships ON membership_id=memberships.id'))
-    children = children.rename(columns={'id': 'child_id', 'parent_id': 'user_id'}).set_index(['user_id', 'child_id'])['sessions_per_week']
+    membership_table_list = []
+
+    if memberships:
+        memberships['child_id'] = 0
+        memberships = memberships.set_index(['user_id', 'child_id'])['sessions_per_week']
+        membership_table_list.append(memberships)
+    
+    if children:
+        children = children.rename(columns={'id': 'child_id', 'parent_id': 'user_id'}).set_index(['user_id', 'child_id'])['sessions_per_week']
+        membership_table_list.append(children)
+    
     memberships = pd.concat([memberships, children])
 
     summary = attendance[['user_id', 'child_id', 'id']].groupby(['user_id', 'child_id'], dropna=False)\
