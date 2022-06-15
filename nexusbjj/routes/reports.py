@@ -1,3 +1,4 @@
+from tracemalloc import start
 from flask import Blueprint, make_response, redirect, request, render_template, flash, url_for, g
 from nexusbjj.routes.auth import admin_required
 from nexusbjj.forms import gen_form_item
@@ -338,6 +339,37 @@ def get_attendance(start_date, end_date, brief=False, headcount=False, query_col
         results.fillna(0, inplace=True)
     
     return results, error
+
+
+@bp.route('/summarise')
+def summarise_attendance(start_date=None, end_date=None):
+    if not end_date:
+        end_date = datetime.today()
+    if not start_date:
+        start_date = end_date - timedelta(days=end_date.weekday())
+
+    db = get_db()
+    attendance, error = get_attendance(start_date, end_date, headcount=True)
+    attendance_today = attendance[attendance['class_date'] == end_date.date()]
+    users = attendance_today['user_id'].unique().astype(str)
+    memberships_condition = 'users.id IN ({})'.format(', '.join(['%s'] * len(users)))
+
+    memberships = QueryResult(db.get_memberships(conditions=memberships_condition, params=tuple(users)))
+    memberships['child_id'] = 0
+    memberships = memberships.set_index(['user_id', 'child_id'])['sessions_per_week']
+    children = QueryResult(db.get_children(users, extra_columns=['sessions_per_week'], 
+                                           extra_table_clause='JOIN memberships ON membership_id=memberships.id'))
+    children = children.rename(columns={'id': 'child_id', 'parent_id': 'user_id'}).set_index(['user_id', 'child_id'])['sessions_per_week']
+    memberships = pd.concat([memberships, children])
+
+    summary = attendance[['user_id', 'child_id', 'id']].groupby(['user_id', 'child_id'], dropna=False)\
+                                                       .count()\
+                                                       .rename(columns={'id': 'sessions_attended'})
+    attendance_today = attendance_today.set_index(['user_id', 'child_id']).join(summary)
+    attendance_today = attendance_today.join(memberships)
+    attendance_today['sessions_remaining'] = attendance_today['sessions_per_week'] - attendance_today['sessions_attended']
+
+    return attendance_today.to_html()
 
 
 def format_time(time):

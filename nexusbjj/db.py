@@ -115,9 +115,11 @@ class Database:
         if extra_table_clause:
             query += ' ' + extra_table_clause
 
-        if parent_id:
-            query += ' WHERE parent_id = %s'
-            params.append(parent_id)
+        if parent_id is not None:
+            length = 1 if isinstance(parent_id, str) else len(parent_id)
+            param_format_string = ', '.join(['%s'] * length)
+            query += ' WHERE parent_id IN ({})'.format(param_format_string)
+            params = tuple(parent_id)
             
         self.execute(query, params)
         return self.cursor.fetchall()
@@ -369,7 +371,8 @@ class Database:
         return self.cursor.fetchone()
 
     def get_memberships(self, conditions=None, params=None):
-        query = 'SELECT * FROM memberships'
+        query = 'SELECT users.id user_id, memberships.*, age_groups.name FROM users INNER JOIN memberships ON membership_id=memberships.id '
+        query += ' INNER JOIN age_groups ON age_group_id=age_groups.id'
 
         if conditions:
             query += ' WHERE ' + conditions
