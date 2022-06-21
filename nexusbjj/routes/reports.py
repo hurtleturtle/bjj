@@ -347,6 +347,10 @@ def summarise_attendance(start_date=None, end_date=None):
 
     db = get_db()
     attendance, error = get_attendance(start_date, end_date, headcount=True)
+
+    if not attendance:
+        return None
+
     attendance_today = attendance[attendance['class_date'] == end_date.date()]
     users = attendance_today['user_id'].unique().astype(str)
     memberships_condition = 'users.id IN ({})'.format(', '.join(['%s'] * len(users)))
