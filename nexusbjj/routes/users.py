@@ -25,7 +25,7 @@ def show_all():
         print(users)
         users['Name'] = users['first_name'].str.cat(users['last_name'], sep=' ')
         users['Membership Name'] = users['age_group'].str.capitalize().str.cat(users['membership_type'].str.capitalize(), sep=' - ')
-        users = users.rename(columns={'membership_type': 'Membership'})
+        users = users.rename(columns={'membership_type': 'Membership'}).sort_values(by=['Name'])
         users = QueryResult(users[['id', 'Name', 'Membership Name']])
     return render_template('users/list.html', table_data=users, table_title='Users', to_csv=True)
 
