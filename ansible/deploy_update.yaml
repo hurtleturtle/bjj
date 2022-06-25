@@ -1,0 +1,23 @@
+#!/usr/bin/env ansible-playbook
+
+---
+- name: Update codebase
+  hosts: webservers
+  become_user: "{{ admin_user }}"
+
+  tasks:
+  - name: Pull latest version of code and checkout {{ branch }}
+    become: yes
+    git:
+      repo: "{{ repo }}"
+      dest: "{{ location }}"
+      version: "{{ branch }}"
+      update: yes
+
+  - name: Restart webserver
+    become: yes
+    become_user: root
+    systemd:
+      name: "{{ service }}"
+      state: restarted
+

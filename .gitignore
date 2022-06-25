@@ -1,4 +1,6 @@
-webapp-venv/
+ansible/group_vars/
+ansible/ansible.cfg
+ansible/inventory.yaml
 
 *.pyc
 __pycache__/
