@@ -122,8 +122,12 @@ td {
 }
 .inner-table-btn {
   text-decoration: none;
-  color: inherit !important;
-  padding: 2px;
+  color: white !important;
+  background-color: #0d6efd !important;
+  cursor: pointer;
+}
+.inner-table-btn:hover {
+  background-color: #0b5ed7 !important;
 }
 
 /* Sub-table format */

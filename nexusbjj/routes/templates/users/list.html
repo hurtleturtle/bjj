@@ -31,17 +31,12 @@
                   {% for cell in row[['Name', 'Membership Name']] %}
                     <td>{{ cell }}</td>
                   {% endfor %}
-                  <td>
-                    <a class='inner-table-btn' href="{{ url_for('users.toggle_coach', user_id=row['id']) }}">
-                      <i class="fas fa-user"></i>
-                    </a>
-                    <a class="inner-table-btn" href="{{ url_for('auth.login_as', user_id=row['id']) }}">
-                      <i class="fas fa-key"></i>
-                    </a>
-                    <a class='inner-table-btn' href="{{ url_for('users.edit', uid=row['id']) }}">
+                  <a class="inner-table-btn" href="{{ url_for('users.edit', uid=row['id']) }}"></a>
+                  <td class="inner-table-btn" onclick='window.location.assign("{{ url_for('users.edit', uid=row['id']) }}");'>
+                    
                       <i class="fas fa-edit"></i>
-                    </a>
                   </td>
+                  <a class="inner-table-btn" href="{{ url_for('users.edit', uid=row['id']) }}"></a>
                 </tr>
               {% endfor %}
             </tbody>
