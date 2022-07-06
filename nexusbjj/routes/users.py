@@ -39,6 +39,9 @@ def edit(uid):
 
     if request.method == 'POST' and g.user['admin'] == 'read-write':
         error = None
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+        mobile = request.form['mobile']
         email = escape(request.form['email'])
         admin = request.form['admin']
         is_coach = request.form['is_coach']
@@ -46,6 +49,12 @@ def edit(uid):
         email_new = (email != user['email'])
         email_exists = db.get_user(email=email) is not None
 
+        if first_name:
+            db.update_user(uid, 'first_name', first_name)
+        if last_name:
+            db.update_user(uid, 'last_name', last_name)
+        if mobile:
+            db.update_user(uid, 'mobile_number', mobile)
         if email_new:
             if email_exists:
                 error = 'Email exists'
@@ -157,9 +166,12 @@ def generate_form_groups(user):
 
     groups = {
         'user': {
-            'group_title': 'Edit: {}'.format(user['email']),
+            'group_title': 'Edit User: {} {}'.format(user['first_name'], user['last_name']),
+            'first_name': gen_form_item('first_name', value=user['first_name'], required=True, label='First Name'),
+            'last_name': gen_form_item('last_name', value=user['last_name'], required=True, label='Last Name'),
             'email': gen_form_item('email', value=user['email'],
                                       required=True, label='Email'),
+            'mobile': gen_form_item('mobile', value=user['mobile_number'], required=True, label='Mobile'),
             'admin': gen_form_item('admin', required=True, label='Admin',
                                    field_type='select',
                                    options=gen_options(g.privilege_levels,
