@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from typing import Tuple
 import pandas as pd
 from calendar import day_name
-
+import numpy as np
 
 bp = Blueprint('reports', __name__, url_prefix='/reports', template_folder='templates/reports')
 
@@ -355,6 +355,9 @@ def summarise_attendance(start_date=None, end_date=None):
     users = attendance_today['user_id'].unique().astype(str)
     memberships_condition = 'users.id IN ({})'.format(', '.join(['%s'] * len(users)))
 
+    if len(users) == 0:
+        return None
+
     memberships = QueryResult(db.get_memberships(conditions=memberships_condition, params=tuple(users)))
     children = QueryResult(db.get_children(users, extra_columns=['sessions_per_week'], 
                                            extra_table_clause='JOIN memberships ON membership_id=memberships.id'))
@@ -374,11 +377,21 @@ def summarise_attendance(start_date=None, end_date=None):
     summary = attendance[['user_id', 'child_id', 'id']].groupby(['user_id', 'child_id'], dropna=False)\
                                                        .count()\
                                                        .rename(columns={'id': 'sessions_attended'})
+    summary_today = attendance_today[['user_id', 'child_id', 'id']].groupby(['user_id', 'child_id'], dropna=False)\
+                                                                   .count()\
+                                                                   .rename(columns={'id': 'sessions_attended_today'})
     attendance_today = attendance_today.set_index(['user_id', 'child_id']).join(summary)
+    attendance_today = attendance_today.join(summary_today)
     attendance_today = attendance_today.join(memberships)
-    attendance_today['sessions_remaining'] = attendance_today['sessions_per_week'] - attendance_today['sessions_attended']
+    attendance_today['membership_type'] = np.where(attendance_today['sessions_per_week'] == 0, 'PPC', 'M')
+    attendance_today['sessions_remaining'] = np.where(attendance_today['membership_type'] == 'PPC',
+                                                      -attendance_today['sessions_attended_today'],
+                                                      attendance_today['sessions_per_week'] - attendance_today['sessions_attended'])
 
-    return QueryResult(attendance_today.reset_index().sort_values(by=['class_date', 'class_time', 'sessions_remaining']))
+    sort_columns = ['membership_type', 'class_date', 'class_time', 'sessions_remaining']
+    sort_order = [False, True, True, True]
+
+    return QueryResult(attendance_today.reset_index().sort_values(by=sort_columns, ascending=sort_order))
 
 
 def format_time(time):
