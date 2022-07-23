@@ -39,7 +39,7 @@
                                         <tbody>
                                             {% for idx, attendee in attendance[attendance.class_id == row.id].iterrows() %}
                                                 <tr {% if attendee.confirmed_by %}class="checked-in"{% endif %} 
-                                                 onclick="toggleCheckIn('{{ attendee.id }}', '{{ g.user.id }}', this)">
+                                                 onclick="confirmCheckIn('{{ attendee.id }}', '{{ g.user.id }}', this)">
                                                     <td>{{ attendee.full_name }}</td>
                                                     <td>{{ attendee.membership_type }}</td>
                                                     <td>{{ attendee.sessions_remaining }}</td>

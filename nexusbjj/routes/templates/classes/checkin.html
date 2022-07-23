@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block scripts %}
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script src="{{ url_for('static', filename='scripts/custom.js')}}"></script>
 {% endblock %}
 {% block title %}Check In{% endblock %}
@@ -12,8 +13,8 @@
         <p>Check into or out of the classes below</p>
       </div>
       <div class="bjj-classes-inner-wrapper">
-        <a class="bjj-class {% if all_classes_attended %}checked-in{% endif %}" 
-         href="{{ url_for('classes.check_in_to_class', class_id='all') }}">
+        <a class="bjj-class {% if all_classes_attended %}checked-in{% endif %}" id="class-all"
+         href="#class-all" onclick="checkIn('all')">
           <h2>All Classes</h2>
           <p>Check in to all classes listed below</p>
         </a>
@@ -42,11 +43,12 @@
           <div class="bjj-classes-inner-wrapper collapse {% if user_classes.__len__() == 1 %}show{% endif %}" 
           id="classes-for-user-{{ user_class.index }}">
             {% for index, bjj_class in user_class.classes.iterrows() %}
-              <a class="bjj-class {% if bjj_class.attendance %}checked-in{% endif %}" 
+              <a class="bjj-class {% if bjj_class.attendance %}checked-in{% endif %}" id="class-{{ bjj_class.id }}"
+               href="#class-{{ bjj_class.id }}"
               {% if user_class.child_id %}
-              href="{{ url_for('classes.check_in_to_class', class_id=bjj_class.id, child_id=user_class.child_id) }}"
+               onclick="checkIn('{{ bjj_class.id }}', '{{ user_class.child_id }}')"
               {% else %}
-              href="{{ url_for('classes.check_in_to_class', class_id=bjj_class.id) }}"
+               onclick="checkIn('{{ bjj_class.id }}')"
               {% endif %}
               >
                 <h2>{{ bjj_class.class_name }} {% if bjj_class.attendance %}(Checked In){% endif %}</h2>

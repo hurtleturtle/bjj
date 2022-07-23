@@ -11,7 +11,7 @@ const toggleRow = (elementId) => {
     }
 }
 
-async function toggleCheckIn(attendance_record_id, coach_id, element) {
+async function confirmCheckIn(attendance_record_id, coach_id, element) {
     try {
         response = await axios.get('/api/attendance/confirm-check-in?attendance_record_id=' + attendance_record_id
                                    + '&coach_id=' + coach_id);
@@ -19,6 +19,53 @@ async function toggleCheckIn(attendance_record_id, coach_id, element) {
 
         if (response.data['result'] == 'success') {
             element.classList.toggle('checked-in')
+        }
+    }
+    catch (error) {
+        console.log(error)
+    }
+}
+
+async function checkIn(class_id, child_id) {
+    if (typeof(class_id) === 'undefined') class_id = 'all';
+    if (typeof(child_id) === 'undefined') child_id = false;
+
+    try {
+        const url = '/api/attendance/check-in?class_id=' + class_id;
+        
+        if (child_id) {
+            url += '&child_id=' + child_id;
+        }
+
+        const response = await axios.get(url);
+        console.log(response);
+
+        let all_classes_attended = true;
+
+        // TODO: handle response and switch colours of elements
+        for (let i = 0; i < response.data.length; i++) {
+            const class_data = response.data[i];
+            const anchor_element = document.getElementById('class-' + class_data['id']);
+            const class_name_text = anchor_element.getElementsByTagName('h2')[0]
+            const attendance = class_data['attendance']
+            all_classes_attended = (all_classes_attended && attendance)
+
+            if (attendance) {
+                anchor_element.classList.add('checked-in')
+                class_name_text.textContent = class_data['class_name'] + "(Checked In)"
+            }
+            else {
+                anchor_element.classList.remove('checked-in')
+                class_name_text.textContent = class_data['class_name']
+            }
+        }
+
+        const all_anchor = document.getElementById('class-all')
+        if (all_classes_attended) {
+            all_anchor.classList.add('checked-in')
+        }
+        else {
+            all_anchor.classList.remove('checked-in')
         }
     }
     catch (error) {

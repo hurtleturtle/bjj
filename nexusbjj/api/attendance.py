@@ -57,7 +57,7 @@ def check_in():
     classes = toggle_check_in(classes, class_id, user_id, child_id)
     print(classes)
 
-    return classes[['id', 'user_id', 'child_id', 'attendance']].to_json(orient='records')
+    return classes[['id', 'class_name', 'user_id', 'child_id', 'attendance']].to_json(orient='records')
 
 
 def toggle_check_in(df_classes: QueryResult, class_id, user_id, child_id=None):
