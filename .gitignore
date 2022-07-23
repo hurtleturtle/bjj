@@ -5,6 +5,7 @@ ansible/inventory.yaml
 *.pyc
 __pycache__/
 
+.vscode/
 instance/
 
 .pytest_cache/
