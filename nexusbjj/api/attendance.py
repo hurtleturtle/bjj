@@ -52,6 +52,9 @@ def check_in():
         msg = {'error': 'forbidden'}
         return msg, 401
     
+    if child_id:
+        child_id = int(child_id)
+
     classes = get_todays_classes(user_id)
     classes = toggle_check_in(classes, class_id, user_id, child_id)
 
