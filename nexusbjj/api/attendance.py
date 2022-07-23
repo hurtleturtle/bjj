@@ -1,5 +1,7 @@
 from flask import Blueprint, g, request
 from nexusbjj.db import get_db, QueryResult
+from nexusbjj.routes.auth import get_user_from_token
+from nexusbjj.routes.classes import get_todays_classes
 from datetime import datetime, timedelta
 import pandas as pd
 
@@ -38,3 +40,57 @@ def get_remaining_classes():
     users['sessions_remaining'] = users['sessions_per_week'] - users['sessions_attended']
 
     return {'result': users.to_dict('records')}
+
+
+@bp.route('/check-in')
+def check_in():
+    token = request.cookies.get('token')
+    class_id = request.args.get('class_id')
+    child_id = request.args.get('child_id')
+    user_id = get_user_from_token(token)
+
+    if not user_id:
+        msg = {'error': 'forbidden'}
+        return msg, 401
+    
+    classes = get_todays_classes(user_id)
+    classes = toggle_check_in(classes, class_id, user_id, child_id)
+    print(classes)
+
+    return classes[['id', 'user_id', 'child_id', 'attendance']].to_json(orient='records')
+
+
+def toggle_check_in(df_classes: QueryResult, class_id, user_id, child_id=None):
+    db = get_db()
+
+    if not child_id:
+        user_mask = (df_classes['user_id'] == user_id) & (df_classes['child_id'].isnull())
+    else:
+        user_mask = (df_classes['user_id'] == user_id) & (df_classes['child_id'] == child_id)
+
+    df_classes.loc[:, 'check_in_function'] = 'no operation'
+
+    if class_id == 'all':
+        if all(df_classes['attendance']):
+            df_classes['check_in_function'] = db.remove_check_in
+            df_classes['attendance'] = False
+        elif not any(df_classes['attendance']):
+            df_classes['check_in_function'] = db.check_in
+            df_classes['attendance'] = True
+        else:
+            mask = (df_classes['attendance'] == False)
+            df_classes.loc[mask, 'check_in_function'] = db.check_in
+            df_classes.loc[mask, 'attendance'] = True
+    else:
+        class_mask = df_classes['id'] == int(class_id)
+        if df_classes.loc[user_mask & class_mask, 'attendance'].all():
+            df_classes.loc[user_mask & class_mask, 'check_in_function'] = db.remove_check_in
+            df_classes.loc[user_mask & class_mask, 'attendance'] = False
+        else:
+            df_classes.loc[user_mask & class_mask, 'check_in_function'] = db.check_in
+            df_classes.loc[user_mask & class_mask, 'attendance'] = True
+
+    for row in df_classes[df_classes['check_in_function'] != 'no operation'].itertuples():
+        row.check_in_function(row.id, user_id, row.class_date, row.class_time, row.child_id)
+
+    return df_classes

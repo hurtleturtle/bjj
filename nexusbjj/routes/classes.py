@@ -19,7 +19,8 @@ def check_in_to_class():
     db = get_db()
     current_user = db.get_user(columns=('id', 'first_name', 'last_name'))
     
-    df_classes = get_todays_classes(current_user)
+    df_classes = get_todays_classes(current_user['id'])
+    df_classes['child_id'] = df_classes['child_id'].fillna(NOT_A_CHILD).astype(int)
     flag_all_classes_attended = all(df_classes['attendance'])
 
     users, adult_sessions = get_user_and_children(current_user['id'])
@@ -40,24 +41,24 @@ def check_in_to_class():
 
         if not user_classes['classes'].empty:
             classes_by_user.append(user_classes)
-    
+
     return render_template('checkin.html', classes=df_classes.to_dict('records'), user_classes=classes_by_user, 
                            all_classes_attended=flag_all_classes_attended, adult_sessions=adult_sessions)
 
 
-def get_todays_classes(user):
+def get_todays_classes(user_id):
     db = get_db()
     today = datetime.today()
     today_start = datetime.combine(today.date(), time.fromisoformat('00:00:00')).isoformat()
     today_end = datetime.combine(today.date(), time.fromisoformat('23:59:59')).isoformat()
     user_attendance = QueryResult(db.get_attendance(from_date=today_start, to_date=today_end,
-                                          user_id=user['id']))
+                                          user_id=user_id))
     classes = QueryResult(db.get_all_classes(conditions='weekday = %s', params=[today.strftime('%A')]))
 
     if not classes:
         return QueryResult()
     
-    users, adult_sessions = get_user_and_children(user['id'])
+    users, adult_sessions = get_user_and_children(user_id)
     
     classes.sort_values(by=['class_time'], inplace=True)
     df_classes = check_attendance(users, classes, user_attendance)
@@ -67,8 +68,6 @@ def get_todays_classes(user):
     if not adult_sessions:
         index_to_drop = df_classes.loc[df_classes['child_id'].isnull(), :].index
         df_classes = df_classes.drop(index_to_drop)
-
-    df_classes['child_id'] = df_classes['child_id'].fillna(NOT_A_CHILD).astype(int)
 
     return df_classes
 
