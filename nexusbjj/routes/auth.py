@@ -1,12 +1,14 @@
 import functools
 from flask import Blueprint, flash, g, render_template, request, session
-from flask import url_for, redirect, escape, make_response
+from flask import url_for, redirect, escape, current_app, make_response
 from werkzeug.security import check_password_hash, generate_password_hash
 from nexusbjj.db import get_db, QueryResult
 from nexusbjj.forms import gen_form_item, gen_options
 from datetime import datetime, timedelta
 from secrets import token_urlsafe
 from nexusbjj.email import Email
+import jwt
+from jwt.exceptions import InvalidSignatureError
 
 
 bp = Blueprint('auth', __name__, url_prefix='/auth', template_folder='templates/auth')
@@ -111,7 +113,15 @@ def login(check_in=True):
             else:
                 url = referrer if referrer else url_for('index')
             
-            return redirect(url)
+            response = make_response(redirect(url))
+            cookie_age = timedelta(days=3650)
+            response.set_cookie(
+                'token',
+                set_user_token(user['id']),
+                max_age=cookie_age.total_seconds(),
+                expires=datetime.today() + cookie_age
+            )
+            return response
 
         if error:
             flash(error)
@@ -241,6 +251,23 @@ def generate_password_reset(email):
 def logout():
     session.clear()
     return redirect(url_for('index'))
+
+
+def set_user_token(user_id):
+    user_jwt = jwt.encode(
+        {'user_id': user_id},
+        key=current_app.config['SECRET_KEY'],
+        algorithm='HS256'
+    )
+    return user_jwt
+
+def get_user_from_token(token):
+    try:
+        user_id = jwt.decode(token, key=current_app.config['SECRET_KEY'], algorithms='HS256')['user_id']
+    except InvalidSignatureError:
+        return False
+    
+    return user_id
 
 
 @bp.before_app_request
