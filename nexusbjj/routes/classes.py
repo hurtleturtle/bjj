@@ -1,14 +1,16 @@
 from flask import Blueprint, request, render_template, flash, g
 from nexusbjj.routes.auth import admin_required, login_required
+from nexusbjj.routes.users import get_user_and_children
 from nexusbjj.forms import gen_form_item, gen_options
 from nexusbjj.db import get_db, QueryResult
 from datetime import datetime, time, timedelta
 from calendar import day_name
 from pandas import Categorical, concat, DataFrame
-from numpy import nan, float64, isnan
+from numpy import where, float64, isnan
 
 
 bp = Blueprint('classes', __name__, url_prefix='/classes', template_folder='templates/classes')
+NOT_A_CHILD = -1
 
 
 @bp.route('/check-in', methods=['GET'])
@@ -16,67 +18,11 @@ bp = Blueprint('classes', __name__, url_prefix='/classes', template_folder='temp
 def check_in_to_class():
     db = get_db()
     current_user = db.get_user(columns=('id', 'first_name', 'last_name'))
-    children = QueryResult(db.get_children(current_user['id']))
-    today = datetime.today()
-    today_start = datetime.combine(today.date(), time.fromisoformat('00:00:00')).isoformat()
-    today_end = datetime.combine(today.date(), time.fromisoformat('23:59:59')).isoformat()
-    current_user_attendance = QueryResult(db.get_attendance(from_date=today_start, to_date=today_end,
-                                          user_id=current_user['id']))
-    age_groups = QueryResult(db.get_age_groups())
-    age_group_id = current_user['age_group_id']
-    child_id = request.args.get('child_id')
-    NOT_A_CHILD = -1
-    adult_sessions = True
     
-    if child_id:
-        child_id = int(child_id)
-    
-    request_class_id = request.args.get('class_id')
-    child_age_group_id = age_groups.set_index('name').loc['junior', 'id']
-
-    if current_user['age_group'] == 'family':
-        age_group_id = int(age_groups.set_index('name').loc['senior', 'id'])
-        current_user['age_group_id'] = age_group_id
-        sessions_per_week = db.get_membership(user_id=current_user['id'])['sessions_per_week']
-
-        if children:
-            children['age_group_id'] = child_age_group_id
-            children.rename(columns={'id': 'child_id'}, inplace=True)
-            children['id'] = current_user['id']
-
-        if sessions_per_week == 0:
-            adult_sessions = False
-
-    users = concat([QueryResult([current_user]), children], axis='index', ignore_index=True)
-
-    try:
-        if users['child_id'].empty:
-            users['child_id'] = nan
-    except KeyError:
-        users['child_id'] = nan
-    
-    classes = QueryResult(db.get_all_classes(conditions='weekday = %s', params=[today.strftime('%A')]))
-
-    if not classes:
-        flash('No classes available')
-        return render_template('checkin.html')
-    
-    classes.sort_values(by=['class_time'], inplace=True)
-    df_classes = check_attendance(users, classes, current_user_attendance)
-    df_classes['class_date'] = today.date().isoformat()
-
-
-    # Drop classes for parents when membership is for kids only
-    if not adult_sessions:
-        index_to_drop = df_classes.loc[df_classes['child_id'].isnull(), :].index
-        df_classes = df_classes.drop(index_to_drop)
-
-    if request_class_id:
-        toggle_check_in(df_classes, request_class_id, current_user['id'], child_id)
-
+    df_classes = get_todays_classes(current_user)
     flag_all_classes_attended = all(df_classes['attendance'])
-    df_classes['child_id'] = df_classes['child_id'].fillna(NOT_A_CHILD).astype(int)
 
+    users, adult_sessions = get_user_and_children(current_user['id'])
     classes_by_user = []
     for index, user in users.iterrows():
         user_classes = {
@@ -97,6 +43,34 @@ def check_in_to_class():
     
     return render_template('checkin.html', classes=df_classes.to_dict('records'), user_classes=classes_by_user, 
                            all_classes_attended=flag_all_classes_attended, adult_sessions=adult_sessions)
+
+
+def get_todays_classes(user):
+    db = get_db()
+    today = datetime.today()
+    today_start = datetime.combine(today.date(), time.fromisoformat('00:00:00')).isoformat()
+    today_end = datetime.combine(today.date(), time.fromisoformat('23:59:59')).isoformat()
+    user_attendance = QueryResult(db.get_attendance(from_date=today_start, to_date=today_end,
+                                          user_id=user['id']))
+    classes = QueryResult(db.get_all_classes(conditions='weekday = %s', params=[today.strftime('%A')]))
+
+    if not classes:
+        return QueryResult()
+    
+    users, adult_sessions = get_user_and_children(user['id'])
+    
+    classes.sort_values(by=['class_time'], inplace=True)
+    df_classes = check_attendance(users, classes, user_attendance)
+    df_classes['class_date'] = today.date().isoformat()
+
+    # Drop classes for parents when membership is for kids only
+    if not adult_sessions:
+        index_to_drop = df_classes.loc[df_classes['child_id'].isnull(), :].index
+        df_classes = df_classes.drop(index_to_drop)
+
+    df_classes['child_id'] = df_classes['child_id'].fillna(NOT_A_CHILD).astype(int)
+
+    return df_classes
 
 
 def check_attendance(users: QueryResult, classes: QueryResult, attendance: QueryResult) -> QueryResult:

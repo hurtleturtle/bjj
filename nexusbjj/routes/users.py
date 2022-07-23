@@ -5,7 +5,8 @@ from nexusbjj.db import get_db, QueryResult
 from nexusbjj.routes.auth import admin_required, write_admin_required, login_required
 from nexusbjj.forms import gen_form_item, gen_options
 from datetime import datetime
-
+import pandas as pd
+import numpy as np
 
 bp = Blueprint('users', __name__, url_prefix='/users')
 
@@ -154,6 +155,39 @@ def get_current_user_id(default_uid=-1):
         user = default_uid
     
     return user
+
+
+def get_user_and_children(user_id):
+    db = get_db()
+    user = db.get_user(user_id, columns=('id', 'first_name', 'last_name'))
+    children = QueryResult(db.get_children(user_id))
+    age_groups = QueryResult(db.get_age_groups())
+    age_group_id = user['age_group_id']
+    child_age_group_id = age_groups.set_index('name').loc['junior', 'id']
+    adult_sessions = True
+
+    if user['age_group'] == 'family':
+        age_group_id = int(age_groups.set_index('name').loc['senior', 'id'])
+        user['age_group_id'] = age_group_id
+        sessions_per_week = db.get_membership(user_id=user['id'])['sessions_per_week']
+
+        if children:
+            children['age_group_id'] = child_age_group_id
+            children.rename(columns={'id': 'child_id'}, inplace=True)
+            children['id'] = user['id']
+
+        if sessions_per_week == 0:
+            adult_sessions = False
+
+    user_and_children = pd.concat([QueryResult([user]), children], axis='index', ignore_index=True)
+
+    try:
+        if user_and_children['child_id'].empty:
+            user_and_children['child_id'] = np.nan
+    except KeyError:
+        user_and_children['child_id'] = np.nan
+    
+    return user_and_children, adult_sessions
 
 
 def generate_form_groups(user):
