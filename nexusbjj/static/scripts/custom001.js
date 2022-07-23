@@ -31,7 +31,7 @@ async function checkIn(class_id, child_id) {
     if (typeof(child_id) === 'undefined') child_id = false;
 
     try {
-        const url = '/api/attendance/check-in?class_id=' + class_id;
+        let url = '/api/attendance/check-in?class_id=' + class_id;
         
         if (child_id) {
             url += '&child_id=' + child_id;
@@ -42,10 +42,15 @@ async function checkIn(class_id, child_id) {
 
         let all_classes_attended = true;
 
-        // TODO: handle response and switch colours of elements
         for (let i = 0; i < response.data.length; i++) {
             const class_data = response.data[i];
-            const anchor_element = document.getElementById('class-' + class_data['id']);
+            let selector = 'class-' + class_data['id']
+
+            if (class_data['child_id']) {
+                selector += '-child-' + class_data['child_id']
+            }
+
+            const anchor_element = document.getElementById(selector);
             const class_name_text = anchor_element.getElementsByTagName('h2')[0]
             const attendance = class_data['attendance']
             all_classes_attended = (all_classes_attended && attendance)

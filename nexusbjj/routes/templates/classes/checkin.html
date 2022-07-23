@@ -43,11 +43,14 @@
           <div class="bjj-classes-inner-wrapper collapse {% if user_classes.__len__() == 1 %}show{% endif %}" 
           id="classes-for-user-{{ user_class.index }}">
             {% for index, bjj_class in user_class.classes.iterrows() %}
-              <a class="bjj-class {% if bjj_class.attendance %}checked-in{% endif %}" id="class-{{ bjj_class.id }}"
-               href="#class-{{ bjj_class.id }}"
+              <a class="bjj-class {% if bjj_class.attendance %}checked-in{% endif %}" 
               {% if user_class.child_id %}
+               id="class-{{ bjj_class.id }}-child-{{ user_class.child_id }}"
+               href="#class-{{ bjj_class.id }}-child-{{ user_class.child_id }}"
                onclick="checkIn('{{ bjj_class.id }}', '{{ user_class.child_id }}')"
               {% else %}
+               id="class-{{ bjj_class.id }}"
+               href="#class-{{ bjj_class.id }}"
                onclick="checkIn('{{ bjj_class.id }}')"
               {% endif %}
               >
