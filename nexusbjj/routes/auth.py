@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from secrets import token_urlsafe
 from nexusbjj.email import Email
 import jwt
-from jwt.exceptions import InvalidSignatureError
+from jwt.exceptions import InvalidSignatureError, DecodeError
 
 
 bp = Blueprint('auth', __name__, url_prefix='/auth', template_folder='templates/auth')
@@ -113,15 +113,7 @@ def login(check_in=True):
             else:
                 url = referrer if referrer else url_for('index')
             
-            response = make_response(redirect(url))
-            cookie_age = timedelta(days=3650)
-            response.set_cookie(
-                'token',
-                set_user_token(user['id']),
-                max_age=cookie_age.total_seconds(),
-                expires=datetime.today() + cookie_age
-            )
-            return response
+            return redirect(url)
 
         if error:
             flash(error)
@@ -262,9 +254,13 @@ def set_user_token(user_id):
     return user_jwt
 
 def get_user_from_token(token):
+    if not token:
+        print(g.user)
+        return False
+
     try:
         user_id = jwt.decode(token, key=current_app.config['SECRET_KEY'], algorithms='HS256')['user_id']
-    except InvalidSignatureError:
+    except InvalidSignatureError or DecodeError:
         return False
     
     return user_id

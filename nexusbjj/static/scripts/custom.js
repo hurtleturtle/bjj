@@ -52,7 +52,7 @@ async function checkIn(class_id, child_id) {
 
             if (attendance) {
                 anchor_element.classList.add('checked-in')
-                class_name_text.textContent = class_data['class_name'] + "(Checked In)"
+                class_name_text.textContent = class_data['class_name'] + " (Checked In)"
             }
             else {
                 anchor_element.classList.remove('checked-in')

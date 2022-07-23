@@ -44,10 +44,9 @@ def get_remaining_classes():
 
 @bp.route('/check-in')
 def check_in():
-    token = request.cookies.get('token')
     class_id = request.args.get('class_id')
     child_id = request.args.get('child_id')
-    user_id = get_user_from_token(token)
+    user_id = g.user['id']
 
     if not user_id:
         msg = {'error': 'forbidden'}
@@ -55,7 +54,6 @@ def check_in():
     
     classes = get_todays_classes(user_id)
     classes = toggle_check_in(classes, class_id, user_id, child_id)
-    print(classes)
 
     return classes[['id', 'class_name', 'user_id', 'child_id', 'attendance']].to_json(orient='records')
 
